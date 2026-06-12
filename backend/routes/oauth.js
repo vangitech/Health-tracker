@@ -98,7 +98,7 @@ if (process.env.APPLE_CLIENT_ID) {
     teamID: 'dummy-team',
     keyID: 'dummy-key',
     privateKeyLocation: './dummy.p8',
-    callbackURL: 'http://localhost:5000/api/auth/apple/callback'
+    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5001'}/api/auth/apple/callback`
   }, (req, accessToken, refreshToken, idToken, profile, done) => {
     done(new Error('Apple OAuth not configured'));
   }));
@@ -131,7 +131,7 @@ if (process.env.YAHOO_CLIENT_ID) {
     userInfoURL: 'https://api.login.yahoo.com/openid/v1/userinfo',
     clientID: 'dummy-yahoo-id',
     clientSecret: 'dummy-yahoo-secret',
-    callbackURL: 'http://localhost:5000/api/auth/yahoo/callback',
+    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5001'}/api/auth/yahoo/callback`,
     scope: ['openid', 'email', 'profile']
   }, (issuer, sub, profile, accessToken, refreshToken, done) => {
     done(new Error('Yahoo OAuth not configured'));
