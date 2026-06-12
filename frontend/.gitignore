@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Capacitor native project build artifacts
+ios/App/Pods/
+ios/App/.build/
+android/.gradle/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
