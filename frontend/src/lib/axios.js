@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 // Set default API URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+const API_URL = import.meta.env.VITE_API_URL || 'https://health-tracker-14dn.onrender.com'
 axios.defaults.baseURL = API_URL
 
 // Log initial configuration
