@@ -42,9 +42,11 @@ axios.interceptors.response.use(
 
     // Handle different error types
     if (error.response?.status === 401) {
-      // Clear token on unauthorized
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Don't redirect on login requests — let the component handle it
+      if (!error.config?.url?.includes('/api/auth/login')) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+      }
     } else if (error.response?.status === 403) {
       console.error('🚫 Forbidden - Check CORS configuration or permissions')
     } else if (error.message === 'Network Error' || !error.response) {

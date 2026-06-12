@@ -15,7 +15,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://health-tracker-14dn.onrender.com',
+        target: 'http://localhost:5001',
         changeOrigin: true,
       }
     }
