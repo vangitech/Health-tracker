@@ -1,9 +1,16 @@
 // frontend/src/lib/axios.js
 import axios from 'axios'
+import { Capacitor } from '@capacitor/core'
+import { capacitorAdapter } from './capacitor-adapter'
 
 // Set default API URL
 const API_URL = import.meta.env.VITE_API_URL || 'https://health-tracker-14dn.onrender.com'
 axios.defaults.baseURL = API_URL
+
+// Use native HTTP adapter when running inside Capacitor to bypass CORS
+if (Capacitor.isNativePlatform()) {
+  axios.defaults.adapter = capacitorAdapter
+}
 
 // Log initial configuration
 console.log('🔧 Axios configured with API URL:', API_URL)
