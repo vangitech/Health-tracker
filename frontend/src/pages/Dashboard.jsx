@@ -2,15 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButtons, IonButton, IonIcon, IonRefresher, IonRefresherContent,
-  IonCard, IonCardContent, IonAvatar, IonLabel, IonNote,
-  IonGrid, IonRow, IonCol, IonBadge,
+  IonPage, IonHeader, IonToolbar, IonContent,
+  IonButton, IonIcon, IonRefresher, IonRefresherContent,
+  IonCard, IonCardContent, IonNote,
+  IonGrid, IonRow, IonCol, IonAvatar, IonChip, IonRippleEffect,
 } from '@ionic/react';
 import MonthlyTableView from '../components/MonthlyTableView';
+import { AppLogo } from '../components/AppLogo';
 import {
-  logOutOutline, pulseOutline, refreshOutline, personCircleOutline,
-  trendingUpOutline, checkmarkCircleOutline, alertCircleOutline
+  logOutOutline, pulseOutline, trendingUpOutline,
+  checkmarkCircleOutline, alertCircleOutline, personCircleOutline,
 } from 'ionicons/icons';
 
 export default function Dashboard() {
@@ -52,22 +53,53 @@ export default function Dashboard() {
     : user?.email;
 
   const getA1CColor = (a1c) => {
-    if (!a1c) return 'text-zinc-400';
+    if (!a1c) return 'text-zinc-500';
     if (a1c < 7) return 'text-emerald-400';
     if (a1c < 8) return 'text-amber-400';
     return 'text-rose-400';
   };
+
+  const StatCard = ({ title, value, unit, note, icon, iconColor, gradient, children }) => (
+    <IonCol size="6" sizeMd="3">
+      <IonCard className={`m-0 mb-3 native-statcard ${gradient || ''}`}>
+        <IonRippleEffect />
+        <IonCardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.15em]">
+              {title}
+            </span>
+            <div className={`size-8 rounded-xl ${iconColor} flex items-center justify-center`}>
+              <IonIcon icon={icon} className={`size-4 ${iconColor.replace('bg-', 'text-').replace('/20', '').replace('/15', '')}`} />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[28px] font-bold text-white tracking-tight leading-none">
+              {value ?? '—'}
+            </span>
+            {unit && <span className="text-[11px] font-semibold text-zinc-500">{unit}</span>}
+          </div>
+          <IonNote className="text-[11px] text-zinc-600 mt-2 block leading-snug">
+            {note}
+          </IonNote>
+          {children}
+        </IonCardContent>
+      </IonCard>
+    </IonCol>
+  );
 
   const StatsSkeleton = () => (
     <IonGrid className="ion-no-padding">
       <IonRow>
         {[1, 2, 3, 4].map((i) => (
           <IonCol size="6" sizeMd="3" key={i}>
-            <IonCard className="m-0 mb-3">
+            <IonCard className="m-0 mb-3 native-statcard">
               <IonCardContent className="p-4">
-                <div className="h-3 w-20 bg-zinc-800 rounded animate-pulse mb-3" />
-                <div className="h-7 w-24 bg-zinc-800 rounded animate-pulse mb-2" />
-                <div className="h-3 w-32 bg-zinc-800/50 rounded animate-pulse" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-3 w-16 bg-zinc-800 rounded-full animate-pulse" />
+                  <div className="size-8 rounded-xl bg-zinc-800 animate-pulse" />
+                </div>
+                <div className="h-8 w-20 bg-zinc-800 rounded-lg animate-pulse mb-2" />
+                <div className="h-3 w-28 bg-zinc-800/50 rounded-full animate-pulse" />
               </IonCardContent>
             </IonCard>
           </IonCol>
@@ -78,127 +110,98 @@ export default function Dashboard() {
 
   return (
     <IonPage>
-      <IonHeader translucent>
-        <IonToolbar>
-          <IonAvatar slot="start" className="size-9">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="" />
-            ) : (
-              <IonIcon icon={personCircleOutline} className="size-9 text-zinc-400" />
-            )}
-          </IonAvatar>
-          <IonTitle>
-            <div className="flex flex-col leading-tight py-1">
-              <span className="text-[15px] font-semibold">{displayName}</span>
-              <span className="text-[10px] font-normal text-zinc-500 uppercase tracking-wider">Member</span>
-            </div>
-          </IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={logout} className="ion-no-padding">
-              <IonIcon slot="icon-only" icon={logOutOutline} className="size-5" />
+      <IonHeader translucent className="ion-no-border">
+        <IonToolbar className="px-1">
+          <div slot="start" className="flex items-center">
+            <AppLogo />
+          </div>
+
+          <div slot="end" className="flex items-center gap-1">
+            <IonChip className="ion-no-padding native-profile-chip" outline={true}>
+              <IonAvatar className="native-avatar">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" />
+                ) : (
+                  <IonIcon icon={personCircleOutline} className="size-full text-zinc-400" />
+                )}
+              </IonAvatar>
+              <span className="text-[13px] font-semibold text-zinc-100 max-w-[90px] truncate">
+                {displayName}
+              </span>
+            </IonChip>
+            <IonButton onClick={logout} className="ion-no-padding native-logout-btn" title="Sign Out">
+              <IonIcon slot="icon-only" icon={logOutOutline} className="size-[18px]" />
             </IonButton>
-          </IonButtons>
+          </div>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent
-            refreshingText="Refreshing..."
-            className="[--ion-text-color:theme(colors.zinc.400)]"
+            refreshingSpinner="crescent"
+            refreshingText=""
+            pullText=""
+            className="refresher-custom"
           />
         </IonRefresher>
 
-        <div className="px-4 pt-4 pb-6">
-          {/* Stats Grid */}
+        <div className="px-4 pt-3 pb-6">
           {loading ? (
             <StatsSkeleton />
           ) : trends ? (
-            <IonGrid className="ion-no-padding">
-              <IonRow>
-                <IonCol size="6" sizeMd="3">
-                  <IonCard className="m-0 mb-3">
-                    <IonCardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <IonNote className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          Avg Glucose
-                        </IonNote>
-                        <IonIcon icon={pulseOutline} className="size-4 text-sky-400 shrink-0" />
-                      </div>
-                      <div className="text-2xl font-semibold text-white">
-                        {trends.averageGlucose ? `${trends.averageGlucose}` : '—'}
-                        {trends.averageGlucose && <span className="text-xs font-normal text-zinc-500 ml-1">mmol/L</span>}
-                      </div>
-                      <IonNote className="text-[11px] text-zinc-600 mt-1 block">
-                        Latest average
-                      </IonNote>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-
-                <IonCol size="6" sizeMd="3">
-                  <IonCard className="m-0 mb-3 bg-gradient-to-br from-violet-600/20 to-zinc-900/80">
-                    <IonCardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <IonNote className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          Est. A1C
-                        </IonNote>
-                        <IonIcon icon={trendingUpOutline} className="size-4 text-violet-400 shrink-0" />
-                      </div>
-                      <div className={`text-2xl font-semibold ${getA1CColor(trends.estimatedA1C)}`}>
-                        {trends.estimatedA1C ? `${trends.estimatedA1C}%` : '—'}
-                      </div>
-                      <IonNote className="text-[11px] text-zinc-600 mt-1 block">
-                        Long-term control
-                      </IonNote>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-
-                <IonCol size="6" sizeMd="3">
-                  <IonCard className="m-0 mb-3">
-                    <IonCardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <IonNote className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          In Range
-                        </IonNote>
-                        <IonIcon icon={checkmarkCircleOutline} className="size-4 text-emerald-400 shrink-0" />
-                      </div>
-                      <div className="text-2xl font-semibold text-emerald-400">
-                        {trends.inRangeCount ?? 0}
-                      </div>
-                      <IonNote className="text-[11px] text-zinc-500 mt-1 block">
-                        of {trends.totalEntries ?? 0} readings
-                      </IonNote>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-
-                <IonCol size="6" sizeMd="3">
-                  <IonCard className="m-0 mb-3">
-                    <IonCardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <IonNote className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                          High / Low
-                        </IonNote>
-                        <IonIcon icon={alertCircleOutline} className="size-4 text-amber-400 shrink-0" />
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <IonBadge color="danger">{trends.highCount ?? 0} High</IonBadge>
-                        <IonBadge color="warning">{trends.borderlineCount ?? 0} Border</IonBadge>
-                        <IonBadge color="medium">{trends.lowCount ?? 0} Low</IonBadge>
-                      </div>
-                      <IonNote className="text-[11px] text-zinc-600 mt-2 block">
-                        Risk distribution
-                      </IonNote>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
+            <>
+              <IonGrid className="ion-no-padding">
+                <IonRow>
+                  <StatCard
+                    title="Avg Glucose"
+                    value={trends.averageGlucose}
+                    unit="mmol/L"
+                    note="Latest glucose average"
+                    icon={pulseOutline}
+                    iconColor="bg-sky-500/15"
+                  />
+                  <StatCard
+                    title="Est. A1C"
+                    value={trends.estimatedA1C ? `${trends.estimatedA1C}%` : null}
+                    note="Estimated 3-month control"
+                    icon={trendingUpOutline}
+                    iconColor="bg-violet-500/15"
+                    gradient="card-a1c"
+                  />
+                  <StatCard
+                    title="In Range"
+                    value={trends.inRangeCount ?? 0}
+                    note={`of ${trends.totalEntries ?? 0} total readings`}
+                    icon={checkmarkCircleOutline}
+                    iconColor="bg-emerald-500/15"
+                  />
+                  <StatCard
+                    title="Readings"
+                    note="High / Borderline / Low"
+                    icon={alertCircleOutline}
+                    iconColor="bg-amber-500/15"
+                  >
+                    <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 text-[10px] font-semibold">
+                        <span className="size-1.5 rounded-full bg-rose-400" />
+                        {trends.highCount ?? 0}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-semibold">
+                        <span className="size-1.5 rounded-full bg-amber-400" />
+                        {trends.borderlineCount ?? 0}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 text-[10px] font-semibold">
+                        <span className="size-1.5 rounded-full bg-cyan-400" />
+                        {trends.lowCount ?? 0}
+                      </span>
+                    </div>
+                  </StatCard>
+                </IonRow>
+              </IonGrid>
+            </>
           ) : null}
 
-          {/* Monthly Table View */}
           <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
         </div>
       </IonContent>

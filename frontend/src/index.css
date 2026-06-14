@@ -354,6 +354,119 @@ ion-refresher {
   --color: rgba(255, 255, 255, 0.3);
 }
 
+.refresher-custom ion-refresher-content {
+  --color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Native Profile Chip ── */
+.native-profile-chip {
+  --background: rgba(255, 255, 255, 0.04) !important;
+  --color: #ffffff !important;
+  --border-color: rgba(255, 255, 255, 0.08) !important;
+  height: 34px;
+  border-radius: 20px;
+  padding-left: 2px;
+  padding-right: 10px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.native-profile-chip:active {
+  opacity: 0.7;
+}
+
+.native-avatar {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  margin: 0;
+  --border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Native Stat Card ── */
+.native-statcard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px !important;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  margin: 0 0 12px 0 !important;
+}
+
+.native-statcard:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* ── Platform-specific toolbars ── */
+ion-toolbar {
+  --min-height: 52px;
+  --padding-start: 12px;
+  --padding-end: 8px;
+}
+
+/* iOS native title alignment */
+.md ion-toolbar {
+  --padding-start: 12px;
+  --padding-end: 8px;
+}
+
+.ios ion-toolbar {
+  --padding-start: 8px;
+  --padding-end: 4px;
+}
+
+/* ── Toolbar native refinements ── */
+ion-header.header-translucent {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+ion-toolbar {
+  --border-width: 0 0 0.5px 0;
+  --border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Native logout button ── */
+.native-logout-btn {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --color: rgba(255, 255, 255, 0.35);
+  height: 34px;
+  width: 34px;
+  margin: 0;
+}
+
+.native-logout-btn::part(native) {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.native-logout-btn:active::part(native),
+.native-logout-btn:hover::part(native) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── A1C card gradient ── */
+.card-a1c {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(24, 24, 27, 0.9)) !important;
+}
+
+/* ── Remove default ion-card active state (handled by native-statcard) ── */
+ion-card:active {
+  transform: none;
+  opacity: 1;
+}
+
+/* ── Table cell button hover ── */
+button:active {
+  transform: scale(0.97);
+}
+
 /* ── Responsive table improvements ── */
 @media (max-width: 480px) {
   table {
