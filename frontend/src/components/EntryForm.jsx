@@ -28,22 +28,24 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  const validateGlucose = () => {
+  const getGlucoseWarning = () => {
     const val = parseFloat(formData.glucoseValue);
-    if (isNaN(val)) return 'Glucose value is required';
+    if (isNaN(val)) return null;
     if (formData.mealType === 'fbs') {
-      if (val < 3.9 || val > 6.1) return 'Fasting glucose must be between 3.9 and 6.1 mmol/L';
+      if (val < 3.9) return 'Below fasting target range (3.9–6.1 mmol/L)';
+      if (val > 6.1) return 'Above fasting target range (3.9–6.1 mmol/L)';
     } else {
-      if (val < 3.9 || val > 10.0) return 'Post-meal glucose must be between 3.9 and 10.0 mmol/L';
+      if (val < 3.9) return 'Below post-meal target range (3.9–10.0 mmol/L)';
+      if (val > 10.0) return 'Above post-meal target range (3.9–10.0 mmol/L)';
     }
     return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationError = validateGlucose();
-    if (validationError) {
-      setError(validationError);
+    const val = parseFloat(formData.glucoseValue);
+    if (isNaN(val)) {
+      setError('Glucose value is required');
       return;
     }
     setLoading(true);
@@ -70,11 +72,18 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
     }
   };
 
+  const glucoseWarning = getGlucoseWarning();
+
   return (
     <form onSubmit={handleSubmit} className="space-y-1">
       {error && (
         <div className="bg-red-900/30 border border-red-800/30 text-red-400 p-3 rounded-xl text-sm mb-4">
           {error}
+        </div>
+      )}
+      {glucoseWarning && !error && (
+        <div className="bg-amber-900/20 border border-amber-700/30 text-amber-300 p-3 rounded-xl text-sm mb-4">
+          {glucoseWarning} — saving anyway
         </div>
       )}
 
