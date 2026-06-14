@@ -1,135 +1,380 @@
-/* frontend/src/index.css */
-
 @import "tailwindcss";
-
 @import "tw-animate-css";
-
-@import "shadcn/tailwind.css";
-
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
-}
-
+/* ── Ionic Dark Theme Overrides ── */
 :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  --ion-background-color: #000000;
+  --ion-background-color-rgb: 0, 0, 0;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+  --ion-border-color: rgba(255, 255, 255, 0.08);
+  --ion-color-primary: #ffffff;
+  --ion-color-primary-rgb: 255, 255, 255;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-secondary: #38bdf8;
+  --ion-color-secondary-rgb: 56, 189, 248;
+  --ion-color-tertiary: #a78bfa;
+  --ion-color-tertiary-rgb: 167, 139, 250;
+  --ion-color-success: #34d399;
+  --ion-color-success-rgb: 52, 211, 153;
+  --ion-color-warning: #fbbf24;
+  --ion-color-warning-rgb: 251, 191, 36;
+  --ion-color-danger: #f87171;
+  --ion-color-danger-rgb: 248, 113, 113;
+  --ion-color-medium: #6b7280;
+  --ion-color-medium-rgb: 107, 114, 128;
+  --ion-color-light: #f3f4f6;
+  --ion-color-light-rgb: 243, 244, 246;
+  --ion-color-dark: #111111;
+  --ion-color-dark-rgb: 17, 17, 17;
+  --ion-toolbar-background: rgba(9, 9, 11, 0.9);
+  --ion-toolbar-border-color: rgba(255, 255, 255, 0.06);
+  --ion-toolbar-color: #ffffff;
+  --ion-item-background: transparent;
+  --ion-card-background: rgba(24, 24, 27, 0.8);
+  --ion-card-border-color: rgba(255, 255, 255, 0.06);
+  --ion-tab-bar-background: rgba(9, 9, 11, 0.95);
+  --ion-tab-bar-border-color: rgba(255, 255, 255, 0.06);
+  --ion-searchbar-background: rgba(39, 39, 42, 0.5);
+  --ion-searchbar-input-background: rgba(39, 39, 42, 0.5);
+  --ion-placeholder-color: rgba(255, 255, 255, 0.3);
+  --ion-font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+/* ── Ionic Overrides ── */
+ion-page {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans;
-    }
+ion-content {
+  --background: #000000;
+}
+
+ion-toolbar {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 56px;
+}
+
+ion-card {
+  border-radius: 20px;
+  margin: 12px 16px;
+  box-shadow: none;
+}
+
+ion-card-header {
+  padding: 20px 20px 0;
+}
+
+ion-card-content {
+  padding: 12px 20px 20px;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-style: solid;
+  --border-width: 0 0 1px 0;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --highlight-height: 0;
+  --min-height: 52px;
+  font-size: 14px;
+}
+
+ion-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  font-size: 15px;
+  --color: #ffffff;
+  --placeholder-color: rgba(255, 255, 255, 0.3);
+  --placeholder-font-weight: 400;
+}
+
+ion-button {
+  --border-radius: 12px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  height: 48px;
+  margin: 0;
+}
+
+ion-button.button-solid {
+  --background: #ffffff;
+  --color: #000000;
+  --background-hover: #f0f0f0;
+  --background-activated: #e0e0e0;
+}
+
+ion-button.button-outline {
+  --border-color: rgba(255, 255, 255, 0.15);
+  --color: #ffffff;
+  --background-hover: rgba(255, 255, 255, 0.05);
+}
+
+ion-button.button-clear {
+  --color: rgba(255, 255, 255, 0.6);
+}
+
+ion-avatar {
+  --border-radius: 50%;
+}
+
+ion-badge {
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* ── Custom scrollbar styling ── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Utility classes ── */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ── Custom Input Styles for Glass Cards (Login/Register/Verify) ── */
+.custom-input {
+  --background: rgba(39, 39, 42, 0.3) !important;
+  --border-radius: 12px !important;
+  --padding-start: 40px !important;
+  --padding-end: 16px !important;
+  --padding-top: 14px !important;
+  --padding-bottom: 14px !important;
+  --border-color: rgba(255, 255, 255, 0.06) !important;
+  --border-width: 1px !important;
+  --border-style: solid !important;
+  --box-shadow: none !important;
+  --color: #ffffff !important;
+  --placeholder-color: rgba(255, 255, 255, 0.25) !important;
+  --highlight-height: 0 !important;
+  font-size: 14px !important;
+  min-height: 48px !important;
+  --min-height: 48px !important;
+}
+
+.custom-input.input-has-focus {
+  --border-color: rgba(255, 255, 255, 0.2) !important;
+  --background: rgba(39, 39, 42, 0.5) !important;
+}
+
+.custom-input .input-wrapper {
+  padding: 0 !important;
+}
+
+.custom-input input,
+.custom-input .native-input {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* ── Verify Input ── */
+.verify-input {
+  --background: rgba(39, 39, 42, 0.3) !important;
+  --border-radius: 12px !important;
+  --padding-start: 16px !important;
+  --padding-end: 16px !important;
+  --padding-top: 16px !important;
+  --padding-bottom: 16px !important;
+  --border-color: rgba(255, 255, 255, 0.06) !important;
+  --border-width: 1px !important;
+  --border-style: solid !important;
+  --box-shadow: none !important;
+  --highlight-height: 0 !important;
+  --color: #ffffff !important;
+  min-height: 56px !important;
+  --min-height: 56px !important;
+}
+
+.verify-input input,
+.verify-input .native-input {
+  text-align: center !important;
+  font-size: 28px !important;
+  letter-spacing: 0.5em !important;
+  font-weight: 600 !important;
+}
+
+.verify-input.input-has-focus {
+  --border-color: rgba(255, 255, 255, 0.2) !important;
+  --background: rgba(39, 39, 42, 0.5) !important;
+}
+
+/* ── Entry Form Items ── */
+.custom-form-item {
+  --background: rgba(39, 39, 42, 0.3) !important;
+  --border-radius: 12px !important;
+  --padding-start: 14px !important;
+  --padding-end: 14px !important;
+  --padding-top: 6px !important;
+  --padding-bottom: 6px !important;
+  --border-color: rgba(255, 255, 255, 0.06) !important;
+  --border-width: 1px !important;
+  --border-style: solid !important;
+  --inner-padding-end: 0 !important;
+  --highlight-height: 0 !important;
+  --background-hover: transparent !important;
+  --background-focused: rgba(39, 39, 42, 0.5) !important;
+  --min-height: 56px !important;
+  margin-bottom: 8px !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.custom-form-item ion-label {
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+  letter-spacing: 0.02em;
+}
+
+.custom-form-item ion-input,
+.custom-form-item ion-textarea {
+  --color: #ffffff !important;
+  --placeholder-color: rgba(255, 255, 255, 0.25) !important;
+  font-size: 14px !important;
+}
+
+.custom-form-item ion-select {
+  --color: #ffffff !important;
+  font-size: 14px !important;
+  --placeholder-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.custom-form-item .select-text {
+  color: #ffffff !important;
+}
+
+/* ── Modal Overrides ── */
+.entry-modal {
+  --border-radius: 20px 20px 0 0 !important;
+  --backdrop-opacity: 0.6 !important;
+}
+
+.entry-modal ion-header ion-toolbar {
+  --background: rgba(9, 9, 11, 0.98) !important;
+  --border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ── Select Popover ── */
+ion-select-popover {
+  --background: #18181b;
+  --backdrop-opacity: 0.5;
+}
+
+ion-select-popover ion-list {
+  background: #18181b;
+}
+
+ion-select-popover ion-item {
+  --background: transparent;
+  --color: #ffffff;
+}
+
+ion-select-popover ion-item.selected {
+  --background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+/* ── Action Sheet (for meal type picker) ── */
+ion-action-sheet {
+  --background: #18181b;
+  --backdrop-opacity: 0.5;
+  --button-color: #ffffff;
+  --button-color-hover: rgba(255, 255, 255, 0.8);
+  --button-color-selected: #ffffff;
+  --button-background-hover: rgba(255, 255, 255, 0.05);
+  --button-background-selected: rgba(255, 255, 255, 0.08);
+}
+
+ion-action-sheet .action-sheet-group {
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+
+ion-action-sheet .action-sheet-title {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+ion-action-sheet .action-sheet-cancel {
+  background: #18181b !important;
+  font-weight: 600;
+}
+
+/* ── Toast ── */
+ion-toast {
+  --background: #27272a;
+  --color: #ffffff;
+  --border-radius: 14px;
+  font-size: 13px;
+  --box-shadow: none;
+}
+
+/* ── Refresher ── */
+ion-refresher {
+  --color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Responsive table improvements ── */
+@media (max-width: 480px) {
+  table {
+    font-size: 12px;
+  }
+  table th,
+  table td {
+    padding: 6px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .entry-modal {
+    --width: 480px;
+    --height: auto;
+    --border-radius: 20px !important;
+  }
+}
+
+/* ── Existing theme tokens ── */
+@theme inline {
+  --font-sans: 'Geist Variable', sans-serif;
+  --radius: 0.625rem;
 }
