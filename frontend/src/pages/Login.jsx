@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { IonPage, IonContent, IonInput, IonButton, IonIcon, IonItem, IonLabel } from '@ionic/react'
@@ -68,6 +68,14 @@ export default function Login() {
   const emailRef = useRef(null)
   const passwordRef = useRef(null)
 
+  const starPositions = useMemo(() =>
+    Array.from({ length: 20 }, () => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+    })),
+  [])
+
   useEffect(() => {
     setMounted(true)
     const errorParam = searchParams.get('error')
@@ -110,22 +118,22 @@ export default function Login() {
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
-            {[...Array(20)].map((_, i) => (
+            {starPositions.map((pos, i) => (
               <motion.div
                 key={i}
                 className="absolute size-1 bg-white/10 rounded-full"
                 style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
+                  left: `${pos.left}%`,
+                  top: `${pos.top}%`,
                 }}
                 animate={{
                   opacity: [0.2, 0.6, 0.2],
                   scale: [1, 1.5, 1],
                 }}
                 transition={{
-                  duration: 3 + Math.random() * 4,
+                  duration: 3 + pos.delay * 2,
                   repeat: Infinity,
-                  delay: Math.random() * 3,
+                  delay: pos.delay,
                 }}
               />
             ))}

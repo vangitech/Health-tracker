@@ -2,6 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { IonApp } from '@ionic/react'
+import { StatusBar, Style } from '@capacitor/status-bar'
+import { SplashScreen } from '@capacitor/splash-screen'
+import { Capacitor } from '@capacitor/core'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css'
@@ -22,6 +25,13 @@ import '@ionic/react/css/display.css'
 import './lib/axios'
 import App from './App'
 import './index.css'
+
+// Native platform initialization
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setStyle({ style: Style.Light })
+  StatusBar.setBackgroundColor({ color: '#000000' })
+  SplashScreen.hide()
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
