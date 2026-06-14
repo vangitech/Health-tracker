@@ -2,16 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
 import {
-  IonPage, IonHeader, IonToolbar, IonContent,
-  IonButton, IonIcon, IonRefresher, IonRefresherContent,
-  IonCard, IonCardContent, IonNote,
-  IonGrid, IonRow, IonCol, IonAvatar, IonChip, IonRippleEffect,
+  IonButton, IonIcon, IonCard, IonCardContent, IonNote,
+  IonGrid, IonRow, IonCol, IonRippleEffect,
 } from '@ionic/react';
 import MonthlyTableView from '../components/MonthlyTableView';
-import { AppLogo } from '../components/AppLogo';
+import DashboardLayout from '../components/DashboardLayout';
+import NativeHeader from '../components/NativeHeader';
 import {
-  logOutOutline, pulseOutline, trendingUpOutline,
-  checkmarkCircleOutline, alertCircleOutline, personCircleOutline,
+  pulseOutline, trendingUpOutline,
+  checkmarkCircleOutline, alertCircleOutline,
 } from 'ionicons/icons';
 
 export default function Dashboard() {
@@ -109,102 +108,74 @@ export default function Dashboard() {
   );
 
   return (
-    <IonPage>
-      <IonHeader translucent className="ion-no-border">
-        <IonToolbar className="px-1">
-          <div slot="start" className="flex items-center">
-            <AppLogo />
-          </div>
+    <DashboardLayout
+      header={
+        <NativeHeader
+          user={user}
+          displayName={displayName}
+          onLogout={logout}
+        />
+      }
+      onRefresh={handleRefresh}
+    >
+      <div className="px-4 pt-3 pb-6 web-dashboard-content">
+        {loading ? (
+          <StatsSkeleton />
+        ) : trends ? (
+          <>
+            <IonGrid className="ion-no-padding">
+              <IonRow>
+                <StatCard
+                  title="Avg Glucose"
+                  value={trends.averageGlucose}
+                  unit="mmol/L"
+                  note="Latest glucose average"
+                  icon={pulseOutline}
+                  iconColor="bg-sky-500/15"
+                />
+                <StatCard
+                  title="Est. A1C"
+                  value={trends.estimatedA1C ? `${trends.estimatedA1C}%` : null}
+                  note="Estimated 3-month control"
+                  icon={trendingUpOutline}
+                  iconColor="bg-violet-500/15"
+                  gradient="card-a1c"
+                />
+                <StatCard
+                  title="In Range"
+                  value={trends.inRangeCount ?? 0}
+                  note={`of ${trends.totalEntries ?? 0} total readings`}
+                  icon={checkmarkCircleOutline}
+                  iconColor="bg-emerald-500/15"
+                />
+                <StatCard
+                  title="Readings"
+                  note="High / Borderline / Low"
+                  icon={alertCircleOutline}
+                  iconColor="bg-amber-500/15"
+                >
+                  <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 text-[10px] font-semibold">
+                      <span className="size-1.5 rounded-full bg-rose-400" />
+                      {trends.highCount ?? 0}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-semibold">
+                      <span className="size-1.5 rounded-full bg-amber-400" />
+                      {trends.borderlineCount ?? 0}
+                    </span> 
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 text-[10px] font-semibold">
+                      <span className="size-1.5 rounded-full bg-cyan-400" />
+                      {trends.lowCount ?? 0}
+                    </span>
+                  </div>
+                </StatCard>
+              </IonRow>
+            </IonGrid>
+          </>
+        ) : null}
 
-          <div slot="end" className="flex items-center gap-1">
-            <IonChip className="ion-no-padding native-profile-chip" outline={true}>
-              <IonAvatar className="native-avatar">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" />
-                ) : (
-                  <IonIcon icon={personCircleOutline} className="size-full text-zinc-400" />
-                )}
-              </IonAvatar>
-              <span className="text-[13px] font-semibold text-zinc-100 max-w-[90px] truncate">
-                {displayName}
-              </span>
-            </IonChip>
-            <IonButton onClick={logout} className="ion-no-padding native-logout-btn" title="Sign Out">
-              <IonIcon slot="icon-only" icon={logOutOutline} className="size-[18px]" />
-            </IonButton>
-          </div>
-        </IonToolbar>
-      </IonHeader>
-
-      <IonContent fullscreen>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent
-            refreshingSpinner="crescent"
-            refreshingText=""
-            pullText=""
-            className="refresher-custom"
-          />
-        </IonRefresher>
-
-        <div className="px-4 pt-3 pb-6">
-          {loading ? (
-            <StatsSkeleton />
-          ) : trends ? (
-            <>
-              <IonGrid className="ion-no-padding">
-                <IonRow>
-                  <StatCard
-                    title="Avg Glucose"
-                    value={trends.averageGlucose}
-                    unit="mmol/L"
-                    note="Latest glucose average"
-                    icon={pulseOutline}
-                    iconColor="bg-sky-500/15"
-                  />
-                  <StatCard
-                    title="Est. A1C"
-                    value={trends.estimatedA1C ? `${trends.estimatedA1C}%` : null}
-                    note="Estimated 3-month control"
-                    icon={trendingUpOutline}
-                    iconColor="bg-violet-500/15"
-                    gradient="card-a1c"
-                  />
-                  <StatCard
-                    title="In Range"
-                    value={trends.inRangeCount ?? 0}
-                    note={`of ${trends.totalEntries ?? 0} total readings`}
-                    icon={checkmarkCircleOutline}
-                    iconColor="bg-emerald-500/15"
-                  />
-                  <StatCard
-                    title="Readings"
-                    note="High / Borderline / Low"
-                    icon={alertCircleOutline}
-                    iconColor="bg-amber-500/15"
-                  >
-                    <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 text-[10px] font-semibold">
-                        <span className="size-1.5 rounded-full bg-rose-400" />
-                        {trends.highCount ?? 0}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-semibold">
-                        <span className="size-1.5 rounded-full bg-amber-400" />
-                        {trends.borderlineCount ?? 0}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 text-[10px] font-semibold">
-                        <span className="size-1.5 rounded-full bg-cyan-400" />
-                        {trends.lowCount ?? 0}
-                      </span>
-                    </div>
-                  </StatCard>
-                </IonRow>
-              </IonGrid>
-            </>
-          ) : null}
-
-          <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
-        </div>
-      </IonContent>
-    </IonPage>
+        <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
+      </div>
+    </DashboardLayout>
   );
 }

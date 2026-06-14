@@ -486,6 +486,133 @@ button:active {
   }
 }
 
+/* ── Native Header Platform Styles ── */
+.header-ios {
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  background: rgba(9, 9, 11, 0.85) !important;
+}
+
+.header-android {
+  background: rgba(9, 9, 11, 0.98) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.toolbar-ios {
+  --min-height: 52px;
+  --padding-start: 12px;
+  --padding-end: 8px;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.toolbar-md {
+  --min-height: 56px;
+  --padding-start: 16px;
+  --padding-end: 12px;
+}
+
+.ios-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.md-title {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ── Native Navigation Button ── */
+.native-nav-btn {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --color: rgba(255, 255, 255, 0.6);
+  height: 36px;
+  width: 36px;
+  margin: 0;
+}
+
+.native-nav-btn::part(native) {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.native-nav-btn:active::part(native),
+.native-nav-btn:hover::part(native) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Web Dashboard Content ── */
+.web-dashboard-content {
+  min-height: calc(100vh - 52px - 60px);
+}
+
+.auth-page {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Web Responsive Auth Layout ── */
+@media (min-width: 640px) {
+  .auth-page ion-content {
+    --background: #000000;
+  }
+}
+
+@media (min-width: 768px) {
+  .web-dashboard-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding-top: 20px !important;
+  }
+
+  .native-statcard {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .native-statcard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .web-dashboard-content {
+    max-width: 1100px;
+  }
+}
+
+/* ── Footer Responsive ── */
+@media (max-width: 640px) {
+  footer .grid {
+    gap: 24px;
+  }
+
+  footer .grid > div:first-child {
+    text-align: center;
+  }
+
+  footer .grid > div:first-child p {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  footer .grid {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+
+  footer .grid > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 /* ── Existing theme tokens ── */
 @theme inline {
   --font-sans: 'Geist Variable', sans-serif;

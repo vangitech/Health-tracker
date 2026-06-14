@@ -2,8 +2,12 @@ import { useState, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from '../lib/axios'
 import { IonPage, IonContent, IonInput, IonButton, IonIcon } from '@ionic/react'
+import { Capacitor } from '@capacitor/core'
 import { motion } from 'framer-motion'
+import Footer from '../components/Footer'
 import { sparkles, personOutline, mailOutline, callOutline, calendarOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons'
+
+const isNative = Capacitor.isNativePlatform()
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -190,6 +194,7 @@ export default function Register() {
             </motion.div>
           </motion.div>
         </div>
+        {!isNative && <Footer />}
       </IonContent>
     </IonPage>
   )
