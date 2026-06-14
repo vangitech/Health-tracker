@@ -233,8 +233,6 @@ router.post(
 );
 
 
-export default router;
-
 // Get current authenticated user's profile
 router.get('/me', authenticateToken, async (req, res) => {
   try {
@@ -246,3 +244,5 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+export default router;
