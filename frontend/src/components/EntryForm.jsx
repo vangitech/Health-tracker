@@ -13,7 +13,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   const [formData, setFormData] = useState({
     date: entryToEdit?.date?.split('T')[0] || (presetDate ? format(presetDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')),
     time: entryToEdit?.time || getCurrentTime(),
-    glucoseValue: entryToEdit?.glucoseValue || '',
+    glucoseValue: entryToEdit?.glucoseValue !== undefined ? Number(entryToEdit.glucoseValue).toFixed(1) : '',
     mealType: entryToEdit?.mealType || presetMealType || 'breakfast',
     foodEaten: entryToEdit?.foodEaten || '',
     carbs: entryToEdit?.carbs !== undefined ? entryToEdit.carbs : '',
