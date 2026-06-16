@@ -4,7 +4,7 @@ import axios from '../lib/axios'
 import { IonPage, IonContent, IonInput, IonButton, IonIcon } from '@ionic/react'
 import { Capacitor } from '@capacitor/core'
 import { motion } from 'framer-motion'
-import WebFooter from '../components/WebFooter'
+import Footer from '../components/Footer'
 import { sparkles, personOutline, mailOutline, callOutline, calendarOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons'
 
 const isNative = Capacitor.isNativePlatform()
@@ -81,7 +81,7 @@ export default function Register() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grow flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
+            className="flex flex-col justify-end sm:justify-center items-center min-h-full p-0 sm:p-4 relative z-10"
           >
             <motion.div
               variants={containerVariants}
@@ -193,8 +193,8 @@ export default function Register() {
               </motion.div>
             </motion.div>
           </motion.div>
-          {!isNative && <WebFooter />}
         </div>
+        {!isNative && <Footer />}
       </IonContent>
     </IonPage>
   )

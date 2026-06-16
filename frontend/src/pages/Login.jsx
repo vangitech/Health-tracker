@@ -55,7 +55,7 @@ function GitHubIcon() {
   )
 }
 
-import WebFooter from '../components/WebFooter';
+import Footer from '../components/Footer';
 import { Capacitor } from '@capacitor/core';
 
 const isNative = Capacitor.isNativePlatform();
@@ -116,7 +116,7 @@ export default function Login() {
 
   return (
     <IonPage>
-      <IonContent scrollY={true} className="ion-no-padding">
+      <IonContent scrollY={false} className="ion-no-padding">
         <div className="relative min-h-full flex flex-col bg-black select-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
 
@@ -147,7 +147,7 @@ export default function Login() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={mounted ? { opacity: 1 } : {}}
-            className="grow flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
+            className="flex-1 flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
           >
             <motion.div
               variants={containerVariants}
@@ -263,8 +263,8 @@ export default function Login() {
               </motion.div>
             </motion.div>
           </motion.div>
-          {!isNative && <WebFooter />}
         </div>
+        {!isNative && <Footer />}
       </IonContent>
     </IonPage>
   )
