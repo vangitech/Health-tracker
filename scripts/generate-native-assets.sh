@@ -59,62 +59,60 @@ sips -z 320 240 "$SRC/splash-dark.png" --out "$ANDROID/drawable-night/splash.png
 echo "  drawable (320x240) ✓"
 echo "  drawable-night (320x240) ✓"
 
-# Portrait variants
-PORT_SIZES=(
-  "port-ldpi:240:320"
-  "port-mdpi:320:480"
-  "port-hdpi:480:800"
-  "port-xhdpi:720:1280"
-  "port-xxhdpi:960:1600"
-  "port-xxxhdpi:1280:1920"
+# Portrait variants (light + night)
+# Android qualifier order: orientation → night → density
+# e.g. drawable-port-ldpi/, drawable-port-night-ldpi/
+PORT_ENTRIES=(
+  "ldpi:240:320"
+  "mdpi:320:480"
+  "hdpi:480:800"
+  "xhdpi:720:1280"
+  "xxhdpi:960:1600"
+  "xxxhdpi:1280:1920"
 )
 
-for entry in "${PORT_SIZES[@]}"; do
-  qualifier="${entry%%:*}"
+for entry in "${PORT_ENTRIES[@]}"; do
+  density="${entry%%:*}"
   remaining="${entry#*:}"
   w="${remaining%%:*}"
   h="${remaining##*:}"
 
   # light
-  tdir="$ANDROID/drawable-$qualifier"
-  mkdir -p "$tdir"
+  tdir="$ANDROID/drawable-port-$density"
   sips -z "$h" "$w" "$SRC/splash.png" --out "$tdir/splash.png" &>/dev/null
 
-  # dark
-  tdir="$ANDROID/drawable-$qualifier-night"
-  mkdir -p "$tdir"
+  # night (orientation → night → density)
+  tdir="$ANDROID/drawable-port-night-$density"
   sips -z "$h" "$w" "$SRC/splash-dark.png" --out "$tdir/splash.png" &>/dev/null
 
-  echo "  drawable-$qualifier (${w}x${h}) ✓"
+  echo "  drawable-port-$density (${w}x${h}) ✓"
 done
 
-# Landscape variants
-LAND_SIZES=(
-  "land-ldpi:320:240"
-  "land-mdpi:480:320"
-  "land-hdpi:800:480"
-  "land-xhdpi:1280:720"
-  "land-xxhdpi:1600:960"
-  "land-xxxhdpi:1920:1280"
+# Landscape variants (light + night)
+LAND_ENTRIES=(
+  "ldpi:320:240"
+  "mdpi:480:320"
+  "hdpi:800:480"
+  "xhdpi:1280:720"
+  "xxhdpi:1600:960"
+  "xxxhdpi:1920:1280"
 )
 
-for entry in "${LAND_SIZES[@]}"; do
-  qualifier="${entry%%:*}"
+for entry in "${LAND_ENTRIES[@]}"; do
+  density="${entry%%:*}"
   remaining="${entry#*:}"
   w="${remaining%%:*}"
   h="${remaining##*:}"
 
   # light
-  tdir="$ANDROID/drawable-$qualifier"
-  mkdir -p "$tdir"
+  tdir="$ANDROID/drawable-land-$density"
   sips -z "$h" "$w" "$SRC/splash.png" --out "$tdir/splash.png" &>/dev/null
 
-  # dark
-  tdir="$ANDROID/drawable-$qualifier-night"
-  mkdir -p "$tdir"
+  # night (orientation → night → density)
+  tdir="$ANDROID/drawable-land-night-$density"
   sips -z "$h" "$w" "$SRC/splash-dark.png" --out "$tdir/splash.png" &>/dev/null
 
-  echo "  drawable-$qualifier (${w}x${h}) ✓"
+  echo "  drawable-land-$density (${w}x${h}) ✓"
 done
 
 # ── iOS App Icon ─────────────────────────────────────────────────────────
