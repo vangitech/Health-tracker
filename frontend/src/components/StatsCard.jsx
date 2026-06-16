@@ -94,7 +94,7 @@ export default function StatsCard({ trends }) {
         </div>
 
         {/* Legend with counts and percentages */}
-        <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+        <div className="mt-4 flex flex-col gap-1.5 text-xs">
           <div className="flex items-center gap-2">
             <span className="inline-block size-2.5 rounded-full bg-rose-500 shrink-0" />
             <span className="text-slate-400">High (&gt;10.0)</span>
@@ -109,7 +109,7 @@ export default function StatsCard({ trends }) {
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block size-2.5 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-slate-400">In Range (4.0–7.0)</span>
+            <span className="text-slate-400">In Range (3.9–6.1)</span>
             <span className="ml-auto font-medium text-emerald-300">{inRangeCount ?? 0}</span>
             <span className="text-slate-500">({pct(inRangeCount)}%)</span>
           </div>
