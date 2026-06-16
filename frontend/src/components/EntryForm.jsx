@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import axios from '../lib/axios';
-import {
-  IonInput, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption,
-  IonTextarea, IonNote, IonIcon,
-} from '@ionic/react';
+import { motion } from 'framer-motion';
 
 export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate, presetMealType }) {
   const getCurrentTime = () => {
@@ -24,28 +21,27 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (key, value) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const getGlucoseWarning = () => {
+  const validateGlucose = () => {
     const val = parseFloat(formData.glucoseValue);
-    if (isNaN(val)) return null;
+    if (isNaN(val)) return 'Glucose value is required';
     if (formData.mealType === 'fbs') {
-      if (val < 3.9) return 'Below fasting target range (3.9–6.1 mmol/L)';
-      if (val > 6.1) return 'Above fasting target range (3.9–6.1 mmol/L)';
+      if (val < 3.9 || val > 6.1) return 'Fasting glucose must be between 3.9 and 6.1 mmol/L';
     } else {
-      if (val < 3.9) return 'Below post-meal target range (3.9–10.0 mmol/L)';
-      if (val > 10.0) return 'Above post-meal target range (3.9–10.0 mmol/L)';
+      if (val < 3.9 || val > 10.0) return 'Post-meal glucose must be between 3.9 and 10.0 mmol/L';
     }
     return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const val = parseFloat(formData.glucoseValue);
-    if (isNaN(val)) {
-      setError('Glucose value is required');
+    const validationError = validateGlucose();
+    if (validationError) {
+      setError(validationError);
       return;
     }
     setLoading(true);
@@ -72,145 +68,144 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
     }
   };
 
-  const glucoseWarning = getGlucoseWarning();
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-1">
+    <motion.form
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      onSubmit={handleSubmit}
+      className="space-y-4"
+    >
       {error && (
-        <div className="bg-red-900/30 border border-red-800/30 text-red-400 p-3 rounded-xl text-sm mb-4">
-          {error}
-        </div>
-      )}
-      {glucoseWarning && !error && (
-        <div className="bg-amber-900/20 border border-amber-700/30 text-amber-300 p-3 rounded-xl text-sm mb-4">
-          {glucoseWarning} — saving anyway
-        </div>
+        <div className="bg-red-900/30 border border-red-800/30 text-red-400 p-3 rounded-xl text-sm">{error}</div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <IonItem className="ion-no-padding custom-form-item">
-          <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Date</IonLabel>
-          <IonInput
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-1.5">Date</label>
+          <input
             type="date"
+            name="date"
             value={formData.date}
-            onIonInput={(e) => handleChange('date', e.detail.value)}
+            onChange={handleChange}
             required
-            mode="md"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
           />
-        </IonItem>
-        <IonItem className="ion-no-padding custom-form-item">
-          <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Time</IonLabel>
-          <IonInput
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-1.5">Time</label>
+          <input
             type="time"
+            name="time"
             value={formData.time}
-            onIonInput={(e) => handleChange('time', e.detail.value)}
+            onChange={handleChange}
             required
-            mode="md"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
           />
-        </IonItem>
+        </div>
       </div>
 
-      <IonItem className="ion-no-padding custom-form-item">
-        <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-1.5">
           Blood Glucose (mmol/L)
-        </IonLabel>
-        <IonInput
+        </label>
+        <input
           type="number"
           step="0.1"
+          name="glucoseValue"
           value={formData.glucoseValue}
-          onIonInput={(e) => handleChange('glucoseValue', e.detail.value)}
+          onChange={handleChange}
           required
           placeholder={formData.mealType === 'fbs' ? '3.9 – 6.1' : '3.9 – 10.0'}
-          mode="md"
+          className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
         />
-        <IonNote slot="helper" className="text-[10px] text-zinc-600">
+        <p className="text-xs text-zinc-500 mt-1.5">
           {formData.mealType === 'fbs'
-            ? 'Target: 3.9 – 6.1 mmol/L (fasting)'
-            : 'Target: 3.9 – 10.0 mmol/L (2h after meal)'}
-        </IonNote>
-      </IonItem>
+            ? 'Target range: 3.9 – 6.1 mmol/L (fasting)'
+            : 'Target range: 3.9 – 10.0 mmol/L (2 hours after meal)'}
+        </p>
+      </div>
 
-      <IonItem className="ion-no-padding custom-form-item">
-        <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Meal Type</IonLabel>
-        <IonSelect
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-1.5">Meal Type</label>
+        <select
+          name="mealType"
           value={formData.mealType}
-          onIonChange={(e) => handleChange('mealType', e.detail.value)}
-          interface="action-sheet"
-          className="w-full"
-          mode="md"
+          onChange={handleChange}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
         >
-          <IonSelectOption value="fbs">Fasting (FBS)</IonSelectOption>
-          <IonSelectOption value="breakfast">Breakfast</IonSelectOption>
-          <IonSelectOption value="lunch">Lunch</IonSelectOption>
-          <IonSelectOption value="dinner">Dinner</IonSelectOption>
-        </IonSelect>
-      </IonItem>
+          <option value="fbs">Fasting (FBS)</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+        </select>
+      </div>
 
-      <IonItem className="ion-no-padding custom-form-item">
-        <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Food Eaten</IonLabel>
-        <IonInput
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-1.5">Food Eaten</label>
+        <input
           type="text"
+          name="foodEaten"
           value={formData.foodEaten}
-          onIonInput={(e) => handleChange('foodEaten', e.detail.value)}
+          onChange={handleChange}
           placeholder="Describe your meal (optional)"
-          mode="md"
+          className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
         />
-      </IonItem>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <IonItem className="ion-no-padding custom-form-item">
-          <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Carbs (g)</IonLabel>
-          <IonInput
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-1.5">Carbs (g)</label>
+          <input
             type="number"
+            name="carbs"
             value={formData.carbs}
-            onIonInput={(e) => handleChange('carbs', e.detail.value)}
+            onChange={handleChange}
             placeholder="Optional"
-            mode="md"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
           />
-        </IonItem>
-        <IonItem className="ion-no-padding custom-form-item">
-          <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Insulin (units)</IonLabel>
-          <IonInput
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-1.5">Insulin (units)</label>
+          <input
             type="number"
             step="0.5"
+            name="insulinUnits"
             value={formData.insulinUnits}
-            onIonInput={(e) => handleChange('insulinUnits', e.detail.value)}
+            onChange={handleChange}
             placeholder="Optional"
-            mode="md"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all"
           />
-        </IonItem>
+        </div>
       </div>
 
-      <IonItem className="ion-no-padding custom-form-item">
-        <IonLabel position="stacked" className="text-xs font-medium text-zinc-400">Notes</IonLabel>
-        <IonTextarea
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-1.5">Notes</label>
+        <textarea
+          name="notes"
           value={formData.notes}
-          onIonInput={(e) => handleChange('notes', e.detail.value)}
-          rows={2}
+          onChange={handleChange}
+          rows="2"
           placeholder="Any additional notes..."
-          mode="md"
+          className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-all resize-none"
         />
-      </IonItem>
+      </div>
 
-      <div className="flex gap-3 pt-4">
-        <IonButton
+      <div className="flex gap-3 pt-2">
+        <button
           type="submit"
           disabled={loading}
-          expand="block"
-          className="flex-1"
+          className="flex-1 bg-sky-500 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-sky-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Saving...' : entryToEdit ? 'Update' : 'Save'}
-        </IonButton>
-        <IonButton
+        </button>
+        <button
           type="button"
           onClick={onCancel}
-          expand="block"
-          fill="outline"
-          className="flex-1"
+          className="flex-1 bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors"
         >
           Cancel
-        </IonButton>
+        </button>
       </div>
-    </form>
+    </motion.form>
   );
 }

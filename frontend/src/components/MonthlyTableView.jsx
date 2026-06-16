@@ -1,30 +1,26 @@
 import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
 import * as XLSX from 'xlsx';
 import EntryForm from './EntryForm';
-import {
-  IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-  IonIcon, IonCard, IonCardContent, IonNote,
-} from '@ionic/react';
-import {
-  chevronBackOutline, chevronForwardOutline, downloadOutline,
-  addOutline, closeOutline,
-} from 'ionicons/icons';
+import { ChevronLeft, ChevronRight, Download, Plus, Edit2, X } from 'lucide-react';
 
 const getGlucoseColor = (value, isFasting) => {
-  if (!value) return { dot: 'bg-zinc-700', text: 'text-zinc-600', label: '' };
+  if (!value) return { bg: 'bg-zinc-800/40', text: 'text-zinc-600', label: 'No data' };
   if (isFasting) {
-    if (value >= 3.9 && value <= 6.1) return { dot: 'bg-emerald-400', text: 'text-emerald-400', label: 'Normal' };
-    if (value < 3.9) return { dot: 'bg-rose-400', text: 'text-rose-400', label: 'Low' };
-    return { dot: 'bg-rose-400', text: 'text-rose-400', label: 'High' };
+    if (value >= 3.9 && value <= 6.1) return { bg: 'bg-emerald-900/30', text: 'text-emerald-400', label: 'Normal' };
+    if (value < 3.9) return { bg: 'bg-red-900/30', text: 'text-red-400', label: 'Low' };
+    return { bg: 'bg-red-900/30', text: 'text-red-400', label: 'High' };
+  } else {
+    if (value >= 3.9 && value <= 10.0) return { bg: 'bg-emerald-900/30', text: 'text-emerald-400', label: 'Normal' };
+    if (value > 10.0) return { bg: 'bg-red-900/30', text: 'text-red-400', label: 'High' };
+    return { bg: 'bg-red-900/30', text: 'text-red-400', label: 'Low' };
   }
-  if (value >= 3.9 && value <= 10.0) return { dot: 'bg-emerald-400', text: 'text-emerald-400', label: 'Normal' };
-  if (value > 10.0) return { dot: 'bg-rose-400', text: 'text-rose-400', label: 'High' };
-  return { dot: 'bg-rose-400', text: 'text-rose-400', label: 'Low' };
 };
 
 export default function MonthlyTableView({ entries, onDataChange }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formMealType, setFormMealType] = useState(null);
@@ -56,165 +52,284 @@ export default function MonthlyTableView({ entries, onDataChange }) {
     onDataChange();
   };
 
-  const handleClose = () => {
-    setShowForm(false);
-    setSelectedEntry(null);
-  };
-
   const exportToExcel = () => {
-    const header = [
-      'Date', 'FBS (mmol/L)', 'FBS Time',
-      'Breakfast (mmol/L)', 'Breakfast Food', 'Breakfast Carbs', 'Breakfast Insulin', 'Breakfast Notes',
-      'Lunch (mmol/L)', 'Lunch Food', 'Lunch Carbs', 'Lunch Insulin', 'Lunch Notes',
-      'Dinner (mmol/L)', 'Dinner Food', 'Dinner Carbs', 'Dinner Insulin', 'Dinner Notes'
-    ];
-    const data = [header];
+    const worksheetData = [];
+    worksheetData.push([
+      'Date',
+      'FBS (mmol/L)',
+      'FBS Time',
+      'Breakfast (mmol/L)',
+      'Breakfast Food',
+      'Breakfast Carbs',
+      'Breakfast Insulin',
+      'Breakfast Notes',
+      'Lunch (mmol/L)',
+      'Lunch Food',
+      'Lunch Carbs',
+      'Lunch Insulin',
+      'Lunch Notes',
+      'Dinner (mmol/L)',
+      'Dinner Food',
+      'Dinner Carbs',
+      'Dinner Insulin',
+      'Dinner Notes'
+    ]);
 
     days.forEach((day) => {
       const fbs = getEntryForDayAndMeal(day, 'fbs');
       const breakfast = getEntryForDayAndMeal(day, 'breakfast');
       const lunch = getEntryForDayAndMeal(day, 'lunch');
       const dinner = getEntryForDayAndMeal(day, 'dinner');
-      data.push([
+
+      worksheetData.push([
         format(day, 'yyyy-MM-dd'),
-        fbs?.glucoseValue || '', fbs?.time || '',
-        breakfast?.glucoseValue || '', breakfast?.foodEaten || '', breakfast?.carbs || '', breakfast?.insulinUnits || '', breakfast?.notes || '',
-        lunch?.glucoseValue || '', lunch?.foodEaten || '', lunch?.carbs || '', lunch?.insulinUnits || '', lunch?.notes || '',
-        dinner?.glucoseValue || '', dinner?.foodEaten || '', dinner?.carbs || '', dinner?.insulinUnits || '', dinner?.notes || ''
+        fbs?.glucoseValue || '',
+        fbs?.time || '',
+        breakfast?.glucoseValue || '',
+        breakfast?.foodEaten || '',
+        breakfast?.carbs || '',
+        breakfast?.insulinUnits || '',
+        breakfast?.notes || '',
+        lunch?.glucoseValue || '',
+        lunch?.foodEaten || '',
+        lunch?.carbs || '',
+        lunch?.insulinUnits || '',
+        lunch?.notes || '',
+        dinner?.glucoseValue || '',
+        dinner?.foodEaten || '',
+        dinner?.carbs || '',
+        dinner?.insulinUnits || '',
+        dinner?.notes || ''
       ]);
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
+    const ws = XLSX.utils.aoa_to_sheet(worksheetData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Blood Sugar Log');
     XLSX.writeFile(wb, `blood_sugar_${format(currentMonth, 'yyyy-MM')}.xlsx`);
   };
 
-  const mealTypes = [
-    { key: 'fbs', label: 'FBS' },
-    { key: 'breakfast', label: 'Breakfast' },
-    { key: 'lunch', label: 'Lunch' },
-    { key: 'dinner', label: 'Dinner' },
-  ];
-
   return (
-    <>
-      <IonCard className="m-0 overflow-hidden mt-4">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/50">
-          <div className="flex items-center gap-0.5">
-            <IonButton fill="clear" size="small" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
-              <IonIcon slot="icon-only" icon={chevronBackOutline} className="size-[18px] text-zinc-400" />
-            </IonButton>
-            <span className="text-sm font-bold text-zinc-100 min-w-[140px] text-center select-none">
-              {format(currentMonth, 'MMMM yyyy')}
-            </span>
-            <IonButton fill="clear" size="small" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
-              <IonIcon slot="icon-only" icon={chevronForwardOutline} className="size-[18px] text-zinc-400" />
-            </IonButton>
-          </div>
-          <IonButton size="small" onClick={exportToExcel} className="text-xs font-semibold h-8">
-            <IonIcon slot="start" icon={downloadOutline} className="size-3.5" />
-            Export
-          </IonButton>
+    <div className="bg-zinc-900/60 border border-zinc-800/50 rounded-2xl overflow-hidden">
+      {/* Month Navigation & Export */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/50">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-base font-semibold text-zinc-100 min-w-[160px] text-center">
+            {format(currentMonth, 'MMMM yyyy')}
+          </span>
+          <button
+            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
+        <button
+          onClick={exportToExcel}
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-500 transition-colors"
+        >
+          <Download className="w-4 h-4" />
+          <span>Export</span>
+        </button>
+      </div>
 
-        <IonCardContent className="p-0 overflow-x-auto">
-          {days.length === 0 ? (
-            <div className="text-center py-12">
-              <IonNote className="text-zinc-600 text-sm">No data for this month</IonNote>
-            </div>
-          ) : (
-            <table className="w-full" style={{ minWidth: 640, borderCollapse: 'separate', borderSpacing: 0 }}>
-              <thead>
-                <tr>
-                  <th className="p-3 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider sticky left-0 bg-zinc-900/95 z-10 border-b border-zinc-800/50 w-[68px]">
-                    Date
-                  </th>
-                  {mealTypes.map(({ key, label }) => (
-                    <th key={key} className="p-3 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-800/50 min-w-[100px]">
-                      {label}
-                      <span className="block text-[8px] font-medium text-zinc-700 tracking-normal mt-0.5">
-                        {key === 'fbs' ? '3.9–6.1' : '3.9–10.0'} mmol/L
-                      </span>
-                    </th>
-                  ))}
+      {/* Scrollable Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-[800px] w-full">
+          <thead>
+            <tr>
+              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
+                Date
+              </th>
+              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                FBS
+                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–6.1</span>
+              </th>
+              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Breakfast
+                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+              </th>
+              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Lunch
+                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+              </th>
+              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Dinner
+                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((day) => {
+              const fbsEntry = getEntryForDayAndMeal(day, 'fbs');
+              const breakfastEntry = getEntryForDayAndMeal(day, 'breakfast');
+              const lunchEntry = getEntryForDayAndMeal(day, 'lunch');
+              const dinnerEntry = getEntryForDayAndMeal(day, 'dinner');
+
+              return (
+                <tr key={day.toISOString()} className="border-t border-zinc-800/30 hover:bg-zinc-800/20 transition-colors">
+                  <td className="p-3 text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
+                    {format(day, 'd MMM')}
+                  </td>
+
+                  <td className="p-2">
+                    <div
+                      onClick={() => handleAddOrEdit(day, 'fbs', fbsEntry)}
+                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(fbsEntry?.glucoseValue, true).bg} hover:ring-1 hover:ring-zinc-700`}
+                    >
+                      {fbsEntry ? (
+                        <div>
+                          <div className={`text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}>
+                            {fbsEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
+                          {fbsEntry.foodEaten && (
+                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{fbsEntry.foodEaten}</div>
+                          )}
+                          <div className="flex justify-end mt-1">
+                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
+                          <Plus className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="p-2">
+                    <div
+                      onClick={() => handleAddOrEdit(day, 'breakfast', breakfastEntry)}
+                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(breakfastEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                    >
+                      {breakfastEntry ? (
+                        <div>
+                          <div className={`text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}>
+                            {breakfastEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
+                          {breakfastEntry.foodEaten && (
+                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{breakfastEntry.foodEaten}</div>
+                          )}
+                          <div className="flex justify-end mt-1">
+                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
+                          <Plus className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="p-2">
+                    <div
+                      onClick={() => handleAddOrEdit(day, 'lunch', lunchEntry)}
+                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(lunchEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                    >
+                      {lunchEntry ? (
+                        <div>
+                          <div className={`text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}>
+                            {lunchEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
+                          {lunchEntry.foodEaten && (
+                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{lunchEntry.foodEaten}</div>
+                          )}
+                          <div className="flex justify-end mt-1">
+                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
+                          <Plus className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="p-2">
+                    <div
+                      onClick={() => handleAddOrEdit(day, 'dinner', dinnerEntry)}
+                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(dinnerEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                    >
+                      {dinnerEntry ? (
+                        <div>
+                          <div className={`text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}>
+                            {dinnerEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
+                          {dinnerEntry.foodEaten && (
+                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{dinnerEntry.foodEaten}</div>
+                          )}
+                          <div className="flex justify-end mt-1">
+                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
+                          <Plus className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {days.map((day) => (
-                  <tr key={day.toISOString()} className="border-b border-zinc-800/15 hover:bg-zinc-800/10 transition-colors">
-                    <td className="p-2.5 text-sm font-semibold text-zinc-400 sticky left-0 bg-zinc-900 z-10">
-                      {format(day, 'd')}
-                      <span className="block text-[9px] font-medium text-zinc-600 uppercase tracking-wider mt-0.5">
-                        {format(day, 'MMM')}
-                      </span>
-                    </td>
-                    {mealTypes.map(({ key, isFasting }) => {
-                      const entry = getEntryForDayAndMeal(day, key);
-                      const colors = getGlucoseColor(entry?.glucoseValue, key === 'fbs');
-                      return (
-                        <td key={key} className="p-1.5">
-                          <button
-                            onClick={() => handleAddOrEdit(day, key, entry)}
-                            className="w-full p-2.5 rounded-xl cursor-pointer active:scale-[0.97] transition-all bg-zinc-800/20 hover:bg-zinc-800/40 min-h-[52px] text-left"
-                          >
-                            {entry ? (
-                              <div>
-                                <div className="flex items-center gap-1.5 mb-1">
-                                  <span className={`size-1.5 rounded-full ${colors.dot}`} />
-                                  <span className={`text-sm font-bold ${colors.text} leading-tight`}>
-                                    {entry.glucoseValue}
-                                  </span>
-                                </div>
-                                <div className="text-[10px] font-medium text-zinc-600 ml-3">
-                                  {entry.time}
-                                  {entry.foodEaten && (
-                                    <span className="text-zinc-500 ml-1.5 truncate inline-block max-w-[80px] align-bottom">
-                                      · {entry.foodEaten}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center h-[40px]">
-                                <IonIcon icon={addOutline} className="size-4 text-zinc-700" />
-                              </div>
-                            )}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </IonCardContent>
-      </IonCard>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-      <IonModal isOpen={showForm} onDidDismiss={handleClose} className="entry-modal">
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle className="text-sm font-bold">
-              {selectedEntry ? 'Edit' : 'Add'} {formMealType === 'fbs' ? 'Fasting' : formMealType || ''} Reading
-            </IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={handleClose}>
-                <IonIcon slot="icon-only" icon={closeOutline} className="size-5 text-zinc-400" />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <div className="px-5 pb-5 pt-3">
-          <EntryForm
-            entryToEdit={selectedEntry}
-            presetDate={formDate}
-            presetMealType={formMealType}
-            onSuccess={handleFormSuccess}
-            onCancel={handleClose}
-          />
-        </div>
-      </IonModal>
-    </>
+      {/* Modal Form for Adding/Editing */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowForm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-5">
+                  <h2 className="text-lg font-semibold text-zinc-100">
+                    {selectedEntry ? 'Edit' : 'Add'} {formMealType === 'fbs' ? 'Fasting' : formMealType} Reading
+                  </h2>
+                  <button
+                    onClick={() => setShowForm(false)}
+                    className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-zinc-500" />
+                  </button>
+                </div>
+                <EntryForm
+                  entryToEdit={selectedEntry}
+                  presetDate={formDate}
+                  presetMealType={formMealType}
+                  onSuccess={handleFormSuccess}
+                  onCancel={() => setShowForm(false)}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

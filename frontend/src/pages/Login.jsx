@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { IonPage, IonContent, IonInput, IonButton, IonIcon, IonItem, IonLabel } from '@ionic/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline, sparkles } from 'ionicons/icons'
+import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -55,11 +54,6 @@ function GitHubIcon() {
   )
 }
 
-import Footer from '../components/Footer';
-import { Capacitor } from '@capacitor/core';
-
-const isNative = Capacitor.isNativePlatform();
-
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -70,16 +64,6 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const emailRef = useRef(null)
-  const passwordRef = useRef(null)
-
-  const starPositions = useMemo(() =>
-    Array.from({ length: 20 }, () => ({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      delay: Math.random() * 3,
-    })),
-  [])
 
   useEffect(() => {
     setMounted(true)
@@ -108,164 +92,154 @@ export default function Login() {
   }
 
   const socialProviders = [
-    { name: 'Google', icon: GoogleIcon, href: `${API}/api/auth/google` },
-    { name: 'Apple', icon: AppleIcon, href: `${API}/api/auth/apple` },
-    { name: 'Yahoo', icon: YahooIcon, href: `${API}/api/auth/yahoo` },
-    { name: 'GitHub', icon: GitHubIcon, href: `${API}/api/auth/github` },
+    { name: 'Google', icon: GoogleIcon, href: `${API}/api/auth/google`, color: 'hover:bg-white/10' },
+    { name: 'Apple', icon: AppleIcon, href: `${API}/api/auth/apple`, color: 'hover:bg-white/10' },
+    { name: 'Yahoo', icon: YahooIcon, href: `${API}/api/auth/yahoo`, color: 'hover:bg-white/10' },
+    { name: 'GitHub', icon: GitHubIcon, href: `${API}/api/auth/github`, color: 'hover:bg-white/10' },
   ]
 
   return (
-    <IonPage>
-      <IonContent scrollY={false} className="ion-no-padding">
-        <div className="relative min-h-full flex flex-col bg-black select-none">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
+    <div className="relative min-h-dvh flex flex-col overflow-hidden bg-black select-none">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
 
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
-            {starPositions.map((pos, i) => (
-              <motion.div
-                key={i}
-                className="absolute size-1 bg-white/10 rounded-full"
-                style={{
-                  left: `${pos.left}%`,
-                  top: `${pos.top}%`,
-                }}
-                animate={{
-                  opacity: [0.2, 0.6, 0.2],
-                  scale: [1, 1.5, 1],
-                }}
-                transition={{
-                  duration: 3 + pos.delay * 2,
-                  repeat: Infinity,
-                  delay: pos.delay,
-                }}
-              />
-            ))}
-          </div>
-
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
+        {[...Array(20)].map((_, i) => (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={mounted ? { opacity: 1 } : {}}
-            className="flex-1 flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={mounted ? 'visible' : 'hidden'}
-              className="w-full max-w-sm bg-zinc-900/80 backdrop-blur-2xl border border-zinc-800 rounded-t-3xl sm:rounded-3xl shadow-2xl px-6 pt-8 pb-10"
-              style={{
-                paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))',
-              }}
-            >
-              <motion.div variants={itemVariants} className="text-center mb-8">
-                <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-white/5 border border-white/10 mb-4">
-                  <IonIcon icon={sparkles} className="size-7 text-white/80" />
-                </div>
-                <h1 className="text-2xl font-semibold text-white tracking-tight">
-                  Blood Sugar Tracker
-                </h1>
-                <p className="text-sm text-zinc-400 mt-1.5">
-                  Sign in to continue tracking
-                </p>
-              </motion.div>
+            key={i}
+            className="absolute size-1 bg-white/10 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.6, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+            }}
+          />
+        ))}
+      </div>
 
-              <AnimatePresence mode="wait">
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: 'auto' }}
-                    exit={{ opacity: 0, y: -8, height: 0 }}
-                    className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl mb-4"
-                  >
-                    {error}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <motion.div variants={itemVariants} className="space-y-2.5 mb-6">
-                {socialProviders.map((provider) => (
-                  <a
-                    key={provider.name}
-                    href={provider.href}
-                    className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] hover:bg-white/10"
-                  >
-                    <provider.icon />
-                    Continue with {provider.name}
-                  </a>
-                ))}
-              </motion.div>
-
-              <motion.div variants={itemVariants} className="relative flex items-center gap-3 mb-6">
-                <div className="flex-1 h-px bg-zinc-800" />
-                <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">or</span>
-                <div className="flex-1 h-px bg-zinc-800" />
-              </motion.div>
-
-              <motion.form variants={itemVariants} onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative">
-                  <IonIcon icon={mailOutline} className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none z-10" />
-                  <IonInput
-                    ref={emailRef}
-                    type="email"
-                    value={email}
-                    onIonInput={(e) => setEmail(e.detail.value)}
-                    required
-                    placeholder="Email address"
-                    className="custom-input pl-10"
-                    mode="md"
-                  />
-                </div>
-
-                <div className="relative">
-                  <IonIcon icon={lockClosedOutline} className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none z-10" />
-                  <IonInput
-                    ref={passwordRef}
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onIonInput={(e) => setPassword(e.detail.value)}
-                    required
-                    placeholder="Password"
-                    className="custom-input pl-10 pr-11"
-                    mode="md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors z-10"
-                    tabIndex={-1}
-                  >
-                    <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} className="size-4" />
-                  </button>
-                </div>
-
-                <IonButton
-                  type="submit"
-                  disabled={loading}
-                  expand="block"
-                  className="mt-2"
-                >
-                  {loading ? (
-                    <div className="size-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  ) : (
-                    'Sign In'
-                  )}
-                </IonButton>
-              </motion.form>
-
-              <motion.div variants={itemVariants} className="mt-6 text-center">
-                <p className="text-sm text-zinc-500">
-                  Don't have an account?{' '}
-                  <Link to="/register" className="text-zinc-300 font-medium hover:text-white transition-colors">
-                    Sign Up
-                  </Link>
-                </p>
-              </motion.div>
-            </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={mounted ? { opacity: 1 } : {}}
+        className="flex-1 flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
+      >
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={mounted ? "visible" : "hidden"}
+          className="w-full max-w-sm bg-zinc-900/80 backdrop-blur-2xl border border-zinc-800 rounded-t-3xl sm:rounded-3xl shadow-2xl px-6 pt-8 pb-10 sm:pb-8"
+          style={{
+            paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))',
+          }}
+        >
+          <motion.div variants={itemVariants} className="text-center mb-8">
+            <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-white/5 border border-white/10 mb-4">
+              <Sparkles className="size-7 text-white/80" />
+            </div>
+            <h1 className="text-2xl font-semibold text-white tracking-tight">
+              Blood Sugar Tracker
+            </h1>
+            <p className="text-sm text-zinc-400 mt-1.5">
+              Sign in to continue tracking
+            </p>
           </motion.div>
-        </div>
-        {!isNative && <Footer />}
-      </IonContent>
-    </IonPage>
+
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -8, height: 0 }}
+                className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl mb-4"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div variants={itemVariants} className="space-y-2.5 mb-6">
+            {socialProviders.map((provider) => (
+              <a
+                key={provider.name}
+                href={provider.href}
+                className={`flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] ${provider.color}`}
+              >
+                <provider.icon />
+                Continue with {provider.name}
+              </a>
+            ))}
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="relative flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-zinc-800" />
+            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </motion.div>
+
+          <motion.form variants={itemVariants} onSubmit={handleSubmit} className="space-y-3.5">
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Email address"
+                className="w-full h-12 pl-10 pr-4 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+              />
+            </div>
+
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Password"
+                className="w-full h-12 pl-10 pr-11 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="relative w-full h-12 bg-white text-black font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90"
+            >
+              {loading ? (
+                <Loader2 className="size-5 animate-spin mx-auto" />
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </motion.form>
+
+          <motion.div variants={itemVariants} className="mt-6 text-center">
+            <p className="text-sm text-zinc-500">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-zinc-300 font-medium hover:text-white transition-colors">
+                Sign Up
+              </Link>
+            </p>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </div>
   )
 }

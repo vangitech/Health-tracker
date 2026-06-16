@@ -1,5 +1,5 @@
+// frontend/src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { IonPage, IonContent } from '@ionic/react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -9,23 +9,15 @@ import Dashboard from './pages/Dashboard'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
-
+  
   if (loading) {
-    return (
-      <IonPage>
-        <IonContent className="ion-justify-content-center ion-align-items-center">
-          <div className="flex flex-col items-center gap-3 h-full justify-center bg-black">
-            <div className="size-7 rounded-full border-2 border-zinc-700 border-t-white animate-spin" />
-          </div>
-        </IonContent>
-      </IonPage>
-    )
+    return <div className="flex items-center justify-center min-h-dvh bg-black"><div className="size-6 rounded-full border-2 border-zinc-700 border-t-white animate-spin" /></div>
   }
-
+  
   if (!user) {
     return <Navigate to="/login" />
   }
-
+  
   return children
 }
 

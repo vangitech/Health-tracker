@@ -1,17 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
-import {
-  IonButton, IonIcon, IonCard, IonCardContent, IonNote,
-  IonGrid, IonRow, IonCol, IonRippleEffect,
-} from '@ionic/react';
 import MonthlyTableView from '../components/MonthlyTableView';
-import DashboardLayout from '../components/DashboardLayout';
-import NativeHeader from '../components/NativeHeader';
-import {
-  pulseOutline, trendingUpOutline,
-  checkmarkCircleOutline, alertCircleOutline,
-} from 'ionicons/icons';
+import StatsCard from '../components/StatsCard';
+import { LogOut, Activity, User } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -19,11 +11,11 @@ export default function Dashboard() {
   const [trends, setTrends] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     try {
       const [entriesRes, trendsRes] = await Promise.all([
         axios.get('/api/entries'),
-        axios.get('/api/trends?days=30')
+        axios.get('/api/trends')
       ]);
       setEntries(entriesRes.data);
       setTrends(trendsRes.data);
@@ -32,150 +24,91 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleRefresh = async (event) => {
-    await fetchData();
-    event.detail.complete();
-  };
+    let cancelled = false;
+    (async () => {
+      try {
+        const [entriesRes, trendsRes] = await Promise.all([
+          axios.get('/api/entries'),
+          axios.get('/api/trends')
+        ])
+        if (cancelled) return
+        setEntries(entriesRes.data)
+        setTrends(trendsRes.data)
+      } catch (error) {
+        console.error('Failed to fetch data', error)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, []);
 
   const handleDataChange = () => {
     fetchData();
   };
 
-  const displayName = user?.firstName
-    ? `${user.firstName} ${user.lastName || ''}`
-    : user?.email;
-
-  const getA1CColor = (a1c) => {
-    if (!a1c) return 'text-zinc-500';
-    if (a1c < 7) return 'text-emerald-400';
-    if (a1c < 8) return 'text-amber-400';
-    return 'text-rose-400';
-  };
-
-  const StatCard = ({ title, value, unit, note, icon, iconColor, gradient, children }) => (
-    <IonCol size="6" sizeMd="3">
-      <IonCard className={`m-0 mb-3 native-statcard ${gradient || ''}`}>
-        <IonRippleEffect />
-        <IonCardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.15em]">
-              {title}
-            </span>
-            <div className={`size-8 rounded-xl ${iconColor} flex items-center justify-center`}>
-              <IonIcon icon={icon} className={`size-4 ${iconColor.replace('bg-', 'text-').replace('/20', '').replace('/15', '')}`} />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[28px] font-bold text-white tracking-tight leading-none">
-              {value ?? '—'}
-            </span>
-            {unit && <span className="text-[11px] font-semibold text-zinc-500">{unit}</span>}
-          </div>
-          <IonNote className="text-[11px] text-zinc-600 mt-2 block leading-snug">
-            {note}
-          </IonNote>
-          {children}
-        </IonCardContent>
-      </IonCard>
-    </IonCol>
-  );
-
-  const StatsSkeleton = () => (
-    <IonGrid className="ion-no-padding">
-      <IonRow>
-        {[1, 2, 3, 4].map((i) => (
-          <IonCol size="6" sizeMd="3" key={i}>
-            <IonCard className="m-0 mb-3 native-statcard">
-              <IonCardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="h-3 w-16 bg-zinc-800 rounded-full animate-pulse" />
-                  <div className="size-8 rounded-xl bg-zinc-800 animate-pulse" />
-                </div>
-                <div className="h-8 w-20 bg-zinc-800 rounded-lg animate-pulse mb-2" />
-                <div className="h-3 w-28 bg-zinc-800/50 rounded-full animate-pulse" />
-              </IonCardContent>
-            </IonCard>
-          </IonCol>
-        ))}
-      </IonRow>
-    </IonGrid>
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="size-7 rounded-full border-2 border-zinc-700 border-t-zinc-100 animate-spin" />
+          <p className="text-sm text-zinc-500">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <DashboardLayout
-      header={
-        <NativeHeader
-          user={user}
-          displayName={displayName}
-          onLogout={logout}
-        />
-      }
-      onRefresh={handleRefresh}
-    >
-      <div className="px-4 pt-3 pb-6 web-dashboard-content">
-        {loading ? (
-          <StatsSkeleton />
-        ) : trends ? (
-          <>
-            <IonGrid className="ion-no-padding">
-              <IonRow>
-                <StatCard
-                  title="Avg Glucose"
-                  value={trends.averageGlucose}
-                  unit="mmol/L"
-                  note="Latest glucose average"
-                  icon={pulseOutline}
-                  iconColor="bg-sky-500/15"
-                />
-                <StatCard
-                  title="Est. A1C"
-                  value={trends.estimatedA1C ? `${trends.estimatedA1C}%` : null}
-                  note="Estimated 3-month control"
-                  icon={trendingUpOutline}
-                  iconColor="bg-violet-500/15"
-                  gradient="card-a1c"
-                />
-                <StatCard
-                  title="In Range"
-                  value={trends.inRangeCount ?? 0}
-                  note={`of ${trends.totalEntries ?? 0} total readings`}
-                  icon={checkmarkCircleOutline}
-                  iconColor="bg-emerald-500/15"
-                />
-                <StatCard
-                  title="Readings"
-                  note="High / Borderline / Low"
-                  icon={alertCircleOutline}
-                  iconColor="bg-amber-500/15"
-                >
-                  <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 text-[10px] font-semibold">
-                      <span className="size-1.5 rounded-full bg-rose-400" />
-                      {trends.highCount ?? 0}
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-semibold">
-                      <span className="size-1.5 rounded-full bg-amber-400" />
-                      {trends.borderlineCount ?? 0}
-                    </span> 
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 text-[10px] font-semibold">
-                      <span className="size-1.5 rounded-full bg-cyan-400" />
-                      {trends.lowCount ?? 0}
-                    </span>
-                  </div>
-                </StatCard>
-              </IonRow>
-            </IonGrid>
-          </>
-        ) : null}
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <header className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center size-9 rounded-xl bg-sky-500/10">
+                <Activity className="w-5 h-5 text-sky-400" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold text-zinc-100">SugarTrack</h1>
+                <p className="text-[11px] text-zinc-500 -mt-0.5">Glucose tracker</p>
+              </div>
+            </div>
 
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 pr-3 border-r border-zinc-800">
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-zinc-100">
+                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
+                  </span>
+                  <span className="text-[11px] text-zinc-500">Member</span>
+                </div>
+                <div className="size-9 rounded-full bg-zinc-800 flex items-center justify-center">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" className="size-full object-cover rounded-full" />
+                  ) : (
+                    <User className="w-4 h-4 text-zinc-400" />
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {trends && <StatsCard trends={trends} />}
         <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
-      </div>
-    </DashboardLayout>
+      </main>
+    </div>
   );
 }

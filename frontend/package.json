@@ -7,25 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "cap:sync": "npx cap sync",
-    "cap:open:ios": "npx cap open ios",
-    "cap:open:android": "npx cap open android",
-    "cap:run:ios": "npx cap run ios",
-    "cap:run:android": "npx cap run android"
+    "preview": "vite preview"
   },
   "imports": {
     "#*": "./src/*"
   },
   "dependencies": {
-    "@capacitor/android": "^8.4.0",
-    "@capacitor/core": "^8.4.0",
-    "@capacitor/ios": "^8.4.0",
-    "@capacitor/splash-screen": "^8.0.1",
-    "@capacitor/status-bar": "^8.0.2",
     "@fontsource-variable/geist": "^5.2.9",
     "@hookform/resolvers": "^5.4.0",
-    "@ionic/react": "^8.8.10",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.17.0",
     "class-variance-authority": "^0.7.1",
@@ -47,8 +36,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
-    "@capacitor/cli": "^8.4.0",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

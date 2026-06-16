@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { IonPage, IonContent, IonIcon } from '@ionic/react'
-import { syncOutline } from 'ionicons/icons'
+import { Loader2 } from 'lucide-react'
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams()
@@ -22,16 +21,12 @@ export default function OAuthCallback() {
   }, [])
 
   return (
-    <IonPage>
-      <IonContent className="ion-justify-content-center ion-align-items-center">
-        <div className="flex items-center justify-center min-h-full bg-black">
-          {error ? (
-            <p className="text-red-400 text-sm">{error}</p>
-          ) : (
-            <IonIcon icon={syncOutline} className="size-8 text-white/60 animate-spin" />
-          )}
-        </div>
-      </IonContent>
-    </IonPage>
+    <div className="min-h-dvh bg-black flex items-center justify-center">
+      {error ? (
+        <p className="text-red-400 text-sm">{error}</p>
+      ) : (
+        <Loader2 className="size-8 text-white/60 animate-spin" />
+      )}
+    </div>
   )
 }
