@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -67,11 +67,14 @@ export default function Login() {
   const [searchParams] = useSearchParams()
 
   useEffect(() => {
-    setMounted(true)
     const errorParam = searchParams.get('error')
-    if (errorParam === 'oauth_failed') {
-      setError('Social login failed. Please try again.')
-    }
+    const raf = requestAnimationFrame(() => {
+      setMounted(true)
+      if (errorParam === 'oauth_failed') {
+        setError('Social login failed. Please try again.')
+      }
+    })
+    return () => cancelAnimationFrame(raf)
   }, [searchParams])
 
   const handleSubmit = async (e) => {
@@ -99,29 +102,34 @@ export default function Login() {
     { name: 'GitHub', icon: GitHubIcon, href: `${API}/api/auth/github`, color: 'hover:bg-white/10' },
   ]
 
+  const dots = useMemo(
+    () =>
+      [...Array(20)].map(() => ({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 3 + Math.random() * 4,
+        delay: Math.random() * 3,
+      })),
+    []
+  )
+
   return (
     <div className="relative min-h-dvh flex flex-col overflow-hidden bg-black select-none pb-[env(safe-area-inset-bottom)]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
-        {[...Array(20)].map((_, i) => (
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/3 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/2 rounded-full blur-3xl" />
+        {dots.map((d, i) => (
           <motion.div
             key={i}
             className="absolute size-1 bg-white/10 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              opacity: [0.2, 0.6, 0.2],
-              scale: [1, 1.5, 1],
-            }}
+            style={{ left: `${d.left}%`, top: `${d.top}%` }}
+            animate={{ opacity: [0.2, 0.6, 0.2], scale: [1, 1.5, 1] }}
             transition={{
-              duration: 3 + Math.random() * 4,
+              duration: d.duration,
               repeat: Infinity,
-              delay: Math.random() * 3,
+              delay: d.delay,
             }}
           />
         ))}
