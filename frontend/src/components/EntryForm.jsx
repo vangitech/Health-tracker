@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from '../lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 
 export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate, presetMealType }) {
@@ -10,7 +11,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   };
 
   const [formData, setFormData] = useState({
-    date: entryToEdit?.date?.split('T')[0] || presetDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+    date: entryToEdit?.date?.split('T')[0] || (presetDate ? format(presetDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')),
     time: entryToEdit?.time || getCurrentTime(),
     glucoseValue: entryToEdit?.glucoseValue || '',
     mealType: entryToEdit?.mealType || presetMealType || 'breakfast',

@@ -35,7 +35,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
   const getEntryForDayAndMeal = (date, mealType) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return entries.find(
-      (e) => format(new Date(e.date), 'yyyy-MM-dd') === dateStr && e.mealType === mealType
+      (e) => e.date?.split('T')[0] === dateStr && e.mealType === mealType
     );
   };
 
