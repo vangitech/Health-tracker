@@ -32,11 +32,6 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   const validateGlucose = () => {
     const val = parseFloat(formData.glucoseValue);
     if (isNaN(val)) return 'Glucose value is required';
-    if (formData.mealType === 'fbs') {
-      if (val < 3.9 || val > 6.1) return 'Fasting glucose must be between 3.9 and 6.1 mmol/L';
-    } else {
-      if (val < 3.9 || val > 10.0) return 'Post-meal glucose must be between 3.9 and 10.0 mmol/L';
-    }
     return null;
   };
 
