@@ -30,7 +30,7 @@
     }
   },
   "ios": {
-    "contentInset": "always",
+    "contentInset": "never",
     "preferredContentMode": "mobile"
   }
 }
