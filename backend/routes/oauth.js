@@ -1,7 +1,6 @@
 import express from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as AppleStrategy } from 'passport-apple';
 import { Strategy as OpenIDConnectStrategy } from 'passport-openidconnect';
 import jwt from 'jsonwebtoken';
@@ -11,7 +10,7 @@ const router = express.Router();
 
 function generateToken(user) {
   return jwt.sign(
-    { id: user._id, email: user.email },
+    { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -26,9 +25,8 @@ function findOrCreateUser(profile, provider, done) {
 
   User.findOne({ provider, providerId: profile.id })
     .then(user => {
-      if (user) {
-        return done(null, user);
-      }
+      if (user) return done(null, user);
+
       User.findOne({ email })
         .then(existingUser => {
           if (existingUser) {
@@ -63,25 +61,21 @@ passport.use(new GoogleStrategy({
   findOrCreateUser(profile, 'google', done);
 }));
 
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID || 'dummy',
-  clientSecret: process.env.GITHUB_CLIENT_SECRET || 'dummy',
-  callbackURL: `${process.env.BACKEND_URL}/api/auth/github/callback`
-}, (accessToken, refreshToken, profile, done) => {
-  if (!process.env.GITHUB_CLIENT_ID) {
-    return done(new Error('GitHub OAuth not configured'));
-  }
-  findOrCreateUser(profile, 'github', done);
-}));
-
 if (process.env.APPLE_CLIENT_ID) {
-  passport.use(new AppleStrategy({
+  const appleConfig = {
     clientID: process.env.APPLE_CLIENT_ID,
     teamID: process.env.APPLE_TEAM_ID,
     keyID: process.env.APPLE_KEY_ID,
-    privateKeyLocation: process.env.APPLE_PRIVATE_KEY_PATH,
-    callbackURL: `${process.env.BACKEND_URL}/api/auth/apple/callback`
-  }, (req, accessToken, refreshToken, idToken, profile, done) => {
+    callbackURL: `${process.env.BACKEND_URL}/api/auth/apple/callback`,
+    scope: ['name', 'email'],
+  };
+  if (process.env.APPLE_PRIVATE_KEY) {
+    appleConfig.privateKeyString = process.env.APPLE_PRIVATE_KEY;
+  } else {
+    appleConfig.privateKeyLocation = process.env.APPLE_PRIVATE_KEY_PATH;
+  }
+
+  passport.use(new AppleStrategy(appleConfig, (req, accessToken, refreshToken, idToken, profile, done) => {
     const email = idToken?.email;
     const user = {
       id: idToken?.sub,
@@ -92,7 +86,6 @@ if (process.env.APPLE_CLIENT_ID) {
     findOrCreateUser({ ...profile, ...user }, 'apple', done);
   }));
 } else {
-  // Create a dummy strategy to prevent errors when Apple OAuth is not configured
   passport.use('apple', new AppleStrategy({
     clientID: 'dummy-apple-id',
     teamID: 'dummy-team',
@@ -123,7 +116,6 @@ if (process.env.YAHOO_CLIENT_ID) {
     }, 'yahoo', done);
   }));
 } else {
-  // Create a dummy strategy to prevent errors when Yahoo OAuth is not configured
   passport.use('yahoo', new OpenIDConnectStrategy({
     issuer: 'https://api.login.yahoo.com',
     authorizationURL: 'https://api.login.yahoo.com/oauth2/request_auth',
@@ -145,15 +137,8 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 });
 
-router.get('/github', passport.authenticate('github', { scope: ['user:email'], session: false }));
-
-router.get('/github/callback', passport.authenticate('github', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed` }), (req, res) => {
-  const token = generateToken(req.user);
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
-});
-
 if (process.env.APPLE_CLIENT_ID) {
-  router.get('/apple', passport.authenticate('apple', { session: false }));
+  router.get('/apple', passport.authenticate('apple', { scope: ['name', 'email'], session: false }));
 
   router.post('/apple/callback', passport.authenticate('apple', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed` }), (req, res) => {
     const token = generateToken(req.user);

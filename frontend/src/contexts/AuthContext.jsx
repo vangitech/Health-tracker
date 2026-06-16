@@ -45,24 +45,21 @@ export const AuthProvider = ({ children }) => {
     return response.data
   }
 
-  const handleOAuthToken = (oauthToken) => {
+  const handleOAuthToken = async (oauthToken) => {
     localStorage.setItem('token', oauthToken)
     axios.defaults.headers.common['Authorization'] = `Bearer ${oauthToken}`
     setToken(oauthToken);
-    // Fetch profile after setting token
-    (async () => {
-      try {
-        const res = await axios.get('/api/auth/me')
-        setUser(res.data.user || res.data)
-      } catch {
-          try {
-            const payload = JSON.parse(atob(oauthToken.split('.')[1]))
-            setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
-          } catch {
-            console.error('Failed to decode token')
-          }
-      }
-    })();
+    try {
+      const res = await axios.get('/api/auth/me')
+      setUser(res.data.user || res.data)
+    } catch {
+        try {
+          const payload = JSON.parse(atob(oauthToken.split('.')[1]))
+          setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
+        } catch {
+          console.error('Failed to decode token')
+        }
+    }
   }
 
   const logout = () => {

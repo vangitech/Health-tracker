@@ -12,8 +12,9 @@ export default function OAuthCallback() {
   useEffect(() => {
     const token = searchParams.get('token')
     if (token) {
-      handleOAuthToken(token)
-      navigate('/', { replace: true })
+      handleOAuthToken(token).then(() => {
+        navigate('/', { replace: true })
+      })
     } else {
       setError('No authentication token received.')
       setTimeout(() => navigate('/login', { replace: true }), 2000)
