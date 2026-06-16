@@ -64,9 +64,23 @@ export default function Dashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleDataChange = () => {
+  const handleDataChange = (savedEntry) => {
     setDataError('');
-    fetchData();
+    if (savedEntry) {
+      setEntries((prev) => {
+        if (savedEntry._deleted) {
+          return prev.filter((e) => e._id !== savedEntry._id)
+        }
+        const idx = prev.findIndex((e) => e._id === savedEntry._id)
+        if (idx >= 0) {
+          const next = [...prev]
+          next[idx] = savedEntry
+          return next
+        }
+        return [savedEntry, ...prev]
+      })
+    }
+    fetchData()
   };
 
   if (loading) {

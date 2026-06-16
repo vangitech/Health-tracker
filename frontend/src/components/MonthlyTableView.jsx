@@ -46,10 +46,10 @@ export default function MonthlyTableView({ entries, onDataChange }) {
     setShowForm(true);
   };
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = (savedEntry) => {
     setShowForm(false);
     setSelectedEntry(null);
-    onDataChange();
+    onDataChange(savedEntry);
   };
 
   const exportToExcel = () => {

@@ -41,7 +41,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
     setError('');
     try {
       await axios.delete(`/api/entries/${entryToEdit._id}`);
-      onSuccess();
+      onSuccess({ _id: entryToEdit._id, _deleted: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete entry');
       setLoading(false);
@@ -66,12 +66,15 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
     };
 
     try {
+      let saved
       if (entryToEdit?._id) {
-        await axios.put(`/api/entries/${entryToEdit._id}`, payload);
+        const { data } = await axios.put(`/api/entries/${entryToEdit._id}`, payload)
+        saved = data
       } else {
-        await axios.post('/api/entries', payload);
+        const { data } = await axios.post('/api/entries', payload)
+        saved = data
       }
-      onSuccess();
+      onSuccess(saved)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save entry');
     } finally {
