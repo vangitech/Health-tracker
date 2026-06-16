@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -19,6 +19,13 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 }
+
+const DOTS = Array.from({ length: 20 }, () => ({
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  duration: 3 + Math.random() * 4,
+  delay: Math.random() * 3,
+}))
 
 function GoogleIcon() {
   return (
@@ -102,17 +109,6 @@ export default function Login() {
     { name: 'GitHub', icon: GitHubIcon, href: `${API}/api/auth/github`, color: 'hover:bg-white/10' },
   ]
 
-  const dots = useMemo(
-    () =>
-      [...Array(20)].map(() => ({
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        duration: 3 + Math.random() * 4,
-        delay: Math.random() * 3,
-      })),
-    []
-  )
-
   return (
     <div className="relative min-h-dvh flex flex-col overflow-hidden bg-black select-none pb-[env(safe-area-inset-bottom)]">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
@@ -120,7 +116,7 @@ export default function Login() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/3 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/2 rounded-full blur-3xl" />
-        {dots.map((d, i) => (
+        {DOTS.map((d, i) => (
           <motion.div
             key={i}
             className="absolute size-1 bg-white/10 rounded-full"
