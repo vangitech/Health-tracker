@@ -81,7 +81,7 @@ export default function Register() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col justify-end sm:justify-center items-center min-h-full p-0 sm:p-4 relative z-10"
+            className="grow flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
           >
             <motion.div
               variants={containerVariants}

@@ -147,7 +147,7 @@ export default function Login() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={mounted ? { opacity: 1 } : {}}
-            className="flex-1 flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
+            className="grow flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 relative z-10"
           >
             <motion.div
               variants={containerVariants}
