@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
 import * as XLSX from 'xlsx';
 import EntryForm from './EntryForm';
-import { ChevronLeft, ChevronRight, Download, Plus, Edit2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Plus, Edit2, X, Calendar } from 'lucide-react';
 
 const getGlucoseColor = (value, isFasting) => {
   if (!value) return { bg: 'bg-zinc-800/40', text: 'text-zinc-600', label: 'No data' };
@@ -128,6 +128,13 @@ export default function MonthlyTableView({ entries, onDataChange }) {
             className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setCurrentMonth(new Date())}
+            className="ml-2 p-1.5 rounded-lg text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            title="Go to current month"
+          >
+            <Calendar className="w-4 h-4" />
           </button>
         </div>
         <button

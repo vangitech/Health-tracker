@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from '../lib/axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
 
 export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate, presetMealType }) {
   const getCurrentTime = () => {
@@ -20,6 +21,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +37,19 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
       if (val < 3.9 || val > 10.0) return 'Post-meal glucose must be between 3.9 and 10.0 mmol/L';
     }
     return null;
+  };
+
+  const handleDelete = async () => {
+    if (!entryToEdit?._id) return;
+    setLoading(true);
+    setError('');
+    try {
+      await axios.delete(`/api/entries/${entryToEdit._id}`);
+      onSuccess();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete entry');
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -205,7 +220,61 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
         >
           Cancel
         </button>
+        {entryToEdit && (
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            disabled={loading}
+            className="px-3 py-2.5 rounded-xl text-sm font-semibold bg-red-900/40 text-red-400 hover:bg-red-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Delete entry"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {confirmDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setConfirmDelete(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+              className="bg-zinc-900 border border-red-900/40 rounded-2xl w-full max-w-sm p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-zinc-100 mb-2">Delete Entry</h3>
+              <p className="text-sm text-zinc-400 mb-6">
+                Are you sure you want to delete this entry? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-red-500 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Deleting...' : 'Delete'}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={loading}
+                  className="flex-1 bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.form>
   );
 }
