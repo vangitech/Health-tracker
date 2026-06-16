@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState([]);
   const [trends, setTrends] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState('');
 
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -39,6 +40,7 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
+      setDataError('');
       const [entriesRes, trendsRes] = await Promise.all([
         axios.get('/api/entries'),
         axios.get('/api/trends')
@@ -46,6 +48,8 @@ export default function Dashboard() {
       setEntries(entriesRes.data);
       setTrends(trendsRes.data);
     } catch (error) {
+      const msg = error?.response?.data?.message || error.message || 'Failed to load data';
+      setDataError(msg);
       console.error('Failed to fetch data', error);
     } finally {
       setLoading(false);
@@ -53,26 +57,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [entriesRes, trendsRes] = await Promise.all([
-          axios.get('/api/entries'),
-          axios.get('/api/trends')
-        ])
-        if (cancelled) return
-        setEntries(entriesRes.data)
-        setTrends(trendsRes.data)
-      } catch (error) {
-        console.error('Failed to fetch data', error)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
+    fetchData();
   }, []);
 
   const handleDataChange = () => {
+    setDataError('');
     fetchData();
   };
 
@@ -155,6 +144,17 @@ export default function Dashboard() {
       </header>
 
       <main className="flex-1 min-h-0 overflow-y-auto max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-[env(safe-area-inset-bottom)]">
+        {dataError && (
+          <div className="flex items-center gap-3 bg-red-900/20 border border-red-800/30 text-red-400 p-3 sm:p-4 rounded-xl text-sm">
+            <span className="flex-1">{dataError}</span>
+            <button
+              onClick={fetchData}
+              className="px-3 py-1.5 bg-red-800/40 hover:bg-red-700/50 rounded-lg text-xs font-medium transition-colors shrink-0"
+            >
+              Retry
+            </button>
+          </div>
+        )}
         <StatsCard trends={trends} />
         <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
       </main>
