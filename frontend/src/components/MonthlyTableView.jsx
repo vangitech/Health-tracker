@@ -83,19 +83,19 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
       worksheetData.push([
         format(day, 'yyyy-MM-dd'),
-        fbs?.glucoseValue || '',
+        fbs?.glucoseValue?.toFixed(1) || '',
         fbs?.time || '',
-        breakfast?.glucoseValue || '',
+        breakfast?.glucoseValue?.toFixed(1) || '',
         breakfast?.foodEaten || '',
         breakfast?.carbs || '',
         breakfast?.insulinUnits || '',
         breakfast?.notes || '',
-        lunch?.glucoseValue || '',
+        lunch?.glucoseValue?.toFixed(1) || '',
         lunch?.foodEaten || '',
         lunch?.carbs || '',
         lunch?.insulinUnits || '',
         lunch?.notes || '',
-        dinner?.glucoseValue || '',
+        dinner?.glucoseValue?.toFixed(1) || '',
         dinner?.foodEaten || '',
         dinner?.carbs || '',
         dinner?.insulinUnits || '',
@@ -193,7 +193,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                       {fbsEntry ? (
                         <div>
                           <div className={`text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}>
-                            {fbsEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                            {fbsEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
                           {fbsEntry.foodEaten && (
@@ -219,7 +219,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                       {breakfastEntry ? (
                         <div>
                           <div className={`text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}>
-                            {breakfastEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                            {breakfastEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
                           {breakfastEntry.foodEaten && (
@@ -245,7 +245,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                       {lunchEntry ? (
                         <div>
                           <div className={`text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}>
-                            {lunchEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                            {lunchEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
                           {lunchEntry.foodEaten && (
@@ -271,7 +271,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                       {dinnerEntry ? (
                         <div>
                           <div className={`text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}>
-                            {dinnerEntry.glucoseValue} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                            {dinnerEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
                           {dinnerEntry.foodEaten && (
