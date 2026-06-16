@@ -1,4 +1,5 @@
 // frontend/src/App.jsx
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
@@ -38,9 +39,22 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    import('@capacitor/status-bar').then(({ StatusBar }) => {
+      StatusBar.setOverlaysWebView({ overlay: false })
+      StatusBar.setStyle({ style: 'DARK' })
+      StatusBar.setBackgroundColor({ color: '#09090b' })
+    }).catch(() => {
+      // Capacitor not available (web)
+    })
+  }, [])
+
   return (
     <AuthProvider>
-      <AppContent />
+      <div className="overflow-x-hidden">
+        <AppContent />
+      </div>
     </AuthProvider>
   )
 }

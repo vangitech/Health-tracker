@@ -110,65 +110,65 @@ export default function MonthlyTableView({ entries, onDataChange }) {
   };
 
   return (
-    <div className="bg-zinc-900/60 border border-zinc-800/50 rounded-2xl overflow-hidden">
+    <div className="bg-zinc-900/60 border border-zinc-800/50 rounded-xl sm:rounded-2xl overflow-hidden">
       {/* Month Navigation & Export */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/50">
+      <div className="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b border-zinc-800/50">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="p-1 sm:p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <span className="text-base font-semibold text-zinc-100 min-w-[160px] text-center">
+          <span className="text-sm sm:text-base font-semibold text-zinc-100 min-w-[130px] sm:min-w-[160px] text-center">
             {format(currentMonth, 'MMMM yyyy')}
           </span>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="p-1 sm:p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={() => setCurrentMonth(new Date())}
-            className="ml-2 p-1.5 rounded-lg text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="ml-1 sm:ml-2 p-1 sm:p-1.5 rounded-lg text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
             title="Go to current month"
           >
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
         <button
           onClick={exportToExcel}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-500 transition-colors"
+          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl hover:bg-emerald-500 transition-colors"
         >
-          <Download className="w-4 h-4" />
-          <span>Export</span>
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Export</span>
         </button>
       </div>
 
       {/* Scrollable Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-[800px] w-full">
+        <table className="min-w-[600px] sm:min-w-[800px] w-full">
           <thead>
             <tr>
-              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
+              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
                 Date
               </th>
-              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 FBS
-                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–6.1</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–6.1</span>
               </th>
-              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Breakfast
-                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
-              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Lunch
-                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
-              <th className="p-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Dinner
-                <span className="block text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
             </tr>
           </thead>
@@ -181,109 +181,109 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
               return (
                 <tr key={day.toISOString()} className="border-t border-zinc-800/30 hover:bg-zinc-800/20 transition-colors">
-                  <td className="p-3 text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
                     {format(day, 'd MMM')}
                   </td>
 
-                  <td className="p-2">
+                  <td className="p-1 sm:p-2">
                     <div
                       onClick={() => handleAddOrEdit(day, 'fbs', fbsEntry)}
-                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(fbsEntry?.glucoseValue, true).bg} hover:ring-1 hover:ring-zinc-700`}
+                      className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl cursor-pointer transition ${getGlucoseColor(fbsEntry?.glucoseValue, true).bg} hover:ring-1 hover:ring-zinc-700`}
                     >
                       {fbsEntry ? (
                         <div>
-                          <div className={`text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}>
-                            {fbsEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}>
+                            {fbsEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
+                          <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
                           {fbsEntry.foodEaten && (
-                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{fbsEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{fbsEntry.foodEaten}</div>
                           )}
-                          <div className="flex justify-end mt-1">
-                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          <div className="flex justify-end mt-0.5 sm:mt-1">
+                            <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
-                          <Plus className="w-5 h-5" />
+                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
                     </div>
                   </td>
 
-                  <td className="p-2">
+                  <td className="p-1 sm:p-2">
                     <div
                       onClick={() => handleAddOrEdit(day, 'breakfast', breakfastEntry)}
-                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(breakfastEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                      className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl cursor-pointer transition ${getGlucoseColor(breakfastEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
                     >
                       {breakfastEntry ? (
                         <div>
-                          <div className={`text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}>
-                            {breakfastEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}>
+                            {breakfastEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
+                          <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
                           {breakfastEntry.foodEaten && (
-                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{breakfastEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{breakfastEntry.foodEaten}</div>
                           )}
-                          <div className="flex justify-end mt-1">
-                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          <div className="flex justify-end mt-0.5 sm:mt-1">
+                            <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
-                          <Plus className="w-5 h-5" />
+                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
                     </div>
                   </td>
 
-                  <td className="p-2">
+                  <td className="p-1 sm:p-2">
                     <div
                       onClick={() => handleAddOrEdit(day, 'lunch', lunchEntry)}
-                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(lunchEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                      className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl cursor-pointer transition ${getGlucoseColor(lunchEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
                     >
                       {lunchEntry ? (
                         <div>
-                          <div className={`text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}>
-                            {lunchEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}>
+                            {lunchEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
+                          <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
                           {lunchEntry.foodEaten && (
-                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{lunchEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{lunchEntry.foodEaten}</div>
                           )}
-                          <div className="flex justify-end mt-1">
-                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          <div className="flex justify-end mt-0.5 sm:mt-1">
+                            <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
-                          <Plus className="w-5 h-5" />
+                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
                     </div>
                   </td>
 
-                  <td className="p-2">
+                  <td className="p-1 sm:p-2">
                     <div
                       onClick={() => handleAddOrEdit(day, 'dinner', dinnerEntry)}
-                      className={`p-2.5 rounded-xl cursor-pointer transition ${getGlucoseColor(dinnerEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
+                      className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl cursor-pointer transition ${getGlucoseColor(dinnerEntry?.glucoseValue, false).bg} hover:ring-1 hover:ring-zinc-700`}
                     >
                       {dinnerEntry ? (
                         <div>
-                          <div className={`text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}>
-                            {dinnerEntry.glucoseValue?.toFixed(1)} <span className="text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}>
+                            {dinnerEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
+                          <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
                           {dinnerEntry.foodEaten && (
-                            <div className="text-[11px] text-zinc-400 mt-1 truncate max-w-[120px]">{dinnerEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{dinnerEntry.foodEaten}</div>
                           )}
-                          <div className="flex justify-end mt-1">
-                            <Edit2 className="w-3 h-3 text-zinc-600" />
+                          <div className="flex justify-end mt-0.5 sm:mt-1">
+                            <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[60px] text-zinc-600">
-                          <Plus className="w-5 h-5" />
+                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
                     </div>

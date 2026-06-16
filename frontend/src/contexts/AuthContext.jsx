@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       } catch {
           try {
             const payload = JSON.parse(atob(token.split('.')[1]))
-            if (!cancelled) setUser({ id: payload.id, email: payload.email })
+            if (!cancelled) setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
           } catch {
             localStorage.removeItem('token')
             setToken(null)
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       } catch {
           try {
             const payload = JSON.parse(atob(oauthToken.split('.')[1]))
-            setUser({ id: payload.id, email: payload.email })
+            setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
           } catch {
             console.error('Failed to decode token')
           }

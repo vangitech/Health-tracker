@@ -195,7 +195,7 @@ router.post(
       }
 
       const token = jwt.sign(
-        { id: user._id, email: user.email },
+        { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
