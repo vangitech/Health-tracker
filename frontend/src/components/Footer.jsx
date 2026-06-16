@@ -18,7 +18,7 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-zinc-800/40 bg-zinc-900/80 backdrop-blur-xl px-4 pt-3 pb-[env(safe-area-inset-bottom,12px)]">
+    <footer className="w-full border-t border-zinc-800/40 bg-zinc-900/80 backdrop-blur-xl px-4 pt-3 pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <svg width="18" height="18" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">

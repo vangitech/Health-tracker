@@ -24,14 +24,21 @@ export default function DashboardLayout({
             />
           </IonRefresher>
         )}
-        {children}
+        {isNative ? (
+          children
+        ) : (
+          <div className="flex flex-col min-h-full">
+            <div className="flex-1">
+              {children}
+            </div>
+            <WebFooter />
+          </div>
+        )}
       </IonContent>
-      {isNative ? (
+      {isNative && (
         <IonFooter className="ion-no-border">
           <Footer />
         </IonFooter>
-      ) : (
-        <WebFooter />
       )}
     </IonPage>
   );
