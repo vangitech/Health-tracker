@@ -1,5 +1,8 @@
-import { IonPage, IonContent, IonRefresher, IonRefresherContent } from '@ionic/react';
+import { IonPage, IonContent, IonRefresher, IonRefresherContent, IonFooter } from '@ionic/react';
+import { Capacitor } from '@capacitor/core';
 import Footer from './Footer';
+
+const isNative = Capacitor.isNativePlatform();
 
 export default function DashboardLayout({
   children,
@@ -9,7 +12,7 @@ export default function DashboardLayout({
   return (
     <IonPage>
       {header}
-      <IonContent fullscreen>
+      <IonContent fullscreen={isNative}>
         {onRefresh && (
           <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
             <IonRefresherContent
@@ -20,13 +23,11 @@ export default function DashboardLayout({
             />
           </IonRefresher>
         )}
-        <div className="flex flex-col min-h-full">
-          <div className="flex-1">
-            {children}
-          </div>
-          <Footer />
-        </div>
+        {children}
       </IonContent>
+      <IonFooter className="ion-no-border">
+        <Footer />
+      </IonFooter>
     </IonPage>
   );
 }
