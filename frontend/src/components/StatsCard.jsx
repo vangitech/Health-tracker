@@ -76,7 +76,7 @@ function StatsCardContent({ trends }) {
         <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-300">
           {estimatedA1C != null
             ? estimatedA1C < 7
-              ? `Well controlled — target < 7%`
+              ? `Well controlled `
               : estimatedA1C < 8
                 ? 'Moderate — consider treatment adjustment'
                 : 'Elevated — clinical review advised'

@@ -151,22 +151,22 @@ export default function MonthlyTableView({ entries, onDataChange }) {
         <table className="min-w-150 sm:min-w-200 w-full">
           <thead>
             <tr>
-              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
+              <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
                 Date
               </th>
-              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 FBS
                 <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–6.1</span>
               </th>
-              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Breakfast
                 <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
-              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Lunch
                 <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
-              <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Dinner
                 <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
               </th>
@@ -181,7 +181,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
               return (
                 <tr key={day.toISOString()} className="border-t border-zinc-800/30 hover:bg-zinc-800/20 transition-colors">
-                  <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
+                  <td className="p-0 sm:p-0 text-center sm:text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
                     {format(day, 'd MMM')}
                   </td>
 
