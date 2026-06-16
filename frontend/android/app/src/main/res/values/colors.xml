@@ -6,4 +6,5 @@
     <color name="splash_bg">#1F1F7F</color>
     <color name="status_bar">#1A1A2E</color>
     <color name="nav_bar">#1A1A2E</color>
+    <color name="ic_launcher_background">#1F1F7F</color>
 </resources>
