@@ -50,16 +50,17 @@ function findOrCreateUser(profile, provider, done) {
     .catch(err => done(err, null));
 }
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID || 'dummy',
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy',
-  callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`
-}, (accessToken, refreshToken, profile, done) => {
-  if (!process.env.GOOGLE_CLIENT_ID) {
-    return done(new Error('Google OAuth not configured'));
-  }
-  findOrCreateUser(profile, 'google', done);
-}));
+if (process.env.GOOGLE_CLIENT_ID) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`
+  }, (accessToken, refreshToken, profile, done) => {
+    findOrCreateUser(profile, 'google', done);
+  }));
+} else {
+  console.warn('Google OAuth not configured — skipping strategy registration');
+}
 
 if (process.env.APPLE_CLIENT_ID) {
   const appleConfig = {
@@ -130,12 +131,14 @@ if (process.env.YAHOO_CLIENT_ID) {
   }));
 }
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+if (process.env.GOOGLE_CLIENT_ID) {
+  router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
-router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed` }), (req, res) => {
-  const token = generateToken(req.user);
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
-});
+  router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed` }), (req, res) => {
+    const token = generateToken(req.user);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
+  });
+}
 
 if (process.env.APPLE_CLIENT_ID) {
   router.get('/apple', passport.authenticate('apple', { scope: ['name', 'email'], session: false }));
