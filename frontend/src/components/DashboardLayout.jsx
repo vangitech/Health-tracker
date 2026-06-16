@@ -1,8 +1,5 @@
 import { IonPage, IonContent, IonRefresher, IonRefresherContent } from '@ionic/react';
-import { Capacitor } from '@capacitor/core';
 import Footer from './Footer';
-
-const isNative = Capacitor.isNativePlatform();
 
 export default function DashboardLayout({
   children,
@@ -25,7 +22,7 @@ export default function DashboardLayout({
           </IonRefresher>
         )}
         {children}
-        {!isNative && <Footer minimal />}
+        <Footer minimal />
       </IonContent>
     </IonPage>
   );
