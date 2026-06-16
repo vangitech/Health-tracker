@@ -55,7 +55,7 @@ function GitHubIcon() {
   )
 }
 
-import Footer from '../components/Footer';
+import WebFooter from '../components/WebFooter';
 import { Capacitor } from '@capacitor/core';
 
 const isNative = Capacitor.isNativePlatform();
@@ -264,7 +264,7 @@ export default function Login() {
             </motion.div>
           </motion.div>
         </div>
-        {!isNative && <Footer />}
+        {!isNative && <WebFooter />}
       </IonContent>
     </IonPage>
   )
