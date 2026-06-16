@@ -64,7 +64,7 @@ export default function Register() {
   ]
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-black select-none">
+    <div className="relative min-h-dvh overflow-hidden bg-black select-none pb-[env(safe-area-inset-bottom)]">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
