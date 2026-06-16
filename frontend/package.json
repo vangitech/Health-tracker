@@ -26,7 +26,6 @@
     "@fontsource-variable/geist": "^5.2.9",
     "@hookform/resolvers": "^5.4.0",
     "@ionic/react": "^8.8.10",
-    "@ionic/react-router": "^8.8.10",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.17.0",
     "class-variance-authority": "^0.7.1",
