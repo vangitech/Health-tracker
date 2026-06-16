@@ -2,7 +2,19 @@
   "appId": "com.sugarcare.app",
   "appName": "Sugarcare",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "server": {
-    "cleartext": true
+    "cleartext": true,
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": null,
+      "keystoreAlias": null
+    }
+  },
+  "ios": {
+    "contentInset": "always",
+    "preferredContentMode": "mobile"
   }
 }
