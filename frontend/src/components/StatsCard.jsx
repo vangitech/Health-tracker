@@ -97,7 +97,7 @@ export default function StatsCard({ trends }) {
         <div className="mt-3 sm:mt-4 flex flex-col gap-1 sm:gap-1.5 text-[10px] sm:text-xs">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="inline-block size-2 sm:size-2.5 rounded-full bg-rose-500 shrink-0" />
-            <span className="text-slate-400">High (&gt;10.0)</span>
+            <span className="text-slate-400">{`High (>10.0)`}</span>
             <span className="ml-auto font-medium text-rose-300">{highCount ?? 0}</span>
             <span className="text-slate-500">({pct(highCount)}%)</span>
           </div>
@@ -115,7 +115,7 @@ export default function StatsCard({ trends }) {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="inline-block size-2 sm:size-2.5 rounded-full bg-cyan-500 shrink-0" />
-            <span className="text-slate-400">Low (&lt;4.0)</span>
+            <span className="text-slate-400">{`Low (<4.0)`}</span>
             <span className="ml-auto font-medium text-cyan-300">{lowCount ?? 0}</span>
             <span className="text-slate-500">({pct(lowCount)}%)</span>
           </div>
