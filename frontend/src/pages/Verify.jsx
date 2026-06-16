@@ -171,8 +171,8 @@ export default function Verify() {
               )}
             </motion.div>
           </motion.div>
+          {!isNative && <WebFooter />}
         </div>
-        {!isNative && <WebFooter />}
       </IonContent>
     </IonPage>
   )

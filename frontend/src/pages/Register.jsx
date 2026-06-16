@@ -193,8 +193,8 @@ export default function Register() {
               </motion.div>
             </motion.div>
           </motion.div>
+          {!isNative && <WebFooter />}
         </div>
-        {!isNative && <WebFooter />}
       </IonContent>
     </IonPage>
   )

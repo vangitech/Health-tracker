@@ -116,7 +116,7 @@ export default function Login() {
 
   return (
     <IonPage>
-      <IonContent scrollY={false} className="ion-no-padding">
+      <IonContent scrollY={true} className="ion-no-padding">
         <div className="relative min-h-full flex flex-col bg-black select-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black" />
 
@@ -263,8 +263,8 @@ export default function Login() {
               </motion.div>
             </motion.div>
           </motion.div>
+          {!isNative && <WebFooter />}
         </div>
-        {!isNative && <WebFooter />}
       </IonContent>
     </IonPage>
   )
