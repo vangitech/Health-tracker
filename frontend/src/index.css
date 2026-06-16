@@ -547,7 +547,7 @@ button:active {
 
 /* ── Web Dashboard Content ── */
 .web-dashboard-content {
-  min-height: calc(100vh - 52px - 60px);
+  padding-bottom: 16px;
 }
 
 .auth-page {

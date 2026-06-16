@@ -5,12 +5,11 @@ export default function DashboardLayout({
   children,
   header,
   onRefresh,
-  fullscreen = true,
 }) {
   return (
     <IonPage>
       {header}
-      <IonContent fullscreen={fullscreen}>
+      <IonContent fullscreen>
         {onRefresh && (
           <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
             <IonRefresherContent
@@ -21,8 +20,12 @@ export default function DashboardLayout({
             />
           </IonRefresher>
         )}
-        {children}
-        <Footer minimal />
+        <div className="flex flex-col min-h-full">
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </div>
       </IonContent>
     </IonPage>
   );
