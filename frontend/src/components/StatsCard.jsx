@@ -1,7 +1,29 @@
 import { motion } from 'framer-motion'
 import { Activity, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react'
+import { usePlatform } from '../lib/usePlatform'
+import NativeStatsCard from './NativeStatsCard'
 
 export default function StatsCard({ trends }) {
+  const { isNative, isLoading } = usePlatform()
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-2.5">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="rounded-2xl border border-slate-800/90 bg-slate-900/90 p-3.5 h-24 animate-pulse" />
+        ))}
+      </div>
+    )
+  }
+
+  if (isNative) {
+    return <NativeStatsCard trends={trends} />
+  }
+
+  return <StatsCardContent trends={trends} />
+}
+
+function StatsCardContent({ trends }) {
   const {
     averageGlucose,
     estimatedA1C,
