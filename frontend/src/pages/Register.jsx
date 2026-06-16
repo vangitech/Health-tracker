@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import axios from '../lib/axios'
 import { motion } from 'framer-motion'
 import { Sparkles, User, Mail, Phone, Calendar, Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
+import Footer from '../components/Footer'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -185,6 +186,7 @@ export default function Register() {
           </motion.div>
         </motion.div>
       </motion.div>
+      <Footer />
     </div>
   )
 }

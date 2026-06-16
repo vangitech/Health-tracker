@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
+import Footer from '../components/Footer'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -240,6 +241,7 @@ export default function Login() {
           </motion.div>
         </motion.div>
       </motion.div>
+      <Footer />
     </div>
   )
 }

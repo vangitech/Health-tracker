@@ -3,10 +3,37 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import User from '../models/User.js';
 import VerificationCode from '../models/VerificationCode.js';
 import { sendVerificationEmail } from '../utils/email.js';
 import { authenticateToken } from '../middleware/auth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '..', 'uploads', 'avatars'));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${req.user.id}-${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|webp/;
+    const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mimeOk = allowed.test(file.mimetype.split('/')[1]);
+    cb(extOk && mimeOk ? null : new Error('Only image files (jpg, png, gif, webp) are allowed'), false);
+  }
+});
 
 const router = express.Router();
 
@@ -241,6 +268,25 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.json({ user });
   } catch (error) {
     console.error('Failed to fetch profile', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Upload profile avatar
+router.put('/profile', authenticateToken, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: avatarUrl },
+      { new: true }
+    ).select('-password');
+    res.json({ user });
+  } catch (error) {
+    console.error('Failed to upload avatar', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

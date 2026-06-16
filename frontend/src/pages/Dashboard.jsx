@@ -1,15 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
-import { LogOut, Activity, User } from 'lucide-react';
+import Footer from '../components/Footer';
+import { LogOut, Activity, User, Camera, Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const [entries, setEntries] = useState([]);
   const [trends, setTrends] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const res = await axios.put('/api/auth/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setUser(res.data.user);
+    } catch (err) {
+      console.error('Failed to upload avatar', err);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -84,13 +110,36 @@ export default function Dashboard() {
                   </span>
                   <span className="text-[11px] text-zinc-500">Member</span>
                 </div>
-                <div className="size-9 rounded-full bg-zinc-800 flex items-center justify-center">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="" className="size-full object-cover rounded-full" />
+                <button
+                  onClick={handleAvatarClick}
+                  disabled={uploading}
+                  className="relative size-9 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden group hover:ring-2 hover:ring-zinc-600 transition-all"
+                >
+                  {uploading ? (
+                    <Loader2 className="size-4 text-zinc-400 animate-spin" />
+                  ) : user?.avatar ? (
+                    <>
+                      <img src={user.avatar} alt="" className="size-full object-cover rounded-full" />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera className="size-4 text-white" />
+                      </div>
+                    </>
                   ) : (
-                    <User className="w-4 h-4 text-zinc-400" />
+                    <>
+                      <User className="w-4 h-4 text-zinc-400 group-hover:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                        <Camera className="size-4 text-white" />
+                      </div>
+                    </>
                   )}
-                </div>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
               </div>
 
               <button
@@ -109,6 +158,7 @@ export default function Dashboard() {
         <StatsCard trends={trends} />
         <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
       </main>
+      <Footer />
     </div>
   );
 }
