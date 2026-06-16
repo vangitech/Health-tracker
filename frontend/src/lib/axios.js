@@ -1,8 +1,20 @@
 // frontend/src/lib/axios.js
 import axios from 'axios'
 
-// Set default API URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+// Determine API URL:
+// 1. VITE_API_URL env var (set during build for production/native)
+// 2. Android emulator uses 10.0.2.2 to reach host localhost
+// 3. iOS simulator / web dev uses localhost
+function getApiUrl() {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
+  // @ts-ignore
+  if (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)) {
+    return 'http://10.0.2.2:5001'
+  }
+  return 'http://localhost:5001'
+}
+
+const API_URL = getApiUrl()
 axios.defaults.baseURL = API_URL
 
 // Log initial configuration
