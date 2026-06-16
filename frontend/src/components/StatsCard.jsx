@@ -67,7 +67,7 @@ function StatsCardContent({ trends }) {
         <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-400">Mean glucose over the tracked period.</p>
       </div>
 
-      <div className="rounded-2xl sm:rounded-[1.75rem] border border-slate-800/90 bg-gradient-to-br from-violet-600/90 to-slate-900/90 p-4 sm:p-5 shadow-xl shadow-slate-950/20">
+      <div className="rounded-2xl sm:rounded-[1.75rem] border border-slate-800/90 bg-linear-to-br from-violet-600/90 to-slate-900/90 p-4 sm:p-5 shadow-xl shadow-slate-950/20">
         <div className="flex items-center justify-between gap-3 text-slate-200">
           <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em]">Est. A1C</span>
           <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-violet-300 shrink-0" />

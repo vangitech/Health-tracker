@@ -120,7 +120,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <span className="text-sm sm:text-base font-semibold text-zinc-100 min-w-[130px] sm:min-w-[160px] text-center">
+          <span className="text-sm sm:text-base font-semibold text-zinc-100 min-w-32.5 sm:min-w-40 text-center">
             {format(currentMonth, 'MMMM yyyy')}
           </span>
           <button
@@ -148,7 +148,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
       {/* Scrollable Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-[600px] sm:min-w-[800px] w-full">
+        <table className="min-w-150 sm:min-w-200 w-full">
           <thead>
             <tr>
               <th className="p-2 sm:p-3 text-left text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
@@ -197,14 +197,14 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
                           {fbsEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{fbsEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{fbsEntry.foodEaten}</div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                        <div className="flex items-center justify-center h-10 sm:h-15 text-zinc-600">
                           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
@@ -223,14 +223,14 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
                           {breakfastEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{breakfastEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{breakfastEntry.foodEaten}</div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                        <div className="flex items-center justify-center h-10 sm:h-15 text-zinc-600">
                           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
@@ -249,14 +249,14 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
                           {lunchEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{lunchEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{lunchEntry.foodEaten}</div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                        <div className="flex items-center justify-center h-10 sm:h-15 text-zinc-600">
                           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}
@@ -275,14 +275,14 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
                           {dinnerEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-[80px] sm:max-w-[120px]">{dinnerEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{dinnerEntry.foodEaten}</div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-[40px] sm:h-[60px] text-zinc-600">
+                        <div className="flex items-center justify-center h-10 sm:h-15 text-zinc-600">
                           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       )}

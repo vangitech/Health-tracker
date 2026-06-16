@@ -57,7 +57,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    // Defer fetching to avoid synchronous setState calls during render/effect execution
+    const t = setTimeout(() => {
+      fetchData();
+    }, 0);
+    return () => clearTimeout(t);
   }, []);
 
   const handleDataChange = () => {
