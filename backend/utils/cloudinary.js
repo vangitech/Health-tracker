@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error('FATAL: Cloudinary credentials missing. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in .env');
+}
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -15,12 +19,17 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const avatarStorage = new CloudinaryStorage({
   cloudinary,
-  params: (req, file) => ({
-    folder: 'sugarcare/avatars',
-    allowed_formats: ALLOWED_FORMATS,
-    transformation: [{ width: 400, height: 400, crop: 'limit', quality: 'auto', fetch_format: 'auto' }],
-    public_id: `user-${req.user.id}-${Date.now()}`,
-  }),
+  params: (req, file) => {
+    if (!req?.user?.id) {
+      throw new Error('Authentication required for avatar upload');
+    }
+    return {
+      folder: 'sugarcare/avatars',
+      allowed_formats: ALLOWED_FORMATS,
+      transformation: [{ width: 400, height: 400, crop: 'limit', quality: 'auto', fetch_format: 'auto' }],
+      public_id: `user-${req.user.id}-${Date.now()}`,
+    };
+  },
 });
 
 function extractPublicId(url) {
