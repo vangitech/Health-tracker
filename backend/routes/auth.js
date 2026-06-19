@@ -4,34 +4,22 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import User from '../models/User.js';
 import VerificationCode from '../models/VerificationCode.js';
 import { sendVerificationEmail } from '../utils/email.js';
 import { authenticateToken } from '../middleware/auth.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'uploads', 'avatars'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `avatar-${req.user.id}-${Date.now()}${ext}`);
-  }
-});
+import { avatarStorage, extractPublicId, deleteImage, MAX_FILE_SIZE, ALLOWED_FORMATS } from '../utils/cloudinary.js';
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  storage: avatarStorage,
+  limits: { fileSize: MAX_FILE_SIZE },
   fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp/;
-    const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mimeOk = allowed.test(file.mimetype.split('/')[1]);
-    cb(extOk && mimeOk ? null : new Error('Only image files (jpg, png, gif, webp) are allowed'), false);
+    const ext = file.mimetype.split('/')[1];
+    if (ALLOWED_FORMATS.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files (jpg, png, gif, webp) are allowed'), false);
+    }
   }
 });
 
@@ -206,7 +194,8 @@ router.post(
           id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
+          email: user.email,
+          avatar: user.avatar
         }
       });
     } catch (error) {
@@ -278,7 +267,15 @@ router.put('/profile', authenticateToken, upload.single('avatar'), async (req, r
     if (!req.file) {
       return res.status(400).json({ message: 'No image file provided' });
     }
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Delete old Cloudinary image if present
+    const currentUser = await User.findById(req.user.id);
+    if (currentUser?.avatar) {
+      const oldPublicId = extractPublicId(currentUser.avatar);
+      await deleteImage(oldPublicId);
+    }
+
+    const avatarUrl = req.file.path;
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { avatar: avatarUrl },

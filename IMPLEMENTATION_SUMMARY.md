@@ -11,6 +11,8 @@
 - [x] MongoDB connection verified and working
 - [x] JWT token generation configured
 - [x] Email sending configured with Resend API
+- [x] Avatar upload migrated from local disk to Cloudinary
+- [x] Login endpoint now returns avatar field
 
 ### 2. Frontend Fixes
 - [x] Created centralized axios configuration (`lib/axios.js`)
@@ -145,7 +147,8 @@ Sugarcare/
 │   ├── middleware/
 │   │   └── auth.js                 ✅ Verified
 │   └── utils/
-│       └── email.js                ✅ Verified
+│       ├── email.js                ✅ Migrated to Resend
+│       └── cloudinary.js           ✅ Added (Cloudinary config + avatar upload)
 │
 ├── frontend/
 │   ├── src/
