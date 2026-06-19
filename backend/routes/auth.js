@@ -23,6 +23,20 @@ const upload = multer({
   }
 });
 
+function handleMulterError(err, req, res, next) {
+  if (err) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+}
+
+const uploadAvatar = (fieldName) => (req, res, next) => {
+  upload.single(fieldName)(req, res, (err) => handleMulterError(err, req, res, next));
+};
+
 const router = express.Router();
 
 // Generate random 6-digit code
@@ -291,7 +305,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 // Upload profile avatar
-router.put('/profile', authenticateToken, upload.single('avatar'), async (req, res) => {
+router.put('/profile', authenticateToken, uploadAvatar('avatar'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No image file provided' });

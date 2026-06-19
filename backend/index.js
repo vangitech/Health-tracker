@@ -102,8 +102,9 @@ app.get('/api', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Unhandled error:', err.message, err.stack);
+  const status = err.status || 500;
+  res.status(status).json({ message: err.message || 'Something went wrong!' });
 });
 
 app.listen(PORT, () => {
