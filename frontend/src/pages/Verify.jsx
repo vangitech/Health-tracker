@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from '../lib/axios'
+import { useAuth } from '../contexts/AuthContext'
 import { motion } from 'framer-motion'
 import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
 
@@ -24,6 +25,7 @@ export default function Verify() {
   const [success, setSuccess] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { setUser } = useAuth()
   const email = location.state?.email || sessionStorage.getItem('verifyEmail')
 
   useEffect(() => {
@@ -41,9 +43,14 @@ export default function Verify() {
     }
     setLoading(true)
     try {
-      await axios.post('/api/auth/verify', { email, code })
+      const res = await axios.post('/api/auth/verify', { email, code })
+      const { token, user } = res.data
+      localStorage.setItem('token', token)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      setUser(user)
+      sessionStorage.removeItem('verifyEmail')
       setSuccess(true)
-      setTimeout(() => navigate('/login'), 2000)
+      setTimeout(() => navigate('/'), 1500)
     } catch (err) {
       setError(err.response?.data?.message || 'Verification failed')
     } finally {
@@ -95,7 +102,7 @@ export default function Verify() {
             >
               <CheckCircle2 className="size-16 text-emerald-400 mx-auto mb-4" />
               <p className="text-emerald-400 font-medium">Email verified!</p>
-              <p className="text-zinc-500 text-sm mt-1">Redirecting to sign in...</p>
+              <p className="text-zinc-500 text-sm mt-1">Redirecting to dashboard...</p>
             </motion.div>
           ) : (
             <>

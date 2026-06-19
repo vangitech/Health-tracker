@@ -141,7 +141,23 @@ router.post(
       // Delete used verification code
       await VerificationCode.deleteOne({ _id: verificationCode._id });
 
-      res.json({ message: 'Email verified successfully' });
+      const token = jwt.sign(
+        { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        message: 'Email verified successfully',
+        token,
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          avatar: user.avatar
+        }
+      });
     } catch (error) {
       console.error('❌ Registration error:', {
         message: error.message,
@@ -254,7 +270,20 @@ router.get('/me', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ user });
+    res.json({
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        dob: user.dob,
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+        provider: user.provider,
+        createdAt: user.createdAt
+      }
+    });
   } catch (error) {
     console.error('Failed to fetch profile', error);
     res.status(500).json({ message: 'Server error' });
@@ -276,12 +305,25 @@ router.put('/profile', authenticateToken, upload.single('avatar'), async (req, r
     }
 
     const avatarUrl = req.file.path;
-    const user = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       { avatar: avatarUrl },
       { new: true }
     ).select('-password');
-    res.json({ user });
+    res.json({
+      user: {
+        id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        dob: updatedUser.dob,
+        avatar: updatedUser.avatar,
+        isVerified: updatedUser.isVerified,
+        provider: updatedUser.provider,
+        createdAt: updatedUser.createdAt
+      }
+    });
   } catch (error) {
     console.error('Failed to upload avatar', error);
     res.status(500).json({ message: 'Server error' });

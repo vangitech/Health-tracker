@@ -24,18 +24,20 @@ export default function Dashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setDataError('');
     try {
       const formData = new FormData();
       formData.append('avatar', file);
-      const res = await axios.put('/api/auth/profile', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await axios.put('/api/auth/profile', formData);
       setUser(res.data.user);
     } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to upload avatar';
+      setDataError(msg);
       console.error('Failed to upload avatar', err);
     } finally {
       setUploading(false);
     }
+    e.target.value = '';
   };
 
   const fetchData = async () => {
