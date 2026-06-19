@@ -4,23 +4,21 @@
 - Configured backend server running on http://localhost:5000
 - Configured frontend running on http://localhost:5173
 
-## 1. Gmail Configuration for Email Verification
+## 1. Resend Configuration for Email Verification
 
-### For Gmail App Passwords (Recommended):
-1. Go to your Google Account: https://myaccount.google.com
-2. Navigate to **Security** (left sidebar)
-3. Enable **2-Step Verification** if not already enabled
-4. Go back to Security and look for **App passwords**
-5. Select **Mail** and **Windows Computer** (or your device)
-6. Google will generate a 16-character password
-7. Copy this password and update your `.env` file:
+### Get Resend API Key:
+1. Go to https://resend.com
+2. Sign up or log in
+3. Navigate to **API Keys**
+4. Create a new API key
+5. Add it to your `.env` file:
 
 ```env
-EMAIL_USER=softwarekings001@gmail.com
-EMAIL_PASS=<16-character-app-password>
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@yourdomain.com
 ```
 
-**Note:** Do NOT use your regular Gmail password. Use the app-specific password.
+**Note:** You must verify a domain in Resend before sending emails. For development, you can use a verified domain like `vangitech.online`.
 
 ---
 
@@ -138,11 +136,9 @@ JWT_SECRET=your_super_secret_jwt_key_change_this
 FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:5000
 
-# Email
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=softwarekings001@gmail.com
-EMAIL_PASS=<app-password>
+# Resend
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@vangitech.online
 
 # OAuth - Google
 GOOGLE_CLIENT_ID=<your-id>
@@ -190,9 +186,9 @@ Register a new account and check if verification email arrives.
 ## Troubleshooting
 
 ### Email not sending?
-- Check that Gmail 2FA is enabled
-- Verify app-specific password is correct
-- Check backend logs for nodemailer errors
+- Verify RESEND_API_KEY is set correctly in .env
+- Ensure the domain in EMAIL_FROM is verified in Resend
+- Check backend logs for Resend API errors
 
 ### OAuth redirect not working?
 - Ensure callback URLs match exactly in OAuth provider settings
@@ -214,4 +210,4 @@ When deploying to production:
 3. Ensure MongoDB connection is from production database
 4. Use strong JWT_SECRET
 5. Enable HTTPS for all OAuth callbacks
-6. Use production email service (not Gmail app password)
+6. Keep Resend as the email service (already production-ready)

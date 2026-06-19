@@ -1,28 +1,13 @@
-// backend/utils/email.js
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-transporter.verify().then(() => {
-  console.log('✅ Mail transporter verified');
-}).catch(err => {
-  console.warn('⚠️ Mail transporter verification failed:', err.message);
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email, code) => {
-  const mailOptions = {
-    from: `"Blood Sugar Tracker" <${process.env.EMAIL_USER}>`,
+  const { data, error } = await resend.emails.send({
+    from: `Blood Sugar Tracker <${process.env.EMAIL_FROM}>`,
     to: email,
     subject: 'Verify Your Email - Blood Sugar Tracker',
     html: `
@@ -38,7 +23,12 @@ export const sendVerificationEmail = async (email, code) => {
         <p style="color: #6b7280; font-size: 12px;">Blood Sugar Tracker - Helping you manage your health</p>
       </div>
     `
-  };
+  });
 
-  await transporter.sendMail(mailOptions);
+  if (error) {
+    console.error('Resend email error:', error);
+    throw error;
+  }
+
+  return data;
 };

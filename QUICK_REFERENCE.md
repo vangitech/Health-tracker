@@ -50,18 +50,9 @@ Frontend: http://localhost:5174 ✅
 
 ---
 
-## 📧 Email Configuration (Optional)
+## 📧 Email Configuration
 
-To enable email verification:
-1. Go to https://myaccount.google.com/apppasswords
-2. Generate 16-character app password
-3. Update backend/.env:
-   ```env
-   EMAIL_PASS=<your-16-char-password>
-   ```
-4. Restart backend server
-
-See `OAUTH_EMAIL_SETUP.md` for detailed steps.
+Email is powered by **Resend** (already configured). No extra setup needed.
 
 ---
 
@@ -129,9 +120,8 @@ VITE_API_URL=http://localhost:5000
 PORT=5000
 MONGODB_URI=<your-connection-string>
 JWT_SECRET=<your-secret>
-EMAIL_HOST=smtp.gmail.com
-EMAIL_USER=<your-email>
-EMAIL_PASS=<app-password-needed>
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@vangitech.online
 FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:5000
 ```
@@ -159,7 +149,7 @@ Fix: Start backend first with: npm run dev
 
 ### Email not sending?
 ```
-Check: Is EMAIL_PASS configured?
+Check: Is RESEND_API_KEY configured?
 Fix: Follow email setup in OAUTH_EMAIL_SETUP.md
 ```
 
@@ -184,7 +174,7 @@ Frontend (5173): kill -9 $(lsof -t -i:5173)
 
 1. ✅ Test registration flow (no email needed)
 2. ✅ Test login flow
-3. 📧 Optional: Configure Gmail for email verification
+3. ✅ Email configured via Resend
 4. 🔐 Optional: Configure OAuth providers
 5. 🚀 Deploy to production
 

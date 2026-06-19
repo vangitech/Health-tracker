@@ -22,7 +22,7 @@ npm install
 The backend `.env` file is pre-configured with:
 - MongoDB connection
 - JWT secret
-- Gmail SMTP settings
+- Resend API key for email
 - API URLs
 
 **Frontend (.env already configured):**
@@ -67,10 +67,9 @@ npm run dev
 
 ### Test 2: Email Sending
 If email is not received:
-1. Check backend logs for "Error sending verification email"
-2. Verify Gmail app password is correct in .env
-3. Ensure Gmail 2FA is enabled
-4. Check spam folder
+1. Check backend logs for Resend errors
+2. Verify RESEND_API_KEY in .env is correct
+3. Check spam folder
 
 ### Test 3: Login after Verification
 1. After verification, go to /login
@@ -215,18 +214,10 @@ Error: connect ECONNREFUSED 127.0.0.1:5000
 ### Email Issues
 
 **Email Not Received:**
-1. Check Gmail spam folder
-2. Verify app-specific password in .env
-3. Check nodemailer logs in backend console
-4. Try with different email provider
-
-**Gmail SMTP Error:**
-```
-Error: Invalid login: 535-5.7.8 Username and password not accepted
-```
-- Regenerate app-specific password
-- Enable 2FA in Google Account if not enabled
-- Ensure using app password, not regular password
+1. Check spam folder
+2. Verify RESEND_API_KEY in .env is correct
+3. Check Resend dashboard for delivery logs
+4. Ensure EMAIL_FROM uses a verified domain in Resend
 
 ---
 
@@ -280,7 +271,7 @@ frontend/
 - [ ] Update MongoDB URI to production database
 - [ ] Configure OAuth callback URLs for production domain
 - [ ] Update FRONTEND_URL and BACKEND_URL to production URLs
-- [ ] Use production email service (SendGrid, AWS SES, etc)
+- [ ] Resend is already production-ready
 - [ ] Enable HTTPS for all endpoints
 - [ ] Set NODE_ENV=production
 - [ ] Enable CORS properly for production domain only

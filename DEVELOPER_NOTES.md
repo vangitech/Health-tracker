@@ -186,7 +186,7 @@
 - **Code:** 6-digit random number
 - **Expiry:** 10 minutes
 - **Resend:** User can request new code
-- **Medium:** Gmail SMTP for simplicity in dev
+- **Medium:** Resend API for email delivery
 
 ### 5. Password Hashing
 - **Algorithm:** bcrypt
