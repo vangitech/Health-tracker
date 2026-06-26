@@ -46,10 +46,13 @@ function AppleIcon() {
   )
 }
 
-function YahooIcon() {
+function MicrosoftIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-5 shrink-0">
-      <path fill="#6001D2" d="M13.46 4.57h4.2l-3.16 5.92h.02l-2.4 4.49-2.36-4.49h2.22l-2.9-5.92H9.3l-.02.01L5.5 12.59l-1.39 2.62H2.26l3.47 6.73 2.57-4.87v-.91l2.25 2.66h-.01l1.98 2.35 3.82-7.2 4.17-8.34h-4.32l-1.03 2.06h-.7l-.79-1.52h3.53l-1.75 3.5-1.65 3.1-.68-1.32z"/>
+      <rect x="2" y="2" width="9.5" height="9.5" fill="#F25022" rx="1" />
+      <rect x="12.5" y="2" width="9.5" height="9.5" fill="#7FBA00" rx="1" />
+      <rect x="2" y="12.5" width="9.5" height="9.5" fill="#00A4EF" rx="1" />
+      <rect x="12.5" y="12.5" width="9.5" height="9.5" fill="#FFB900" rx="1" />
     </svg>
   )
 }
@@ -94,10 +97,25 @@ export default function Login() {
     }
   }
 
+  const handleSocialSignIn = (provider) => {
+    setLoading(true)
+    setError('')
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = `${API}/api/authjs/signin/${provider}`
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = 'json'
+    input.value = 'true'
+    form.appendChild(input)
+    document.body.appendChild(form)
+    form.submit()
+  }
+
   const socialProviders = [
-    { name: 'Google', icon: GoogleIcon, href: `${API}/api/auth/google`, color: 'hover:bg-white/10' },
-    { name: 'Apple', icon: AppleIcon, href: `${API}/api/auth/apple`, color: 'hover:bg-white/10' },
-    { name: 'Yahoo', icon: YahooIcon, href: `${API}/api/auth/yahoo`, color: 'hover:bg-white/10' },
+    { name: 'Google', icon: GoogleIcon, provider: 'google' },
+    { name: 'Apple', icon: AppleIcon, provider: 'apple' },
+    { name: 'Microsoft', icon: MicrosoftIcon, provider: 'microsoft-entra-id' },
   ]
 
   return (
@@ -163,14 +181,15 @@ export default function Login() {
 
           <motion.div variants={itemVariants} className="space-y-2.5 mb-6">
             {socialProviders.map((provider) => (
-              <a
+              <button
                 key={provider.name}
-                href={provider.href}
-                className={`flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] ${provider.color}`}
+                onClick={() => handleSocialSignIn(provider.provider)}
+                disabled={loading}
+                className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <provider.icon />
                 Continue with {provider.name}
-              </a>
+              </button>
             ))}
           </motion.div>
 

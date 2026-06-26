@@ -3,11 +3,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import oauthRoutes from './routes/oauth.js';
+import authjsRoutes from './routes/authjs.js';
 import entryRoutes from './routes/entries.js';
 import trendRoutes from './routes/trends.js';
 
@@ -62,6 +64,7 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(passport.initialize());
 
 // Serve uploaded files (legacy - kept for any previously uploaded local files)
@@ -75,6 +78,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', oauthRoutes);
+app.use('/api/authjs', authjsRoutes);
 app.use('/api/entries', entryRoutes);
 app.use('/api/trends', trendRoutes);
 
