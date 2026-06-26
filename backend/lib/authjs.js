@@ -101,6 +101,12 @@ if (process.env.GOOGLE_CLIENT_ID) {
   authConfig.providers.push(Google({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    authorization: {
+      params: {
+        redirect_uri: `${process.env.BACKEND_URL}/api/auth/google/callback`,
+      },
+    },
+    checks: [],
   }))
 }
 

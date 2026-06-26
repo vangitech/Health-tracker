@@ -12,6 +12,8 @@ import authjsRoutes from './routes/authjs.js';
 import { authConfig } from './lib/authjs.js';
 import entryRoutes from './routes/entries.js';
 import trendRoutes from './routes/trends.js';
+import jwt from 'jsonwebtoken';
+import User from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,12 +75,77 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Old OAuth callback URL compatibility routes
-// Must be before authjsRoutes to avoid Auth.js catch-all
-// Google: /api/auth/google/callback → /api/auth/callback/google
-app.get('/api/auth/google/callback', (req, res) => {
-  const search = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''
-  res.redirect(307, `/api/auth/callback/google${search}`)
+// OAuth callback handler at old URL for Google (registered in Google Cloud Console)
+app.get('/api/auth/google/callback', async (req, res) => {
+  const { code, error: authError } = req.query
+  if (authError || !code) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
+  }
+  try {
+    // Exchange authorization code for tokens via Google's API
+    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: `${process.env.BACKEND_URL}/api/auth/google/callback`,
+        grant_type: 'authorization_code',
+      }),
+    })
+    const tokens = await tokenResp.json()
+    if (!tokens.access_token) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
+    }
+    // Fetch user profile from Google
+    const profileResp = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    })
+    const profile = await profileResp.json()
+    if (!profile.email) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
+    }
+    // Find or create user in MongoDB
+    let user = await User.findOne({ provider: 'google', providerId: profile.id })
+    if (!user) {
+      user = await User.findOne({ email: profile.email })
+      if (user) {
+        user.provider = 'google'
+        user.providerId = profile.id
+        user.isVerified = true
+        if (profile.picture && !user.avatar) user.avatar = profile.picture
+        await user.save()
+      } else {
+        user = await new User({
+          firstName: profile.given_name || profile.name?.split(' ')[0] || 'Google',
+          lastName: profile.family_name || profile.name?.split(' ').slice(1).join(' ') || 'User',
+          email: profile.email,
+          provider: 'google',
+          providerId: profile.id,
+          isVerified: true,
+          avatar: profile.picture,
+        }).save()
+      }
+    }
+    // Sign application JWT (matching existing auth flow)
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+    return res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${encodeURIComponent(token)}`)
+  } catch (err) {
+    console.error('Google OAuth callback error:', err)
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
+  }
 })
 // Apple: /api/auth/apple/callback → (POST) /api/auth/callback/apple
 app.post('/api/auth/apple/callback', (req, res) => {
