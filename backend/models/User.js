@@ -42,6 +42,18 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String
   },
+  role: {
+    type: String,
+    enum: ['patient', 'admin', 'superadmin'],
+    default: 'patient'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now

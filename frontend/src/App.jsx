@@ -1,12 +1,23 @@
-// frontend/src/App.jsx
 import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AdminAuthProvider } from './contexts/AdminAuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Verify from './pages/Verify'
 import OAuthCallback from './pages/OAuthCallback'
 import Dashboard from './pages/Dashboard'
+import AdminLogin from './pages/AdminLogin'
+import AdminLayout from './components/admin/AdminLayout'
+import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'
+import AnalyticsDashboard from './pages/admin/AnalyticsDashboard'
+import Patients from './pages/admin/Patients'
+import PatientDetail from './pages/admin/PatientDetail'
+import SugarRange from './pages/admin/SugarRange'
+import Appointments from './pages/admin/Appointments'
+import Chat from './pages/admin/Chat'
+import Settings from './pages/admin/Settings'
+import AdminManagement from './pages/admin/AdminManagement'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -34,6 +45,26 @@ function AppContent() {
           <Dashboard />
         </ProtectedRoute>
       } />
+
+      {/* Admin routes */}
+      <Route path="/iaccess" element={<AdminLogin />} />
+      <Route path="/iaccess/*" element={
+        <ProtectedAdminRoute>
+          <AdminLayout>
+            <Routes>
+              <Route path="dashboard" element={<AnalyticsDashboard />} />
+              <Route path="patients" element={<Patients />} />
+              <Route path="patients/:id" element={<PatientDetail />} />
+              <Route path="sugar-range" element={<SugarRange />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="chat" element={<Chat />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="admins" element={<AdminManagement />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
+            </Routes>
+          </AdminLayout>
+        </ProtectedAdminRoute>
+      } />
     </Routes>
   )
 }
@@ -52,9 +83,11 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="overflow-x-hidden">
-        <AppContent />
-      </div>
+      <AdminAuthProvider>
+        <div className="overflow-x-hidden">
+          <AppContent />
+        </div>
+      </AdminAuthProvider>
     </AuthProvider>
   )
 }

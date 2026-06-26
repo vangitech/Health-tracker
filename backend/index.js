@@ -12,6 +12,7 @@ import authjsRoutes from './routes/authjs.js';
 import { authConfig } from './lib/authjs.js';
 import entryRoutes from './routes/entries.js';
 import trendRoutes from './routes/trends.js';
+import adminRoutes from './routes/admin.js';
 import jwt from 'jsonwebtoken';
 import User from './models/User.js';
 
@@ -159,6 +160,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', authjsRoutes);
 app.use('/api/entries', entryRoutes);
 app.use('/api/trends', trendRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -192,6 +194,28 @@ app.use((err, req, res, next) => {
   const status = err.status || 500;
   res.status(status).json({ message: err?.message || 'Something went wrong!' });
 });
+
+// Seed super admin
+async function seedSuperAdmin() {
+  try {
+    const email = 'supadmin@vangitech.online'
+    const existing = await User.findOne({ email })
+    if (!existing) {
+      await new User({
+        firstName: 'Super',
+        lastName: 'Admin',
+        email,
+        password: process.env.SUPER_ADMIN_PASSWORD || 'Admin@12345',
+        role: 'superadmin',
+        isVerified: true,
+      }).save()
+      console.log('  ✅ Super admin seeded (supadmin@vangitech.online)')
+    }
+  } catch (err) {
+    console.error('  ❌ Super admin seed error:', err.message)
+  }
+}
+seedSuperAdmin()
 
 app.listen(PORT, () => {
   console.log(`\n========================================`);

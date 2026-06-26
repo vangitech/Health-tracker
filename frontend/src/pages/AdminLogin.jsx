@@ -1,0 +1,116 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAdminAuth } from '../contexts/AdminAuthContext'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Loader2, Activity, Shield } from 'lucide-react'
+
+export default function AdminLogin() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { login } = useAdminAuth()
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (!email || !password) {
+      setError('Please fill in all fields')
+      return
+    }
+    setLoading(true)
+    try {
+      await login(email, password)
+      navigate('/iaccess/dashboard')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid credentials')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex bg-zinc-50 dark:bg-zinc-950">
+      {/* Left panel - branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-600 to-teal-800 items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+        <div className="relative z-10 text-center px-12">
+          <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-white/10 backdrop-blur-sm mb-8 ring-1 ring-white/20">
+            <Activity className="size-10 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-3">SugarCare</h1>
+          <p className="text-xl text-emerald-100/80 mb-6">Admin Dashboard</p>
+          <p className="text-emerald-100/60 max-w-md mx-auto leading-relaxed">
+            Monitor patient health metrics, manage appointments, and collaborate with your healthcare team in real time.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-2 text-emerald-200/50 text-sm">
+            <Shield className="size-4" />
+            Secure admin access only
+          </div>
+        </div>
+      </div>
+
+      {/* Right panel - login form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex flex-col items-center mb-10">
+            <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 mb-4">
+              <Activity className="size-7 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">SugarCare</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Admin Dashboard</p>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Welcome back</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to your admin account</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                required
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white">
+              {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+
+          <p className="mt-8 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            Authorized personnel only. Unauthorized access is prohibited.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
