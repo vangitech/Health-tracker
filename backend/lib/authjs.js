@@ -45,7 +45,7 @@ export const authConfig = {
   providers: [],
   secret: process.env.JWT_SECRET,
   trustHost: true,
-  basePath: '/api/authjs',
+  basePath: '/api/auth',
   skipCSRFCheck,
   jwt: {
     encode: async ({ token, secret }) => {
@@ -90,7 +90,7 @@ export const authConfig = {
     },
     async redirect({ url, baseUrl }) {
       if (url.includes('/callback/')) {
-        return `${baseUrl}/exchange-token`
+        return `${baseUrl}/api/auth/exchange-token`
       }
       return url
     }

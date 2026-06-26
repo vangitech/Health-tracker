@@ -102,7 +102,7 @@ export default function Login() {
     setError('')
     const form = document.createElement('form')
     form.method = 'POST'
-    form.action = `${API}/api/authjs/signin/${provider}`
+    form.action = `${API}/api/auth/signin/${provider}`
     const input = document.createElement('input')
     input.type = 'hidden'
     input.name = 'json'
