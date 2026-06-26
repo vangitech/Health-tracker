@@ -1,9 +1,16 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import axiosLib from 'axios'
-import { useNavigate } from 'react-router-dom'
+
+function getApiUrl() {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
+  if (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)) {
+    return 'http://10.0.2.2:5001'
+  }
+  return 'http://localhost:5001'
+}
 
 const adminAxios = axiosLib.create({
-  baseURL: '/api/admin',
+  baseURL: `${getApiUrl()}/api/admin`,
 })
 
 const AdminAuthContext = createContext(null)

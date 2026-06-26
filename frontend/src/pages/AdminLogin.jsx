@@ -32,7 +32,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex bg-zinc-950">
+    <div className="min-h-screen flex bg-white">
       {/* Left panel - branding */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-600 to-teal-800 items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
@@ -57,27 +57,27 @@ export default function AdminLogin() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="lg:hidden flex flex-col items-center mb-10">
-            <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 mb-4">
-              <Activity className="size-7 text-emerald-600 dark:text-emerald-400" />
+            <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-emerald-100 mb-4">
+              <Activity className="size-7 text-emerald-600" />
             </div>
-            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">SugarCare</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Admin Dashboard</p>
+            <h1 className="text-2xl font-semibold text-zinc-900">SugarCare</h1>
+            <p className="text-sm text-zinc-500 mt-1">Admin Dashboard</p>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Welcome back</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to your admin account</p>
+            <h2 className="text-2xl font-semibold text-zinc-900">Welcome back</h2>
+            <p className="text-sm text-zinc-500 mt-1">Sign in to your admin account</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg mb-6">
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg mb-6">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
               <input
                 type="email"
                 value={email}
@@ -85,23 +85,23 @@ export default function AdminLogin() {
                 required
                 autoFocus
                 placeholder="Email address"
-                className="w-full h-12 pl-10 pr-4 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+                className="w-full h-12 pl-10 pr-4 bg-zinc-50 border border-zinc-300 rounded-xl text-zinc-900 text-sm placeholder:text-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
               />
             </div>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Password"
-                className="w-full h-12 pl-10 pr-11 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+                className="w-full h-12 pl-10 pr-11 bg-zinc-50 border border-zinc-300 rounded-xl text-zinc-900 text-sm placeholder:text-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -112,7 +112,7 @@ export default function AdminLogin() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-xs text-zinc-400 dark:text-zinc-500">
+          <p className="mt-8 text-center text-xs text-zinc-400">
             Authorized personnel only. Unauthorized access is prohibited.
           </p>
         </div>
