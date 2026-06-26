@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from '@/lib/axios'
+import { adminAxios as axios } from '@/contexts/AdminAuthContext'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   Table,

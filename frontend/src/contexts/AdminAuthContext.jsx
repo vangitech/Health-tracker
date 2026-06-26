@@ -1,6 +1,10 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import axiosLib from 'axios'
 import { useNavigate } from 'react-router-dom'
-import axios from '@/lib/axios'
+
+const adminAxios = axiosLib.create({
+  baseURL: '/api/admin',
+})
 
 const AdminAuthContext = createContext(null)
 
@@ -15,12 +19,12 @@ export function AdminAuthProvider({ children }) {
       return
     }
     try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      const { data } = await axios.get('/api/admin/profile')
+      adminAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const { data } = await adminAxios.get('/profile')
       setAdmin(data)
     } catch {
       localStorage.removeItem('admin_token')
-      delete axios.defaults.headers.common['Authorization']
+      delete adminAxios.defaults.headers.common['Authorization']
       setToken(null)
       setAdmin(null)
     } finally {
@@ -33,9 +37,9 @@ export function AdminAuthProvider({ children }) {
   }, [fetchProfile])
 
   const login = async (email, password) => {
-    const { data } = await axios.post('/api/admin/login', { email, password })
+    const { data } = await adminAxios.post('/login', { email, password })
     localStorage.setItem('admin_token', data.token)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+    adminAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
     setToken(data.token)
     setAdmin(data.user)
     return data
@@ -43,7 +47,7 @@ export function AdminAuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('admin_token')
-    delete axios.defaults.headers.common['Authorization']
+    delete adminAxios.defaults.headers.common['Authorization']
     setToken(null)
     setAdmin(null)
   }
@@ -60,3 +64,5 @@ export function useAdminAuth() {
   if (!ctx) throw new Error('useAdminAuth must be used within AdminAuthProvider')
   return ctx
 }
+
+export { adminAxios }

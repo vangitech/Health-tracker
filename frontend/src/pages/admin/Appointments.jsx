@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from '@/lib/axios'
+import { adminAxios as axios } from '@/contexts/AdminAuthContext'
 import {
   Table,
   TableBody,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAdminAuth } from '../../contexts/AdminAuthContext'
-import axios from '../../lib/axios'
+import { adminAxios as axios } from '@/contexts/AdminAuthContext'
 import {
   Users,
   Activity,
