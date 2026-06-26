@@ -48,7 +48,7 @@ export default function AnalyticsDashboard() {
   const fetchAnalytics = async () => {
     try {
       setError('')
-      const { data: res } = await axios.get('/api/admin/analytics')
+      const { data: res } = await axios.get('/analytics')
       setData(res)
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load analytics')

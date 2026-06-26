@@ -47,7 +47,7 @@ export default function PatientDetail() {
       try {
         setLoading(true)
         setError(null)
-        const { data } = await axios.get(`/api/admin/patients/${id}`)
+        const { data } = await axios.get(`/patients/${id}`)
         setPatient(data.patient || data)
         setStats(data.stats || null)
         setEntries(data.entries || [])
@@ -66,8 +66,8 @@ export default function PatientDetail() {
     if (!appointmentDate) return
     try {
       setSubmitting(true)
-      const { data } = await axios.post(`/api/admin/patients/${id}/appointments`, {
-        date: appointmentDate,
+      const { data } = await axios.post(`/patients/${id}/appointments`, {
+        appointmentDate,
         notes: appointmentNotes,
       })
       setAppointments((prev) => [...prev, data.appointment || data])

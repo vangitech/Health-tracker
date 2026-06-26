@@ -41,7 +41,7 @@ export default function AdminChat() {
     async function fetchConversations() {
       try {
         setLoadingConversations(true)
-        const { data } = await axios.get('/api/admin/chat/conversations')
+        const { data } = await axios.get('/chat/conversations')
         if (!cancelled) setConversations(data.conversations || data.data || [])
       } catch {
         if (!cancelled) setConversations([])
@@ -62,7 +62,7 @@ export default function AdminChat() {
     async function fetchMessages() {
       try {
         setLoadingMessages(true)
-        const { data } = await axios.get(`/api/admin/chat/messages/${selectedUser._id || selectedUser.id}`)
+        const { data } = await axios.get(`/chat/messages/${selectedUser._id || selectedUser.id}`)
         if (!cancelled) {
           setMessages(data.messages || data.data || [])
         }
@@ -89,7 +89,7 @@ export default function AdminChat() {
     if (!messageText.trim() || !selectedUser || sending) return
     try {
       setSending(true)
-      const { data } = await axios.post('/api/admin/chat/messages', {
+      const { data } = await axios.post('/chat/messages', {
         receiverId: selectedUser._id || selectedUser.id,
         message: messageText.trim(),
       })

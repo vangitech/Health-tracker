@@ -59,7 +59,7 @@ export default function AdminManagement() {
     async function fetchAdmins() {
       try {
         setLoading(true)
-        const { data } = await axios.get('/api/admin/admins')
+        const { data } = await axios.get('/admins')
         if (!cancelled) setAdmins(data.admins || data.data || [])
       } catch {
         if (!cancelled) setAdmins([])
@@ -80,7 +80,7 @@ export default function AdminManagement() {
     try {
       setCreating(true)
       setCreateMessage(null)
-      const { data } = await axios.post('/api/admin/register', form)
+      const { data } = await axios.post('/register', form)
       setAdmins((prev) => [...prev, data.user || data.admin || data])
       setDialogOpen(false)
       setForm({ firstName: '', lastName: '', email: '', password: '', phone: '' })
@@ -95,7 +95,7 @@ export default function AdminManagement() {
     if (!window.confirm('Are you sure you want to delete this admin?')) return
     try {
       setDeleting(adminId)
-      await axios.delete(`/api/admin/users/${adminId}`)
+      await axios.delete(`/users/${adminId}`)
       setAdmins((prev) => prev.filter((a) => (a._id || a.id) !== adminId))
     } catch {
       // silently fail

@@ -45,7 +45,7 @@ export default function Appointments() {
         setLoading(true)
         const params = {}
         if (statusFilter !== 'all') params.status = statusFilter
-        const { data } = await axios.get('/api/admin/appointments', { params })
+        const { data } = await axios.get('/appointments', { params })
         if (!cancelled) setAppointments(data.appointments || data.data || [])
       } catch {
         if (!cancelled) setAppointments([])

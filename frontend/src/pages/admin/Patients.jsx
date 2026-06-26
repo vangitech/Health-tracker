@@ -39,7 +39,7 @@ export default function Patients() {
       setLoading(true)
       const params = { page, limit }
       if (debouncedSearch) params.search = debouncedSearch
-      const { data } = await axios.get('/api/admin/patients', { params })
+      const { data } = await axios.get('/patients', { params })
       setPatients(data.patients || data.data || [])
       setTotalPages(data.totalPages || data.pagination?.totalPages || 1)
       setTotal(data.total || data.pagination?.total || 0)

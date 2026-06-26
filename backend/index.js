@@ -195,8 +195,8 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message: err?.message || 'Something went wrong!' });
 });
 
-// Seed super admin
-async function seedSuperAdmin() {
+// Seed super admin + migrate existing users without role
+async function seedAndMigrate() {
   try {
     const email = 'supadmin@vangitech.online'
     const existing = await User.findOne({ email })
@@ -211,11 +211,19 @@ async function seedSuperAdmin() {
       }).save()
       console.log('  ✅ Super admin seeded (supadmin@vangitech.online)')
     }
+    // Migrate existing users missing role field
+    const migrated = await User.updateMany(
+      { role: { $exists: false } },
+      { $set: { role: 'patient' } }
+    )
+    if (migrated.modifiedCount > 0) {
+      console.log(`  ✅ Migrated ${migrated.modifiedCount} user(s) to role: patient`)
+    }
   } catch (err) {
-    console.error('  ❌ Super admin seed error:', err.message)
+    console.error('  ❌ Seed/migration error:', err.message)
   }
 }
-seedSuperAdmin()
+seedAndMigrate()
 
 app.listen(PORT, () => {
   console.log(`\n========================================`);

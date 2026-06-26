@@ -11,6 +11,11 @@ import { cloudinary, avatarStorage, extractPublicId, deleteImage, ALLOWED_FORMAT
 
 const router = express.Router()
 
+// Match users with patient role (handles legacy users missing the field)
+function patientFilter(extra) {
+  return { $or: [{ role: 'patient' }, { role: { $exists: false } }], ...extra }
+}
+
 // ── Auth ──────────────────────────────────────────────────────────
 
 router.post('/login', async (req, res) => {
@@ -85,6 +90,35 @@ router.post('/register', authenticateAdmin, requireSuperAdmin, async (req, res) 
   }
 })
 
+router.post('/users', authenticateAdmin, async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, password, role = 'patient' } = req.body
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ message: 'firstName, lastName, email, password required' })
+    }
+    if (!['patient', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Role must be patient or admin' })
+    }
+    // Only superadmin can create admins
+    if (role === 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Only super admin can create admins' })
+    }
+
+    const existing = await User.findOne({ email: email.toLowerCase() })
+    if (existing) {
+      return res.status(409).json({ message: 'Email already registered' })
+    }
+
+    const user = new User({ firstName, lastName, email, phone, password, role, isVerified: role !== 'patient' })
+    await user.save()
+
+    res.status(201).json({ message: 'User created', id: user._id, role: user.role })
+  } catch (err) {
+    console.error('Create user error:', err)
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
 // ── Analytics ─────────────────────────────────────────────────────
 
 router.get('/analytics', authenticateAdmin, async (req, res) => {
@@ -94,16 +128,16 @@ router.get('/analytics', authenticateAdmin, async (req, res) => {
     const thirtyDaysAgo = new Date(now)
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const totalPatients = await User.countDocuments({ role: 'patient' })
+    const totalPatients = await User.countDocuments(patientFilter())
     const totalAdmins = await User.countDocuments({ role: { $in: ['admin', 'superadmin'] } })
     const totalEntries = await BloodSugarEntry.countDocuments({ date: { $gte: thirtyDaysAgo } })
-    const newPatients30d = await User.countDocuments({ role: 'patient', createdAt: { $gte: thirtyDaysAgo } })
+    const newPatients30d = await User.countDocuments(patientFilter({ createdAt: { $gte: thirtyDaysAgo } }))
     const upcomingAppointments = await Appointment.countDocuments({ appointmentDate: { $gte: now }, status: 'scheduled' })
 
     const todayEntries = await BloodSugarEntry.countDocuments({ date: { $gte: todayStart } })
     const activeToday = await BloodSugarEntry.distinct('userId', { date: { $gte: todayStart } })
 
-    const allPatients = await User.find({ role: 'patient' }).select('_id').lean()
+    const allPatients = await User.find(patientFilter()).select('_id').lean()
     const patientIds = allPatients.map((p) => p._id)
 
     const latestEntries = await BloodSugarEntry.aggregate([
@@ -126,7 +160,7 @@ router.get('/analytics', authenticateAdmin, async (req, res) => {
       weekStart.setDate(weekStart.getDate() - (i + 1) * 7)
       const weekEnd = new Date(now)
       weekEnd.setDate(weekEnd.getDate() - i * 7)
-      const count = await User.countDocuments({ role: 'patient', createdAt: { $gte: weekStart, $lt: weekEnd } })
+      const count = await User.countDocuments(patientFilter({ createdAt: { $gte: weekStart, $lt: weekEnd } }))
       weeklyRegistrations.push({ week: `Week ${5 - i}`, count })
     }
 
@@ -152,7 +186,7 @@ router.get('/analytics', authenticateAdmin, async (req, res) => {
 router.get('/patients', authenticateAdmin, async (req, res) => {
   try {
     const { search, page = 1, limit = 20 } = req.query
-    const query = { role: 'patient' }
+    const query = patientFilter()
     if (search) {
       query.$or = [
         { firstName: { $regex: search, $options: 'i' } },
@@ -197,7 +231,7 @@ router.get('/patients', authenticateAdmin, async (req, res) => {
 
 router.get('/patients/range/out-of-range', authenticateAdmin, async (req, res) => {
   try {
-    const allPatients = await User.find({ role: 'patient' }).select('_id firstName lastName email phone avatar').lean()
+    const allPatients = await User.find(patientFilter()).select('_id firstName lastName email phone avatar').lean()
     const patientIds = allPatients.map((p) => p._id)
 
     const latestEntries = await BloodSugarEntry.aggregate([
@@ -234,7 +268,7 @@ router.get('/patients/range/out-of-range', authenticateAdmin, async (req, res) =
 
 router.get('/patients/range/in-range', authenticateAdmin, async (req, res) => {
   try {
-    const allPatients = await User.find({ role: 'patient' }).select('_id firstName lastName email phone avatar').lean()
+    const allPatients = await User.find(patientFilter()).select('_id firstName lastName email phone avatar').lean()
     const patientIds = allPatients.map((p) => p._id)
 
     const latestEntries = await BloodSugarEntry.aggregate([
@@ -271,7 +305,7 @@ router.get('/patients/range/in-range', authenticateAdmin, async (req, res) => {
 
 router.get('/patients/:id', authenticateAdmin, async (req, res) => {
   try {
-    const patient = await User.findOne({ _id: req.params.id, role: 'patient' }).select('-password').lean()
+    const patient = await User.findOne({ _id: req.params.id, ...patientFilter() }).select('-password').lean()
     if (!patient) return res.status(404).json({ message: 'Patient not found' })
 
     const [latestEntry, entries, appointments] = await Promise.all([

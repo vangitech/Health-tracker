@@ -42,7 +42,7 @@ export default function AdminSettings() {
     try {
       setProfileSaving(true)
       setProfileMessage(null)
-      const { data } = await axios.put('/api/admin/profile', { firstName, lastName })
+      const { data } = await axios.put('/profile', { firstName, lastName })
       if (data.user || data.admin) setAdmin(data.user || data.admin)
       setProfileMessage({ type: 'success', text: 'Profile updated successfully' })
     } catch (err) {
@@ -64,7 +64,7 @@ export default function AdminSettings() {
     try {
       setPasswordSaving(true)
       setPasswordMessage(null)
-      await axios.put('/api/admin/profile/change-password', {
+      await axios.put('/profile/change-password', {
         currentPassword,
         newPassword,
       })
@@ -90,7 +90,7 @@ export default function AdminSettings() {
       setAvatarMessage(null)
       const formData = new FormData()
       formData.append('avatar', file)
-      const { data } = await axios.put('/api/admin/profile/avatar', formData, {
+      const { data } = await axios.put('/profile/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       if (data.user || data.admin) setAdmin(data.user || data.admin)

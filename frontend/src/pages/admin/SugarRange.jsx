@@ -170,7 +170,7 @@ export default function SugarRange() {
         </TabsList>
         <TabsContent value="out-of-range">
           <PatientList
-            endpoint="/api/admin/patients/range/out-of-range"
+            endpoint="/patients/range/out-of-range"
             title="out of range"
             emptyIcon={AlertTriangle}
             emptyText="All patients are within healthy range"
@@ -178,7 +178,7 @@ export default function SugarRange() {
         </TabsContent>
         <TabsContent value="in-range">
           <PatientList
-            endpoint="/api/admin/patients/range/in-range"
+            endpoint="/patients/range/in-range"
             title="in range"
             emptyIcon={CheckCircle}
             emptyText="No patients are currently in range"
