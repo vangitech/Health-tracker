@@ -90,7 +90,7 @@ function PatientList({ endpoint, title, emptyIcon: EmptyIcon, emptyText }) {
         setLoading(true)
         setError(null)
         const { data: res } = await axios.get(endpoint)
-        if (!cancelled) setData(res.patients || res.data || [])
+        if (!cancelled) setData(Array.isArray(res) ? res : res.patients || res.data || [])
       } catch (err) {
         if (!cancelled) setError(err.response?.data?.message || err.message)
       } finally {
