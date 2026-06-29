@@ -94,7 +94,7 @@ export default function AdminManagement() {
       try {
         setLoading(true)
         const { data } = await axios.get('/admins')
-        if (!cancelled) setAdmins(data.admins || data.data || [])
+        if (!cancelled) setAdmins(Array.isArray(data) ? data : data.admins || data.data || [])
       } catch {
         if (!cancelled) setAdmins([])
       } finally {
@@ -155,15 +155,15 @@ export default function AdminManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-100">Admin Management</h1>
-          <p className="text-sm text-zinc-500 mt-1">Manage admin users</p>
+          <h1 className="text-xl font-semibold text-zinc-100">Staff Management</h1>
+          <p className="text-sm text-zinc-500 mt-1">Manage staff accounts and roles</p>
         </div>
         {isSuperAdmin && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="size-4" />
-                Create Admin
+                Create Staff
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -313,32 +313,32 @@ export default function AdminManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={u.status === 'active' ? 'default' : 'destructive'}>
-                          {u.status || 'active'}
+                        <Badge variant={u.isActive !== false ? 'default' : 'destructive'}>
+                          {u.isActive !== false ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-zinc-400">
                         {formatDate(u.createdAt)}
                       </TableCell>
-                    {isSuperAdmin && (
-                      <TableCell>
-                        {!isSuper && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={deleting === uid}
-                            onClick={() => handleDelete(uid)}
-                          >
-                            {deleting === uid ? (
-                              <Loader2 className="size-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="size-4 text-red-400" />
-                            )}
-                          </Button>
-                        )}
-                      </TableCell>
-                    )}
-                  </TableRow>
+                      {isSuperAdmin && (
+                        <TableCell>
+                          {!isSuper && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={deleting === uid}
+                              onClick={() => handleDelete(uid)}
+                            >
+                              {deleting === uid ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-4 text-red-400" />
+                              )}
+                            </Button>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
                 )
               })}
             </TableBody>
