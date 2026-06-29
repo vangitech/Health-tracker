@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '../contexts/AdminAuthContext'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,12 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const { login } = useAdminAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    import('@capacitor/core')
+      .then(({ Capacitor }) => { if (Capacitor.isNativePlatform()) navigate('/', { replace: true }) })
+      .catch(() => {})
+  }, [navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
