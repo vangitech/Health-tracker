@@ -12,7 +12,8 @@ export function authenticateAdmin(req, res, next) {
     if (err) {
       return res.status(403).json({ message: 'Invalid or expired token' })
     }
-    if (decoded.role !== 'admin' && decoded.role !== 'superadmin') {
+    const allowedRoles = ['admin', 'superadmin', 'doctor', 'recordofficer', 'nurse']
+    if (!allowedRoles.includes(decoded.role)) {
       return res.status(403).json({ message: 'Admin access required' })
     }
     req.user = decoded

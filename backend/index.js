@@ -13,6 +13,7 @@ import { authConfig } from './lib/authjs.js';
 import entryRoutes from './routes/entries.js';
 import trendRoutes from './routes/trends.js';
 import adminRoutes from './routes/admin.js';
+import appointmentRoutes from './routes/appointments.js';
 import jwt from 'jsonwebtoken';
 import User from './models/User.js';
 
@@ -161,6 +162,7 @@ app.use('/api/auth', authjsRoutes);
 app.use('/api/entries', entryRoutes);
 app.use('/api/trends', trendRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

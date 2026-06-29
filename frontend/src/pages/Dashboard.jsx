@@ -4,7 +4,7 @@ import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
 import Footer from '../components/Footer';
-import { LogOut, Activity, User, Camera, Loader2 } from 'lucide-react';
+import { LogOut, Activity, User, Camera, Loader2, Calendar, ChevronRight } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout, setUser } = useAuth();
@@ -12,6 +12,9 @@ export default function Dashboard() {
   const [trends, setTrends] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState('');
+  const [activeTab, setActiveTab] = useState('entries');
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -66,6 +69,18 @@ export default function Dashboard() {
     return () => clearTimeout(t);
   }, []);
 
+  const fetchAppointments = async () => {
+    try {
+      setAppointmentsLoading(true);
+      const res = await axios.get('/api/appointments');
+      setAppointments(res.data);
+    } catch (err) {
+      console.error('Failed to fetch appointments', err);
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
+
   const handleDataChange = (savedEntry) => {
     setDataError('');
     if (savedEntry) {
@@ -111,7 +126,40 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <nav className="hidden sm:flex items-center gap-1">
+              <button
+                onClick={() => setActiveTab('entries')}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  activeTab === 'entries'
+                    ? 'bg-sky-500/10 text-sky-400'
+                    : 'text-zinc-400 hover:text-zinc-100'
+                }`}
+              >
+                <Activity className="size-3.5 inline mr-1" />
+                Entries
+              </button>
+              <button
+                onClick={() => { setActiveTab('appointments'); fetchAppointments(); }}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                  activeTab === 'appointments'
+                    ? 'bg-sky-500/10 text-sky-400'
+                    : 'text-zinc-400 hover:text-zinc-100'
+                }`}
+              >
+                <Calendar className="size-3.5 inline mr-1" />
+                Appointments
+              </button>
+            </nav>
+
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setActiveTab(activeTab === 'entries' ? 'appointments' : 'entries')}
+                className="sm:hidden flex items-center gap-1 px-2 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 rounded-lg transition-colors"
+              >
+                {activeTab === 'entries' ? <Calendar className="size-3.5" /> : <Activity className="size-3.5" />}
+                <span>{activeTab === 'entries' ? 'Appointments' : 'Entries'}</span>
+              </button>
+
               <div className="hidden sm:flex items-center gap-2.5 pr-3 border-r border-zinc-800">
                 <div className="flex flex-col items-end">
                   <span className="text-sm font-medium text-zinc-100">
@@ -164,19 +212,103 @@ export default function Dashboard() {
       </header>
 
       <main className="flex-1 min-h-0 overflow-y-auto max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-[env(safe-area-inset-bottom)]">
-        {dataError && (
-          <div className="flex items-center gap-3 bg-red-900/20 border border-red-800/30 text-red-400 p-3 sm:p-4 rounded-xl text-sm">
-            <span className="flex-1">{dataError}</span>
-            <button
-              onClick={fetchData}
-              className="px-3 py-1.5 bg-red-800/40 hover:bg-red-700/50 rounded-lg text-xs font-medium transition-colors shrink-0"
-            >
-              Retry
-            </button>
+        {activeTab === 'entries' && (
+          <>
+            {dataError && (
+              <div className="flex items-center gap-3 bg-red-900/20 border border-red-800/30 text-red-400 p-3 sm:p-4 rounded-xl text-sm">
+                <span className="flex-1">{dataError}</span>
+                <button
+                  onClick={fetchData}
+                  className="px-3 py-1.5 bg-red-800/40 hover:bg-red-700/50 rounded-lg text-xs font-medium transition-colors shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            <StatsCard trends={trends} />
+            <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
+          </>
+        )}
+
+        {activeTab === 'appointments' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="size-5 text-sky-400" />
+              <h2 className="text-lg font-semibold text-zinc-100">My Appointments</h2>
+            </div>
+
+            {appointmentsLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="size-6 text-zinc-400 animate-spin" />
+              </div>
+            ) : appointments.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <Calendar className="size-10 text-zinc-600" />
+                <p className="text-sm text-zinc-500">No appointments scheduled</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {appointments.map((apt) => {
+                  const date = new Date(apt.appointmentDate)
+                  const isPast = date < new Date()
+                  return (
+                    <div
+                      key={apt._id}
+                      className="flex items-start gap-4 p-4 rounded-xl border border-zinc-800 bg-zinc-900/50"
+                    >
+                      <div className="flex flex-col items-center justify-center size-12 rounded-lg bg-sky-500/10 shrink-0">
+                        <span className="text-lg font-bold text-sky-400 leading-tight">
+                          {date.getDate()}
+                        </span>
+                        <span className="text-[10px] text-sky-400/70 leading-tight">
+                          {date.toLocaleDateString('en-US', { month: 'short' })}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-zinc-100">
+                          {date.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-0.5">
+                          {date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                        {apt.notes && (
+                          <p className="text-sm text-zinc-400 mt-2">{apt.notes}</p>
+                        )}
+                        {apt.createdBy && (
+                          <p className="text-[11px] text-zinc-600 mt-1.5">
+                            Booked by {apt.createdBy.firstName} {apt.createdBy.lastName}
+                            {apt.createdBy.role && ` (${apt.createdBy.role})`}
+                          </p>
+                        )}
+                      </div>
+                      <span
+                        className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${
+                          apt.status === 'completed'
+                            ? 'bg-green-900/40 text-green-400'
+                            : apt.status === 'cancelled'
+                              ? 'bg-red-900/40 text-red-400'
+                              : isPast
+                                ? 'bg-zinc-800 text-zinc-500'
+                                : 'bg-blue-900/40 text-blue-400'
+                        }`}
+                      >
+                        {apt.status === 'scheduled' && isPast ? 'Missed' : apt.status}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
-        <StatsCard trends={trends} />
-        <MonthlyTableView entries={entries} onDataChange={handleDataChange} />
       </main>
       <Footer />
     </div>

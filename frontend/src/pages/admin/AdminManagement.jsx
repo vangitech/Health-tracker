@@ -21,7 +21,14 @@ import {
   DialogTrigger,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { Loader2, Plus, Trash2, Shield, ShieldCheck } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Loader2, Plus, Trash2, Shield, ShieldCheck, Stethoscope, ClipboardList, Heart, UserCog } from 'lucide-react'
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
@@ -35,6 +42,25 @@ function formatDate(dateStr) {
 function getInitials(firstName, lastName) {
   if (!firstName && !lastName) return '?'
   return ((firstName || '')[0] || '') + ((lastName || '')[0] || '')
+}
+
+function getRoleIcon(role) {
+  switch (role) {
+    case 'doctor': return Stethoscope
+    case 'recordofficer': return ClipboardList
+    case 'nurse': return Heart
+    default: return ShieldCheck
+  }
+}
+
+function getRoleLabel(role) {
+  switch (role) {
+    case 'doctor': return 'Doctor'
+    case 'recordofficer': return 'Record Officer'
+    case 'nurse': return 'Nurse'
+    case 'superadmin': return 'Super Admin'
+    default: return 'Admin'
+  }
 }
 
 export default function AdminManagement() {
@@ -52,7 +78,15 @@ export default function AdminManagement() {
     email: '',
     password: '',
     phone: '',
+    role: 'admin',
   })
+
+  const roleOptions = [
+    { value: 'admin', label: 'Admin', icon: UserCog },
+    { value: 'doctor', label: 'Doctor', icon: Stethoscope },
+    { value: 'recordofficer', label: 'Record Officer', icon: ClipboardList },
+    { value: 'nurse', label: 'Nurse', icon: Heart },
+  ]
 
   useEffect(() => {
     let cancelled = false
@@ -83,7 +117,7 @@ export default function AdminManagement() {
       const { data } = await axios.post('/register', form)
       setAdmins((prev) => [...prev, data.user || data.admin || data])
       setDialogOpen(false)
-      setForm({ firstName: '', lastName: '', email: '', password: '', phone: '' })
+      setForm({ firstName: '', lastName: '', email: '', password: '', phone: '', role: 'admin' })
     } catch (err) {
       setCreateMessage(err.response?.data?.message || 'Failed to create admin')
     } finally {
@@ -134,9 +168,9 @@ export default function AdminManagement() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Create Admin</DialogTitle>
+                <DialogTitle>Create Staff Account</DialogTitle>
                 <DialogDescription>
-                  Add a new admin user to the system
+                  Add a new staff member with a specific role
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleCreate} className="space-y-4">
@@ -188,6 +222,30 @@ export default function AdminManagement() {
                     onChange={handleFormChange('phone')}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <Select
+                    value={form.role}
+                    onValueChange={(v) => setForm((prev) => ({ ...prev, role: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roleOptions.map((opt) => {
+                        const Icon = opt.icon
+                        return (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="size-4" />
+                              {opt.label}
+                            </div>
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 {createMessage && (
                   <p className="text-xs text-red-400">{createMessage}</p>
@@ -236,29 +294,32 @@ export default function AdminManagement() {
                 const isSelf = uid === (admin?._id || admin?.id)
                 const isSuper = u.role === 'superadmin'
                 return (
-                  <TableRow key={uid}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <ShieldCheck className="size-4 text-zinc-500" />
-                        <span className="font-medium text-zinc-100">
-                          {u.firstName} {u.lastName}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-zinc-400">{u.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={isSuper ? 'default' : 'secondary'}>
-                        {u.role || 'admin'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={u.status === 'active' ? 'default' : 'destructive'}>
-                        {u.status || 'active'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-zinc-400">
-                      {formatDate(u.createdAt)}
-                    </TableCell>
+                    <TableRow key={uid}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          {(() => {
+                            const RoleIcon = getRoleIcon(u.role)
+                            return <RoleIcon className="size-4 text-zinc-500" />
+                          })()}
+                          <span className="font-medium text-zinc-100">
+                            {u.firstName} {u.lastName}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-zinc-400">{u.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={isSuper ? 'default' : 'secondary'}>
+                          {getRoleLabel(u.role)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={u.status === 'active' ? 'default' : 'destructive'}>
+                          {u.status || 'active'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-zinc-400">
+                        {formatDate(u.createdAt)}
+                      </TableCell>
                     {isSuperAdmin && (
                       <TableCell>
                         {!isSuper && (

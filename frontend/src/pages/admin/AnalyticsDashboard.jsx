@@ -36,7 +36,7 @@ const statCards = [
   { key: 'upcomingAppointments', label: 'Upcoming Appointments', icon: Calendar, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   { key: 'outOfRangePatients', label: 'Out of Range', icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10' },
   { key: 'inRangePatients', label: 'In Range', icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-500/10' },
-  { key: 'totalAdmins', label: 'Total Admins', icon: Shield, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+  { key: 'totalAdmins', label: 'Total Staff', icon: Shield, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
 ]
 
 export default function AnalyticsDashboard() {

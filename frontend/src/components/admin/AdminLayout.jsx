@@ -39,7 +39,7 @@ const navItems = [
 function SidebarContent({ expanded, onNavClick, admin, location }) {
   const { logout } = useAdminAuth()
   const navigate = useNavigate()
-  const isSuperAdmin = admin?.role === 'super_admin'
+  const isSuperAdmin = admin?.role === 'superadmin'
 
   const handleLogout = () => {
     logout()
@@ -141,6 +141,9 @@ export default function AdminLayout({ children }) {
   }
 
   const getInitials = (name) => {
+    if (admin?.firstName) {
+      return ((admin.firstName[0] || '') + (admin.lastName?.[0] || '')).toUpperCase()
+    }
     if (!name) return 'A'
     return name
       .split(' ')
@@ -230,7 +233,7 @@ export default function AdminLayout({ children }) {
               <div className="hidden items-center gap-3 md:flex">
                 <div className="text-right">
                   <p className="text-sm font-medium text-zinc-100">
-                    {admin?.name || 'Admin'}
+                    {admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}` : admin?.name || 'Admin'}
                   </p>
                   {admin?.last_login && (
                     <p className="text-xs text-zinc-500">

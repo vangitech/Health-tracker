@@ -29,7 +29,8 @@ router.post('/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
-    if (user.role !== 'admin' && user.role !== 'superadmin') {
+    const allowedRoles = ['admin', 'superadmin', 'doctor', 'recordofficer', 'nurse']
+    if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ message: 'Admin access required' })
     }
     if (!user.isActive) {
@@ -68,11 +69,16 @@ router.post('/login', async (req, res) => {
   }
 })
 
+const STAFF_ROLES = ['admin', 'doctor', 'recordofficer', 'nurse']
+
 router.post('/register', authenticateAdmin, requireSuperAdmin, async (req, res) => {
   try {
-    const { firstName, lastName, email, password, phone } = req.body
+    const { firstName, lastName, email, password, phone, role = 'admin' } = req.body
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'firstName, lastName, email, password required' })
+    }
+    if (!STAFF_ROLES.includes(role)) {
+      return res.status(400).json({ message: `Role must be one of: ${STAFF_ROLES.join(', ')}` })
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() })
@@ -80,10 +86,10 @@ router.post('/register', authenticateAdmin, requireSuperAdmin, async (req, res) 
       return res.status(409).json({ message: 'Email already registered' })
     }
 
-    const admin = new User({ firstName, lastName, email, phone, password, role: 'admin', isVerified: true })
+    const admin = new User({ firstName, lastName, email, phone, password, role, isVerified: true })
     await admin.save()
 
-    res.status(201).json({ message: 'Admin created', id: admin._id })
+    res.status(201).json({ message: 'Staff created', id: admin._id, role })
   } catch (err) {
     console.error('Admin register error:', err)
     res.status(500).json({ message: 'Server error' })
@@ -96,12 +102,12 @@ router.post('/users', authenticateAdmin, async (req, res) => {
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'firstName, lastName, email, password required' })
     }
-    if (!['patient', 'admin'].includes(role)) {
-      return res.status(400).json({ message: 'Role must be patient or admin' })
+    const allowedCreateRoles = ['patient', 'admin', 'doctor', 'recordofficer', 'nurse']
+    if (!allowedCreateRoles.includes(role)) {
+      return res.status(400).json({ message: `Role must be one of: ${allowedCreateRoles.join(', ')}` })
     }
-    // Only superadmin can create admins
-    if (role === 'admin' && req.user.role !== 'superadmin') {
-      return res.status(403).json({ message: 'Only super admin can create admins' })
+    if (role !== 'patient' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Only super admin can create staff accounts' })
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() })
@@ -129,7 +135,7 @@ router.get('/analytics', authenticateAdmin, async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const totalPatients = await User.countDocuments(patientFilter())
-    const totalAdmins = await User.countDocuments({ role: { $in: ['admin', 'superadmin'] } })
+    const totalAdmins = await User.countDocuments({ role: { $in: ['admin', 'superadmin', 'doctor', 'recordofficer', 'nurse'] } })
     const totalEntries = await BloodSugarEntry.countDocuments({ date: { $gte: thirtyDaysAgo } })
     const newPatients30d = await User.countDocuments(patientFilter({ createdAt: { $gte: thirtyDaysAgo } }))
     const upcomingAppointments = await Appointment.countDocuments({ appointmentDate: { $gte: now }, status: 'scheduled' })
@@ -412,7 +418,8 @@ router.put('/appointments/:id', authenticateAdmin, async (req, res) => {
 
 router.get('/admins', authenticateAdmin, requireSuperAdmin, async (req, res) => {
   try {
-    const admins = await User.find({ role: { $in: ['admin', 'superadmin'] } })
+    const staffRoles = ['admin', 'superadmin', 'doctor', 'recordofficer', 'nurse']
+    const admins = await User.find({ role: { $in: staffRoles } })
       .select('-password')
       .sort({ createdAt: -1 })
       .lean()
