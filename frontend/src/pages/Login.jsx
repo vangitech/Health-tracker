@@ -91,7 +91,11 @@ export default function Login() {
       await login(email, password)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password')
+      if (!err.response) {
+        setError('Cannot connect to server. Check your connection and ensure the backend is running.')
+      } else {
+        setError(err.response?.data?.message || 'Invalid email or password')
+      }
     } finally {
       setLoading(false)
     }

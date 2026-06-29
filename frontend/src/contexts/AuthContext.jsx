@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import axios from '../lib/axios'
+import axios, { isTokenExpired } from '../lib/axios'
 
 const AuthContext = createContext()
 
@@ -7,25 +7,31 @@ export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(!!localStorage.getItem('token'))
-  const [token, setToken] = useState(localStorage.getItem('token'))
+  const [loading, setLoading] = useState(false)
+  const [token, setToken] = useState(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem('token')
+    if (!stored || isTokenExpired(stored)) {
+      if (stored) localStorage.removeItem('token')
+      setLoading(false)
+      return
+    }
+    setToken(stored)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     if (!token) return
+    setLoading(true)
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     (async () => {
       try {
         const res = await axios.get('/api/auth/me')
         if (!cancelled) setUser(res.data.user || res.data)
       } catch {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]))
-            if (!cancelled) setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
-          } catch {
-            localStorage.removeItem('token')
-            setToken(null)
-          }
+        localStorage.removeItem('token')
+        setToken(null)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -46,6 +52,10 @@ export const AuthProvider = ({ children }) => {
   }
 
   const handleOAuthToken = async (oauthToken) => {
+    if (isTokenExpired(oauthToken)) {
+      localStorage.removeItem('token')
+      return
+    }
     localStorage.setItem('token', oauthToken)
     axios.defaults.headers.common['Authorization'] = `Bearer ${oauthToken}`
     setToken(oauthToken);
@@ -53,12 +63,8 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.get('/api/auth/me')
       setUser(res.data.user || res.data)
     } catch {
-        try {
-          const payload = JSON.parse(atob(oauthToken.split('.')[1]))
-          setUser({ id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName })
-        } catch {
-          console.error('Failed to decode token')
-        }
+      localStorage.removeItem('token')
+      setToken(null)
     }
   }
 

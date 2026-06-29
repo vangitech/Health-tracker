@@ -11,10 +11,19 @@ function getApiUrl() {
 const API_URL = getApiUrl()
 axiosLib.defaults.baseURL = API_URL
 
+export function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
 axiosLib.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('token')
       window.location.href = '/login'
     }

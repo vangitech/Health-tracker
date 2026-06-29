@@ -31,7 +31,11 @@ export default function AdminLogin() {
       await login(email, password)
       navigate('/iaccess/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials')
+      if (!err.response) {
+        setError('Cannot connect to server. Check your connection.')
+      } else {
+        setError(err.response?.data?.message || 'Invalid credentials')
+      }
     } finally {
       setLoading(false)
     }
