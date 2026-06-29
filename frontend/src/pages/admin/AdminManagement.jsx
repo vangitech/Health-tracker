@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Plus, Trash2, Shield, ShieldCheck, Stethoscope, ClipboardList, Heart, UserCog } from 'lucide-react'
+import { Loader2, Plus, Trash2, Shield, ShieldCheck, Stethoscope, ClipboardList, Heart, UserCog, Power, PowerOff } from 'lucide-react'
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
@@ -71,6 +71,7 @@ export default function AdminManagement() {
   const [creating, setCreating] = useState(false)
   const [createMessage, setCreateMessage] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  const [toggling, setToggling] = useState(null)
 
   const [form, setForm] = useState({
     firstName: '',
@@ -122,6 +123,22 @@ export default function AdminManagement() {
       setCreateMessage(err.response?.data?.message || 'Failed to create admin')
     } finally {
       setCreating(false)
+    }
+  }
+
+  async function handleToggleActive(adminId, currentlyActive) {
+    try {
+      setToggling(adminId)
+      const { data } = await axios.put(`/users/${adminId}/toggle-active`)
+      setAdmins((prev) =>
+        prev.map((a) =>
+          (a._id || a.id) === adminId ? { ...a, isActive: data.isActive } : a
+        )
+      )
+    } catch {
+      // silently fail
+    } finally {
+      setToggling(null)
     }
   }
 
@@ -313,29 +330,60 @@ export default function AdminManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={u.isActive !== false ? 'default' : 'destructive'}>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            u.isActive !== false
+                              ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-700'
+                              : 'bg-red-900/50 text-red-400 border border-red-700'
+                          }`}
+                        >
+                          <span
+                            className={`size-1.5 rounded-full ${
+                              u.isActive !== false ? 'bg-emerald-400' : 'bg-red-400'
+                            }`}
+                          />
                           {u.isActive !== false ? 'Active' : 'Inactive'}
-                        </Badge>
+                        </span>
                       </TableCell>
                       <TableCell className="text-zinc-400">
                         {formatDate(u.createdAt)}
                       </TableCell>
                       {isSuperAdmin && (
                         <TableCell>
-                          {!isSuper && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={deleting === uid}
-                              onClick={() => handleDelete(uid)}
-                            >
-                              {deleting === uid ? (
-                                <Loader2 className="size-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="size-4 text-red-400" />
-                              )}
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {!isSuper && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={toggling === uid}
+                                  onClick={() => handleToggleActive(uid, u.isActive)}
+                                  title={u.isActive !== false ? 'Disable' : 'Enable'}
+                                >
+                                  {toggling === uid ? (
+                                    <Loader2 className="size-4 animate-spin" />
+                                  ) : u.isActive !== false ? (
+                                    <PowerOff className="size-4 text-zinc-400 hover:text-yellow-400" />
+                                  ) : (
+                                    <Power className="size-4 text-zinc-400 hover:text-emerald-400" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={deleting === uid}
+                                  onClick={() => handleDelete(uid)}
+                                  title="Delete"
+                                >
+                                  {deleting === uid ? (
+                                    <Loader2 className="size-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="size-4 text-red-400" />
+                                  )}
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </TableCell>
                       )}
                     </TableRow>

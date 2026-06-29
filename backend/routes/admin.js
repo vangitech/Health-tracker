@@ -430,6 +430,22 @@ router.get('/admins', authenticateAdmin, requireSuperAdmin, async (req, res) => 
   }
 })
 
+router.put('/users/:id/toggle-active', authenticateAdmin, requireSuperAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+    if (!user) return res.status(404).json({ message: 'User not found' })
+    if (user.role === 'superadmin') return res.status(403).json({ message: 'Cannot disable super admin' })
+
+    user.isActive = !user.isActive
+    await user.save()
+
+    res.json({ message: `User ${user.isActive ? 'enabled' : 'disabled'}`, isActive: user.isActive })
+  } catch (err) {
+    console.error('Toggle active error:', err)
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
 router.delete('/users/:id', authenticateAdmin, requireSuperAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
