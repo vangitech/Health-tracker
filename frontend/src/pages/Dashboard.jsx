@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
 import Footer from '../components/Footer';
-import { LogOut, Activity, User, Camera, Loader2, Calendar, ChevronRight } from 'lucide-react';
+import { LogOut, Activity, User, Camera, Loader2, Calendar, Bell, BellOff, Coffee } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout, setUser } = useAuth();
@@ -18,6 +18,13 @@ export default function Dashboard() {
 
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+
+  const [alarmEnabled, setAlarmEnabled] = useState(() => localStorage.getItem('fbs_alarm') !== 'off');
+  const [alarmRinging, setAlarmRinging] = useState(false);
+  const [alarmDismissed, setAlarmDismissed] = useState(false);
+  const [showAlarmMenu, setShowAlarmMenu] = useState(false);
+  const alarmAudioRef = useRef(null);
+  const alarmIntervalRef = useRef(null);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -80,6 +87,79 @@ export default function Dashboard() {
       setAppointmentsLoading(false);
     }
   };
+
+  const playAlarmSound = useCallback(() => {
+    try {
+      if (alarmAudioRef.current) {
+        alarmAudioRef.current.currentTime = 0
+        alarmAudioRef.current.play().catch(() => {})
+        return
+      }
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const play = () => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(880, ctx.currentTime)
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15)
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3)
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.45)
+        gain.gain.setValueAtTime(0.3, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6)
+        osc.start(ctx.currentTime)
+        osc.stop(ctx.currentTime + 0.6)
+      }
+      play()
+      alarmAudioRef.current = { currentTime: 0, play: () => play() }
+    } catch {}
+  }, [])
+
+  const toggleAlarm = () => {
+    const next = !alarmEnabled
+    setAlarmEnabled(next)
+    localStorage.setItem('fbs_alarm', next ? 'on' : 'off')
+    if (!next) {
+      setAlarmRinging(false)
+      setAlarmDismissed(false)
+    }
+  }
+
+  const dismissAlarm = () => {
+    setAlarmRinging(false)
+    setAlarmDismissed(true)
+  }
+
+  useEffect(() => {
+    if (!alarmEnabled) {
+      setAlarmRinging(false)
+      return
+    }
+    const check = () => {
+      const now = new Date()
+      const h = now.getHours()
+      const m = now.getMinutes()
+      const inWindow = h === 7 || (h === 8) || (h === 9 && m === 0)
+      if (inWindow && !alarmDismissed) {
+        setAlarmRinging(true)
+      } else if (!inWindow) {
+        setAlarmRinging(false)
+        setAlarmDismissed(false)
+      }
+    }
+    check()
+    const interval = setInterval(check, 60000)
+    return () => clearInterval(interval)
+  }, [alarmEnabled, alarmDismissed])
+
+  useEffect(() => {
+    if (alarmRinging) {
+      playAlarmSound()
+      const t = setInterval(playAlarmSound, 8000)
+      return () => clearInterval(t)
+    }
+  }, [alarmRinging, playAlarmSound])
 
   const handleDataChange = (savedEntry) => {
     setDataError('');
@@ -159,6 +239,68 @@ export default function Dashboard() {
                 {activeTab === 'entries' ? <Calendar className="size-3.5" /> : <Activity className="size-3.5" />}
                 <span>{activeTab === 'entries' ? 'Appointments' : 'Entries'}</span>
               </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowAlarmMenu((p) => !p)}
+                  className={`relative size-8 sm:size-9 rounded-xl flex items-center justify-center transition-colors ${
+                    alarmRinging
+                      ? 'bg-amber-500/20 text-amber-400 animate-pulse'
+                      : alarmEnabled
+                        ? 'bg-zinc-800/60 text-zinc-400 hover:text-zinc-100'
+                        : 'bg-zinc-800/30 text-zinc-600'
+                  }`}
+                  title={alarmEnabled ? 'FBS Alarm active (7-9 AM)' : 'FBS Alarm disabled'}
+                >
+                  {alarmRinging ? (
+                    <Bell className="size-4 sm:size-5" />
+                  ) : (
+                    <BellOff className="size-4 sm:size-4" />
+                  )}
+                </button>
+
+                {showAlarmMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowAlarmMenu(false)} />
+                    <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-zinc-700 bg-zinc-900 shadow-xl overflow-hidden">
+                      <div className="p-3 border-b border-zinc-800">
+                        <div className="flex items-center gap-2">
+                          <Coffee className="size-4 text-amber-400" />
+                          <span className="text-sm font-medium text-zinc-100">FBS Reminder</span>
+                        </div>
+                      </div>
+                      <div className="p-3 space-y-3">
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          Reminds you to check your <span className="text-zinc-100 font-medium">Fasting Blood Sugar</span> between 7:00 AM – 9:00 AM daily.
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-zinc-300">Alarm</span>
+                          <button
+                            onClick={toggleAlarm}
+                            className={`relative inline-flex h-6 w-10 items-center rounded-full transition-colors ${
+                              alarmEnabled ? 'bg-emerald-600' : 'bg-zinc-700'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block size-5 rounded-full bg-white shadow-sm transition-transform ${
+                                alarmEnabled ? 'translate-x-[18px]' : 'translate-x-[2px]'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        {alarmRinging && (
+                          <button
+                            onClick={dismissAlarm}
+                            className="w-full py-2 text-xs font-medium text-amber-400 bg-amber-500/10 rounded-lg hover:bg-amber-500/20 transition-colors"
+                          >
+                            Dismiss for today
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <div className="hidden sm:flex items-center gap-2.5 pr-3 border-r border-zinc-800">
                 <div className="flex flex-col items-end">
