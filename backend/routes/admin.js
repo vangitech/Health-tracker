@@ -516,6 +516,41 @@ router.put('/profile/change-password', authenticateAdmin, async (req, res) => {
 
 // ── Chat ────────────────────────────────────────────────────────────
 
+router.get('/chat/staff', authenticateAdmin, async (req, res) => {
+  try {
+    const staffRoles = ['admin', 'superadmin', 'doctor', 'recordofficer', 'nurse']
+    const staff = await User.find({
+      role: { $in: staffRoles },
+      _id: { $ne: req.user.id },
+      isActive: true,
+    })
+      .select('firstName lastName email avatar role lastLogin')
+      .sort({ firstName: 1 })
+      .lean()
+
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000)
+    const result = staff.map((u) => ({
+      ...u,
+      isOnline: u.lastLogin && new Date(u.lastLogin) > fiveMinAgo,
+    }))
+
+    res.json(result)
+  } catch (err) {
+    console.error('Staff list error:', err)
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+// Track admin activity (update lastLogin)
+router.put('/chat/ping', authenticateAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { lastLogin: new Date() })
+    res.json({ ok: true })
+  } catch {
+    res.json({ ok: true })
+  }
+})
+
 router.get('/chat/conversations', authenticateAdmin, async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user.id)
@@ -549,10 +584,14 @@ router.get('/chat/conversations', authenticateAdmin, async (req, res) => {
     const userMap = {}
     for (const u of users) userMap[u._id.toString()] = u
 
-    const result = conversations.map((c) => ({
-      ...c,
-      user: userMap[c._id.toString()] || null,
-    }))
+    const result = conversations.map((c) => {
+      const otherUser = userMap[c._id.toString()] || {}
+      return {
+        ...c,
+        ...otherUser,
+        user: otherUser,
+      }
+    })
 
     res.json(result)
   } catch (err) {
