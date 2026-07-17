@@ -241,4 +241,15 @@ app.listen(PORT, () => {
     console.log(`   ${p.name}: ${base}/api/auth/callback/${p.id}`);
   });
   console.log(`\n📌 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5174'}\n`);
+
+  // Cron job: ping Render every 10 minutes to prevent spin-down
+  setInterval(async () => {
+    const renderUrl = 'https://health-tracker-14dn.onrender.com';
+    try {
+      const res = await fetch(renderUrl);
+      console.log(`[Keep-Alive] Pinged ${renderUrl} — ${res.status}`);
+    } catch (err) {
+      console.error(`[Keep-Alive] Failed to ping ${renderUrl}:`, err.message);
+    }
+  }, 10 * 60 * 1000);
 });
