@@ -5,62 +5,62 @@ const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   lastName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     lowercase: true,
     trim: true,
-    unique: true
+    unique: true,
   },
   phone: {
-    type: String
+    type: String,
   },
   dob: {
-    type: Date
+    type: Date,
   },
   password: {
-    type: String
+    type: String,
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   provider: {
     type: String,
     enum: ['local', 'google', 'yahoo', 'apple', 'github', 'microsoft'],
-    default: 'local'
+    default: 'local',
   },
   providerId: {
-    type: String
+    type: String,
   },
   avatar: {
-    type: String
+    type: String,
   },
   role: {
     type: String,
     enum: ['patient', 'admin', 'superadmin', 'doctor', 'recordofficer', 'nurse'],
-    default: 'patient'
+    default: 'patient',
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   lastLogin: {
-    type: Date
+    type: Date,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || !this.password) {
     return;
   }
@@ -72,7 +72,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };

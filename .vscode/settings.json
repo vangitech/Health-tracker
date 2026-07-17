@@ -1,7 +1,4 @@
 {
-    "cSpell.words": [
-        "mmol",
-        "Vangitech"
-    ],
-    "python.terminal.useEnvFile": true
+  "cSpell.words": ["mmol", "Vangitech"],
+  "python.terminal.useEnvFile": true
 }

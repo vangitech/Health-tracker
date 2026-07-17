@@ -9,8 +9,7 @@ const router = express.Router();
 // Get all entries for user
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const entries = await BloodSugarEntry.find({ userId: req.user.id })
-      .sort({ date: -1, time: -1 });
+    const entries = await BloodSugarEntry.find({ userId: req.user.id }).sort({ date: -1, time: -1 });
     res.json(entries);
   } catch (error) {
     console.error(error);
@@ -25,12 +24,12 @@ router.post(
   [
     body('date').isISO8601(),
     body('time').notEmpty(),
-    body('glucoseValue').isFloat({ min: 0, max: 600 }),
+    body('glucoseValue').isFloat({ min: 0, max: 33.3 }),
     body('mealType').isIn(['fbs', 'breakfast', 'lunch', 'dinner']),
     body('foodEaten').optional().trim(),
     body('carbs').optional().isInt({ min: 0 }),
     body('insulinUnits').optional().isInt({ min: 0 }),
-    body('notes').optional().trim()
+    body('notes').optional().trim(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -41,7 +40,7 @@ router.post(
     try {
       const entry = new BloodSugarEntry({
         userId: req.user.id,
-        ...req.body
+        ...req.body,
       });
       await entry.save();
       res.status(201).json(entry);
@@ -52,19 +51,35 @@ router.post(
   }
 );
 
+const ALLOWED_UPDATE_FIELDS = [
+  'glucoseValue',
+  'date',
+  'time',
+  'mealType',
+  'foodEaten',
+  'carbs',
+  'insulinUnits',
+  'notes',
+];
+
 // Update entry
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const entry = await BloodSugarEntry.findOne({ 
-      _id: req.params.id, 
-      userId: req.user.id 
+    const entry = await BloodSugarEntry.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
     });
-    
+
     if (!entry) {
       return res.status(404).json({ message: 'Entry not found' });
     }
 
-    Object.assign(entry, req.body);
+    for (const field of ALLOWED_UPDATE_FIELDS) {
+      if (req.body[field] !== undefined) {
+        entry[field] = req.body[field];
+      }
+    }
+
     await entry.save();
     res.json(entry);
   } catch (error) {
@@ -76,15 +91,15 @@ router.put('/:id', authenticateToken, async (req, res) => {
 // Delete entry
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const entry = await BloodSugarEntry.findOneAndDelete({ 
-      _id: req.params.id, 
-      userId: req.user.id 
+    const entry = await BloodSugarEntry.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id,
     });
-    
+
     if (!entry) {
       return res.status(404).json({ message: 'Entry not found' });
     }
-    
+
     res.json({ message: 'Entry deleted successfully' });
   } catch (error) {
     console.error(error);

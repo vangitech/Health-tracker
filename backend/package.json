@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Health care tracking for diabetic patient.",
+  "description": "Sugar Tracker - Health care tracking for diabetic patients.",
   "license": "ISC",
   "author": "Vangitech Limited.",
   "type": "module",
@@ -11,7 +11,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
@@ -21,6 +23,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.22.2",
+    "express-rate-limit": "^8.6.0",
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.3.0",
@@ -28,10 +31,12 @@
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.14",
-    "passport": "^0.7.0",
-    "passport-apple": "^2.0.2",
-    "passport-google-oauth20": "^2.0.0",
-    "passport-openidconnect": "^0.1.2",
     "resend": "^4.8.0"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^4.1.10",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.10"
   }
 }

@@ -1,107 +1,108 @@
-import { useState } from 'react'
-import { adminAxios as axios } from '@/contexts/AdminAuthContext'
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { Save, Upload, Lock, Loader2, CheckCircle2, User } from 'lucide-react'
+import { useState } from 'react';
+import { adminAxios as axios } from '@/contexts/AdminAuthContext';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Save, Upload, Lock, Loader2, CheckCircle2, User } from 'lucide-react';
 
 function getInitials(firstName, lastName) {
-  if (!firstName && !lastName) return '?'
-  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '')
+  if (!firstName && !lastName) return '?';
+  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '');
 }
 
 export default function AdminSettings() {
-  const { admin, setAdmin } = useAdminAuth()
+  const { admin, setAdmin } = useAdminAuth();
 
-  const [firstName, setFirstName] = useState(admin?.firstName || '')
-  const [lastName, setLastName] = useState(admin?.lastName || '')
-  const [profileSaving, setProfileSaving] = useState(false)
-  const [profileMessage, setProfileMessage] = useState(null)
+  const [firstName, setFirstName] = useState(admin?.firstName || '');
+  const [lastName, setLastName] = useState(admin?.lastName || '');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState(null);
 
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordSaving, setPasswordSaving] = useState(false)
-  const [passwordMessage, setPasswordMessage] = useState(null)
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(null);
 
-  const [avatarUploading, setAvatarUploading] = useState(false)
-  const [avatarMessage, setAvatarMessage] = useState(null)
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarMessage, setAvatarMessage] = useState(null);
 
   async function handleProfileUpdate(e) {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setProfileSaving(true)
-      setProfileMessage(null)
-      const { data } = await axios.put('/profile', { firstName, lastName })
-      if (data.user || data.admin) setAdmin(data.user || data.admin)
-      setProfileMessage({ type: 'success', text: 'Profile updated successfully' })
+      setProfileSaving(true);
+      setProfileMessage(null);
+      const { data } = await axios.put('/profile', { firstName, lastName });
+      if (data.user || data.admin) setAdmin(data.user || data.admin);
+      setProfileMessage({ type: 'success', text: 'Profile updated successfully' });
     } catch (err) {
       setProfileMessage({
         type: 'error',
         text: err.response?.data?.message || 'Failed to update profile',
-      })
+      });
     } finally {
-      setProfileSaving(false)
+      setProfileSaving(false);
     }
   }
 
   async function handlePasswordChange(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setPasswordMessage({ type: 'error', text: 'Passwords do not match' })
-      return
+      setPasswordMessage({ type: 'error', text: 'Passwords do not match' });
+      return;
+    }
+    if (newPassword.length < 8 || !/\d/.test(newPassword) || !/[^a-zA-Z0-9]/.test(newPassword)) {
+      setPasswordMessage({
+        type: 'error',
+        text: 'Password must be at least 8 characters with at least one number and one special character',
+      });
+      return;
     }
     try {
-      setPasswordSaving(true)
-      setPasswordMessage(null)
+      setPasswordSaving(true);
+      setPasswordMessage(null);
       await axios.put('/profile/change-password', {
         currentPassword,
         newPassword,
-      })
-      setPasswordMessage({ type: 'success', text: 'Password changed successfully' })
-      setCurrentPassword('')
-      setNewPassword('')
-      setConfirmPassword('')
+      });
+      setPasswordMessage({ type: 'success', text: 'Password changed successfully' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
     } catch (err) {
       setPasswordMessage({
         type: 'error',
         text: err.response?.data?.message || 'Failed to change password',
-      })
+      });
     } finally {
-      setPasswordSaving(false)
+      setPasswordSaving(false);
     }
   }
 
   async function handleAvatarUpload(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
     try {
-      setAvatarUploading(true)
-      setAvatarMessage(null)
-      const formData = new FormData()
-      formData.append('avatar', file)
+      setAvatarUploading(true);
+      setAvatarMessage(null);
+      const formData = new FormData();
+      formData.append('avatar', file);
       const { data } = await axios.put('/profile/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      if (data.user || data.admin) setAdmin(data.user || data.admin)
-      setAvatarMessage({ type: 'success', text: 'Avatar updated successfully' })
+      });
+      if (data.user || data.admin) setAdmin(data.user || data.admin);
+      setAvatarMessage({ type: 'success', text: 'Avatar updated successfully' });
     } catch (err) {
       setAvatarMessage({
         type: 'error',
         text: err.response?.data?.message || 'Failed to upload avatar',
-      })
+      });
     } finally {
-      setAvatarUploading(false)
+      setAvatarUploading(false);
     }
   }
 
@@ -122,9 +123,7 @@ export default function AdminSettings() {
             <div className="relative">
               <Avatar className="size-16">
                 <AvatarImage src={admin?.avatar} />
-                <AvatarFallback className="text-lg">
-                  {getInitials(admin?.firstName, admin?.lastName)}
-                </AvatarFallback>
+                <AvatarFallback className="text-lg">{getInitials(admin?.firstName, admin?.lastName)}</AvatarFallback>
               </Avatar>
               {avatarUploading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
@@ -157,9 +156,7 @@ export default function AdminSettings() {
                 avatarMessage.type === 'success' ? 'text-emerald-400' : 'text-red-400'
               }`}
             >
-              {avatarMessage.type === 'success' ? (
-                <CheckCircle2 className="size-3.5" />
-              ) : null}
+              {avatarMessage.type === 'success' ? <CheckCircle2 className="size-3.5" /> : null}
               {avatarMessage.text}
             </div>
           )}
@@ -170,21 +167,11 @@ export default function AdminSettings() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                />
+                <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                />
+                <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               </div>
             </div>
             <div className="space-y-2">
@@ -198,19 +185,13 @@ export default function AdminSettings() {
                   profileMessage.type === 'success' ? 'text-emerald-400' : 'text-red-400'
                 }`}
               >
-                {profileMessage.type === 'success' ? (
-                  <CheckCircle2 className="size-3.5" />
-                ) : null}
+                {profileMessage.type === 'success' ? <CheckCircle2 className="size-3.5" /> : null}
                 {profileMessage.text}
               </div>
             )}
 
             <Button type="submit" disabled={profileSaving}>
-              {profileSaving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Save className="size-4" />
-              )}
+              {profileSaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               Save Changes
             </Button>
           </form>
@@ -242,7 +223,19 @@ export default function AdminSettings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
+                minLength={8}
               />
+              <div className="space-y-1 pt-1">
+                <p className={`text-[11px] ${newPassword.length >= 8 ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                  {newPassword.length >= 8 ? '✓' : '○'} At least 8 characters
+                </p>
+                <p className={`text-[11px] ${/\d/.test(newPassword) ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                  {/\d/.test(newPassword) ? '✓' : '○'} At least one number
+                </p>
+                <p className={`text-[11px] ${/[^a-zA-Z0-9]/.test(newPassword) ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                  {/[^a-zA-Z0-9]/.test(newPassword) ? '✓' : '○'} At least one special character
+                </p>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
@@ -261,24 +254,18 @@ export default function AdminSettings() {
                   passwordMessage.type === 'success' ? 'text-emerald-400' : 'text-red-400'
                 }`}
               >
-                {passwordMessage.type === 'success' ? (
-                  <CheckCircle2 className="size-3.5" />
-                ) : null}
+                {passwordMessage.type === 'success' ? <CheckCircle2 className="size-3.5" /> : null}
                 {passwordMessage.text}
               </div>
             )}
 
             <Button type="submit" disabled={passwordSaving}>
-              {passwordSaving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Lock className="size-4" />
-              )}
+              {passwordSaving ? <Loader2 className="size-4 animate-spin" /> : <Lock className="size-4" />}
               Change Password
             </Button>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

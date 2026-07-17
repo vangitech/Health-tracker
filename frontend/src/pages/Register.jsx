@@ -1,22 +1,22 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import axios from '../lib/axios'
-import { motion } from 'framer-motion'
-import { Sparkles, User, Mail, Phone, Calendar, Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
-import Footer from '../components/Footer'
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from '../lib/axios';
+import { motion } from 'framer-motion';
+import { Sparkles, User, Mail, Phone, Calendar, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.15 }
-  }
-}
+    transition: { staggerChildren: 0.06, delayChildren: 0.15 },
+  },
+};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-}
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+};
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -25,35 +25,46 @@ export default function Register() {
     email: '',
     phone: '',
     dob: '',
-    password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+    password: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const passwordChecks = {
+    length: formData.password.length >= 8,
+    number: /\d/.test(formData.password),
+    special: /[^a-zA-Z0-9]/.test(formData.password),
+  };
+  const passwordOk = passwordChecks.length && passwordChecks.number && passwordChecks.special;
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    if (Object.values(formData).some(v => !v)) {
-      setError('Please fill in all fields')
-      return
+    e.preventDefault();
+    setError('');
+    if (Object.values(formData).some((v) => !v)) {
+      setError('Please fill in all fields');
+      return;
     }
-    setLoading(true)
+    if (!passwordOk) {
+      setError('Password must be at least 8 characters with at least one number and one special character');
+      return;
+    }
+    setLoading(true);
     try {
-      await axios.post('/api/auth/register', formData)
-      sessionStorage.setItem('verifyEmail', formData.email)
-      navigate('/verify', { state: { email: formData.email } })
+      await axios.post('/api/auth/register', formData);
+      sessionStorage.setItem('verifyEmail', formData.email);
+      navigate('/verify', { state: { email: formData.email } });
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed')
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fields = [
     { name: 'firstName', label: 'First Name', icon: User, type: 'text', placeholder: 'John', half: true },
@@ -61,7 +72,7 @@ export default function Register() {
     { name: 'email', label: 'Email', icon: Mail, type: 'email', placeholder: 'john@example.com' },
     { name: 'phone', label: 'Phone', icon: Phone, type: 'tel', placeholder: '+1 (555) 123-4567' },
     { name: 'dob', label: 'Date of Birth', icon: Calendar, type: 'date', placeholder: '' },
-  ]
+  ];
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-black select-none pb-[env(safe-area-inset-bottom)]">
@@ -90,12 +101,8 @@ export default function Register() {
             <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-white/5 border border-white/10 mb-4">
               <Sparkles className="size-7 text-white/80" />
             </div>
-            <h1 className="text-2xl font-semibold text-white tracking-tight">
-              Create Account
-            </h1>
-            <p className="text-sm text-zinc-400 mt-1.5">
-              Start tracking your blood sugar
-            </p>
+            <h1 className="text-2xl font-semibold text-white tracking-tight">Create Account</h1>
+            <p className="text-sm text-zinc-400 mt-1.5">Start tracking your blood sugar</p>
           </motion.div>
 
           {error && (
@@ -149,8 +156,8 @@ export default function Register() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                minLength={6}
-                placeholder="Password (min. 6 characters)"
+                minLength={8}
+                placeholder="Create a strong password"
                 className="w-full h-12 pl-10 pr-11 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
               />
               <button
@@ -163,16 +170,35 @@ export default function Register() {
               </button>
             </div>
 
+            <div className="space-y-1.5 px-1">
+              <div className="flex items-center gap-2 text-xs">
+                <span className={`size-1.5 rounded-full ${passwordChecks.length ? 'bg-emerald-500' : 'bg-zinc-600'}`} />
+                <span className={passwordChecks.length ? 'text-emerald-400' : 'text-zinc-500'}>
+                  At least 8 characters
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className={`size-1.5 rounded-full ${passwordChecks.number ? 'bg-emerald-500' : 'bg-zinc-600'}`} />
+                <span className={passwordChecks.number ? 'text-emerald-400' : 'text-zinc-500'}>
+                  At least one number
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span
+                  className={`size-1.5 rounded-full ${passwordChecks.special ? 'bg-emerald-500' : 'bg-zinc-600'}`}
+                />
+                <span className={passwordChecks.special ? 'text-emerald-400' : 'text-zinc-500'}>
+                  At least one special character
+                </span>
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
               className="relative w-full h-12 bg-white text-black font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90 mt-2"
             >
-              {loading ? (
-                <Loader2 className="size-5 animate-spin mx-auto" />
-              ) : (
-                'Create Account'
-              )}
+              {loading ? <Loader2 className="size-5 animate-spin mx-auto" /> : 'Create Account'}
             </button>
           </motion.form>
 
@@ -188,5 +214,5 @@ export default function Register() {
       </motion.div>
       <Footer />
     </div>
-  )
+  );
 }

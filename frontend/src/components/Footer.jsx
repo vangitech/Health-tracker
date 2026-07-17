@@ -1,7 +1,7 @@
-import { Activity, Heart } from 'lucide-react'
+import { Activity, Heart } from 'lucide-react';
 
 export default function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
 
   return (
     <footer className="border-t border-zinc-800/50 bg-zinc-950">
@@ -9,23 +9,29 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-zinc-500">
             <Activity className="size-4 text-sky-400" />
-            <span className="text-sm font-medium text-zinc-400">SugarTrack</span>
+            <span className="text-sm font-medium text-zinc-400">Sugar Tracker</span>
           </div>
 
           <p className="text-xs text-zinc-600 flex items-center gap-1">
-            &copy; {year} Sugarcare. All rights reserved. Made with
+            &copy; {year} Sugar Tracker. All rights reserved. Made with
             <Heart className="size-3 fill-rose-500/60 text-rose-500" />
           </p>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Privacy</a>
+            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+              Privacy
+            </a>
             <span className="text-zinc-700">·</span>
-            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Terms</a>
+            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+              Terms
+            </a>
             <span className="text-zinc-700">·</span>
-            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Support</a>
+            <a href="#" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+              Support
+            </a>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

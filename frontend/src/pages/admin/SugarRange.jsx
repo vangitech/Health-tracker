@@ -1,45 +1,46 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { adminAxios as axios } from '@/contexts/AdminAuthContext'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { AlertTriangle, CheckCircle, Loader2, Users } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { adminAxios as axios } from '@/contexts/AdminAuthContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, CheckCircle, Loader2, Users } from 'lucide-react';
 
 function getInitials(firstName, lastName) {
-  if (!firstName && !lastName) return '?'
-  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '')
+  if (!firstName && !lastName) return '?';
+  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '');
 }
 
 function formatTime(dateStr) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  })
+  });
 }
 
 function getReadingData(value) {
-  const num = Number(value)
-  if (isNaN(num)) return { color: 'border-zinc-700', badge: 'secondary', label: String(value) }
-  if (num > 10.0 || num < 4.0) return { color: 'border-red-500', badge: 'destructive', label: `${num.toFixed(1)} mmol/L` }
-  if (num >= 7.1) return { color: 'border-yellow-500', badge: 'secondary', label: `${num.toFixed(1)} mmol/L` }
-  return { color: 'border-emerald-500', badge: 'default', label: `${num.toFixed(1)} mmol/L` }
+  const num = Number(value);
+  if (isNaN(num)) return { color: 'border-zinc-700', badge: 'secondary', label: String(value) };
+  if (num > 10.0 || num < 4.0)
+    return { color: 'border-red-500', badge: 'destructive', label: `${num.toFixed(1)} mmol/L` };
+  if (num >= 7.1) return { color: 'border-yellow-500', badge: 'secondary', label: `${num.toFixed(1)} mmol/L` };
+  return { color: 'border-emerald-500', badge: 'default', label: `${num.toFixed(1)} mmol/L` };
 }
 
 function PatientCard({ patient, onClick }) {
-  const reading = getReadingData(patient.latestReading)
+  const reading = getReadingData(patient.latestReading);
 
   return (
     <Card
@@ -50,9 +51,7 @@ function PatientCard({ patient, onClick }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="size-10 shrink-0">
-              <AvatarFallback className="text-xs">
-                {getInitials(patient.firstName, patient.lastName)}
-              </AvatarFallback>
+              <AvatarFallback className="text-xs">{getInitials(patient.firstName, patient.lastName)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="font-medium text-zinc-100 truncate">
@@ -74,32 +73,34 @@ function PatientCard({ patient, onClick }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function PatientList({ endpoint, title, emptyIcon: EmptyIcon, emptyText }) {
-  const navigate = useNavigate()
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function fetchData() {
       try {
-        setLoading(true)
-        setError(null)
-        const { data: res } = await axios.get(endpoint)
-        if (!cancelled) setData(Array.isArray(res) ? res : res.patients || res.data || [])
+        setLoading(true);
+        setError(null);
+        const { data: res } = await axios.get(endpoint);
+        if (!cancelled) setData(Array.isArray(res) ? res : res.patients || res.data || []);
       } catch (err) {
-        if (!cancelled) setError(err.response?.data?.message || err.message)
+        if (!cancelled) setError(err.response?.data?.message || err.message);
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchData()
-    return () => { cancelled = true }
-  }, [endpoint])
+    fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, [endpoint]);
 
   if (loading) {
     return (
@@ -109,7 +110,7 @@ function PatientList({ endpoint, title, emptyIcon: EmptyIcon, emptyText }) {
           <p className="text-sm text-zinc-500">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -117,14 +118,16 @@ function PatientList({ endpoint, title, emptyIcon: EmptyIcon, emptyText }) {
       <div className="flex items-center justify-center min-h-[40vh]">
         <p className="text-sm text-red-400">Error: {error}</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm text-zinc-400">
         <Users className="size-4" />
-        <span>{data.length} patient{data.length !== 1 ? 's' : ''} {title}</span>
+        <span>
+          {data.length} patient{data.length !== 1 ? 's' : ''} {title}
+        </span>
       </div>
 
       {data.length === 0 ? (
@@ -144,7 +147,7 @@ function PatientList({ endpoint, title, emptyIcon: EmptyIcon, emptyText }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default function SugarRange() {
@@ -186,5 +189,5 @@ export default function SugarRange() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

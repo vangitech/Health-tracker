@@ -11,14 +11,16 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   };
 
   const [formData, setFormData] = useState({
-    date: entryToEdit?.date?.split('T')[0] || (presetDate ? format(presetDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')),
+    date:
+      entryToEdit?.date?.split('T')[0] ||
+      (presetDate ? format(presetDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')),
     time: entryToEdit?.time || getCurrentTime(),
     glucoseValue: entryToEdit?.glucoseValue !== undefined ? Number(entryToEdit.glucoseValue).toFixed(1) : '',
     mealType: entryToEdit?.mealType || presetMealType || 'breakfast',
     foodEaten: entryToEdit?.foodEaten || '',
     carbs: entryToEdit?.carbs !== undefined ? entryToEdit.carbs : '',
     insulinUnits: entryToEdit?.insulinUnits !== undefined ? entryToEdit.insulinUnits : '',
-    notes: entryToEdit?.notes || ''
+    notes: entryToEdit?.notes || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -62,19 +64,19 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
       ...formData,
       carbs: formData.carbs === '' ? 0 : Number(formData.carbs),
       insulinUnits: formData.insulinUnits === '' ? 0 : Number(formData.insulinUnits),
-      glucoseValue: parseFloat(formData.glucoseValue)
+      glucoseValue: parseFloat(formData.glucoseValue),
     };
 
     try {
-      let saved
+      let saved;
       if (entryToEdit?._id) {
-        const { data } = await axios.put(`/api/entries/${entryToEdit._id}`, payload)
-        saved = data
+        const { data } = await axios.put(`/api/entries/${entryToEdit._id}`, payload);
+        saved = data;
       } else {
-        const { data } = await axios.post('/api/entries', payload)
-        saved = data
+        const { data } = await axios.post('/api/entries', payload);
+        saved = data;
       }
-      onSuccess(saved)
+      onSuccess(saved);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save entry');
     } finally {
@@ -83,12 +85,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
   };
 
   return (
-    <motion.form
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
+    <motion.form initial={{ opacity: 0 }} animate={{ opacity: 1 }} onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="bg-red-900/30 border border-red-800/30 text-red-400 p-3 rounded-xl text-sm">{error}</div>
       )}
@@ -119,9 +116,7 @@ export default function EntryForm({ onSuccess, onCancel, entryToEdit, presetDate
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-300 mb-1.5">
-          Blood Glucose (mmol/L)
-        </label>
+        <label className="block text-sm font-medium text-zinc-300 mb-1.5">Blood Glucose (mmol/L)</label>
         <input
           type="number"
           step="0.1"

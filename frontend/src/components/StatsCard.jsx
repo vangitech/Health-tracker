@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion'
-import { Activity, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react'
-import { usePlatform } from '../lib/usePlatform'
-import NativeStatsCard from './NativeStatsCard'
+import { motion } from 'framer-motion';
+import { Activity, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { usePlatform } from '../lib/usePlatform';
+import NativeStatsCard from './NativeStatsCard';
 
 export default function StatsCard({ trends }) {
-  const { isNative, isLoading } = usePlatform()
+  const { isNative, isLoading } = usePlatform();
 
   if (isLoading) {
     return (
@@ -13,44 +13,37 @@ export default function StatsCard({ trends }) {
           <div key={i} className="rounded-2xl border border-slate-800/90 bg-slate-900/90 p-3.5 h-24 animate-pulse" />
         ))}
       </div>
-    )
+    );
   }
 
   if (isNative) {
-    return <NativeStatsCard trends={trends} />
+    return <NativeStatsCard trends={trends} />;
   }
 
-  return <StatsCardContent trends={trends} />
+  return <StatsCardContent trends={trends} />;
 }
 
 function StatsCardContent({ trends }) {
-  const {
-    averageGlucose,
-    estimatedA1C,
-    totalEntries,
-    inRangeCount,
-    borderlineCount,
-    highCount,
-    lowCount
-  } = trends || {}
+  const { averageGlucose, estimatedA1C, totalEntries, inRangeCount, borderlineCount, highCount, lowCount } =
+    trends || {};
 
   const getA1CColor = (a1c) => {
-    if (!a1c) return 'text-slate-300'
-    if (a1c < 7) return 'text-emerald-300'
-    if (a1c < 8) return 'text-amber-300'
-    return 'text-rose-300'
-  }
+    if (!a1c) return 'text-slate-300';
+    if (a1c < 7) return 'text-emerald-300';
+    if (a1c < 8) return 'text-amber-300';
+    return 'text-rose-300';
+  };
 
-  const total = totalEntries || 0
-  const pct = (n) => (total > 0 ? ((n / total) * 100).toFixed(0) : 0)
+  const total = totalEntries || 0;
+  const pct = (n) => (total > 0 ? ((n / total) * 100).toFixed(0) : 0);
 
   const barSegments = [
     { value: lowCount || 0, color: 'bg-cyan-500', label: 'Low' },
     { value: inRangeCount || 0, color: 'bg-emerald-500', label: 'In Range' },
     { value: borderlineCount || 0, color: 'bg-amber-500', label: 'Borderline' },
-    { value: highCount || 0, color: 'bg-rose-500', label: 'High' }
-  ]
-  const totalBar = barSegments.reduce((s, b) => s + b.value, 0) || 1
+    { value: highCount || 0, color: 'bg-rose-500', label: 'High' },
+  ];
+  const totalBar = barSegments.reduce((s, b) => s + b.value, 0) || 1;
 
   return (
     <motion.div
@@ -63,7 +56,9 @@ function StatsCardContent({ trends }) {
           <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em]">Avg Glucose</span>
           <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-sky-400 shrink-0" />
         </div>
-        <div className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-semibold text-white">{averageGlucose ? `${averageGlucose} mmol/L` : '—'}</div>
+        <div className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-semibold text-white">
+          {averageGlucose ? `${averageGlucose} mmol/L` : '—'}
+        </div>
         <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-400">Mean glucose over the tracked period.</p>
       </div>
 
@@ -72,7 +67,9 @@ function StatsCardContent({ trends }) {
           <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em]">Est. A1C</span>
           <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-violet-300 shrink-0" />
         </div>
-        <div className={`mt-4 sm:mt-6 text-2xl sm:text-3xl font-semibold ${getA1CColor(estimatedA1C)}`}>{estimatedA1C ? `${estimatedA1C}%` : '—'}</div>
+        <div className={`mt-4 sm:mt-6 text-2xl sm:text-3xl font-semibold ${getA1CColor(estimatedA1C)}`}>
+          {estimatedA1C ? `${estimatedA1C}%` : '—'}
+        </div>
         <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-300">
           {estimatedA1C != null
             ? estimatedA1C < 7
@@ -90,8 +87,12 @@ function StatsCardContent({ trends }) {
           <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-300 shrink-0" />
         </div>
         <div className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-semibold text-emerald-300">{inRangeCount ?? 0}</div>
-        <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-400">{pct(inRangeCount)}% of readings inside target range.</p>
-        <p className="mt-2 sm:mt-3 text-[10px] sm:text-xs uppercase tracking-[0.24em] text-slate-500">of {total} readings</p>
+        <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-400">
+          {pct(inRangeCount)}% of readings inside target range.
+        </p>
+        <p className="mt-2 sm:mt-3 text-[10px] sm:text-xs uppercase tracking-[0.24em] text-slate-500">
+          of {total} readings
+        </p>
       </div>
 
       <div className="rounded-2xl sm:rounded-[1.75rem] border border-slate-800/90 bg-slate-900/90 p-4 sm:p-5 shadow-xl shadow-slate-950/20">
@@ -103,7 +104,7 @@ function StatsCardContent({ trends }) {
         {/* Stacked bar chart */}
         <div className="mt-4 sm:mt-5 flex h-2.5 sm:h-3 w-full overflow-hidden rounded-full bg-slate-800">
           {barSegments.map((seg) => {
-            const width = (seg.value / totalBar) * 100
+            const width = (seg.value / totalBar) * 100;
             return width > 0 ? (
               <div
                 key={seg.label}
@@ -111,7 +112,7 @@ function StatsCardContent({ trends }) {
                 className={`${seg.color} first:rounded-l-full last:rounded-r-full transition-all`}
                 title={`${seg.label}: ${seg.value} (${pct(seg.value)}%)`}
               />
-            ) : null
+            ) : null;
           })}
         </div>
 
@@ -125,19 +126,19 @@ function StatsCardContent({ trends }) {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="inline-block size-2 sm:size-2.5 rounded-full bg-amber-500 shrink-0" />
-            <span className="text-slate-400">Borderline (7.1–10.0)</span>
+            <span className="text-slate-400">Borderline (&gt;7.0–10.0)</span>
             <span className="ml-auto font-medium text-amber-300">{borderlineCount ?? 0}</span>
             <span className="text-slate-500">({pct(borderlineCount)}%)</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="inline-block size-2 sm:size-2.5 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-slate-400">In Range (3.9–6.1)</span>
+            <span className="text-slate-400">In Range (3.9–7.0)</span>
             <span className="ml-auto font-medium text-emerald-300">{inRangeCount ?? 0}</span>
             <span className="text-slate-500">({pct(inRangeCount)}%)</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="inline-block size-2 sm:size-2.5 rounded-full bg-cyan-500 shrink-0" />
-            <span className="text-slate-400">{`Low (<4.0)`}</span>
+            <span className="text-slate-400">{`Low (<3.9)`}</span>
             <span className="ml-auto font-medium text-cyan-300">{lowCount ?? 0}</span>
             <span className="text-slate-500">({pct(lowCount)}%)</span>
           </div>
@@ -152,5 +153,5 @@ function StatsCardContent({ trends }) {
         </p>
       </div>
     </motion.div>
-  )
+  );
 }

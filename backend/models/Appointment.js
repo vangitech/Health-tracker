@@ -27,6 +27,6 @@ const appointmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-})
+});
 
-export default mongoose.model('Appointment', appointmentSchema)
+export default mongoose.model('Appointment', appointmentSchema);

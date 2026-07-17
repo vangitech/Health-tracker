@@ -5,12 +5,14 @@
 ### 1. Install Dependencies
 
 **Backend:**
+
 ```bash
 cd backend
 npm install
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -20,27 +22,31 @@ npm install
 
 **Backend (.env already configured):**
 The backend `.env` file is pre-configured with:
+
 - MongoDB connection
 - JWT secret
 - Resend API key for email
 - API URLs
 
 **Frontend (.env already configured):**
+
 ```
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:5001
 ```
 
 ### 3. Start Development Servers
 
 **Terminal 1 - Start Backend:**
+
 ```bash
 cd backend
 npm run dev
-# Expected output: Server running on port 5000
+# Expected output: Server running on port 5001
 # Expected output: MongoDB connected
 ```
 
 **Terminal 2 - Start Frontend:**
+
 ```bash
 cd frontend
 npm run dev
@@ -52,6 +58,7 @@ npm run dev
 ## Testing User Registration & Login Flow
 
 ### Test 1: Email Verification Flow
+
 1. Go to http://localhost:5173/register
 2. Fill in form:
    - First Name: John
@@ -66,12 +73,15 @@ npm run dev
 6. Should see "Email verified!" and redirect to login
 
 ### Test 2: Email Sending
+
 If email is not received:
+
 1. Check backend logs for Resend errors
 2. Verify RESEND_API_KEY in .env is correct
 3. Check spam folder
 
 ### Test 3: Login after Verification
+
 1. After verification, go to /login
 2. Enter email: test@example.com
 3. Enter password: Password123
@@ -79,6 +89,7 @@ If email is not received:
 5. Should redirect to dashboard (/)
 
 ### Test 4: Protected Routes
+
 1. Clear token: Open DevTools → Application → Storage → Remove token
 2. Try to access http://localhost:5173/
 3. Should redirect to /login
@@ -88,9 +99,11 @@ If email is not received:
 ## Testing OAuth (Google & GitHub)
 
 ### Prerequisites:
+
 Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 
 ### Google OAuth Test:
+
 1. Go to http://localhost:5173/login
 2. Click "Continue with Google"
 3. Sign in with your Google account
@@ -98,6 +111,7 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 5. Token should be stored in localStorage
 
 ### GitHub OAuth Test:
+
 1. Go to http://localhost:5173/login
 2. Click "Continue with GitHub"
 3. Authorize the app
@@ -110,6 +124,7 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ### Authentication Routes
 
 **POST /api/auth/register**
+
 ```json
 {
   "firstName": "John",
@@ -122,6 +137,7 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ```
 
 **POST /api/auth/verify**
+
 ```json
 {
   "email": "test@example.com",
@@ -130,6 +146,7 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ```
 
 **POST /api/auth/resend-code**
+
 ```json
 {
   "email": "test@example.com"
@@ -137,6 +154,7 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ```
 
 **POST /api/auth/login**
+
 ```json
 {
   "email": "test@example.com",
@@ -151,10 +169,12 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ### Blood Sugar Entries (Requires Authorization Header)
 
 **GET /api/entries**
+
 - Headers: `Authorization: Bearer <token>`
 - Returns: All entries for user
 
 **POST /api/entries**
+
 ```json
 {
   "date": "2024-01-15",
@@ -175,38 +195,47 @@ Complete the OAuth setup from `OAUTH_EMAIL_SETUP.md`
 ### Backend Issues
 
 **MongoDB Connection Error:**
+
 ```
 MongoDB connection error: MongoServerError
 ```
+
 - Check MongoDB URI in .env is correct
 - Verify MongoDB Atlas cluster is active
 - Check IP whitelist includes your current IP
 
 **Port Already in Use:**
+
 ```
-Error: listen EADDRINUSE :::5000
+Error: listen EADDRINUSE :::5001
 ```
+
 - Change PORT in .env to different number (e.g., 5001)
-- Or kill process: `lsof -i :5000` then `kill -9 <PID>`
+- Or kill process: `lsof -i :5001` then `kill -9 <PID>`
 
 **Passport Module Not Found:**
+
 ```
 Cannot find module 'passport'
 ```
+
 - Run `npm install` in backend directory
 - Check node_modules folder exists
 
 ### Frontend Issues
 
 **API Connection Error:**
+
 ```
-Error: connect ECONNREFUSED 127.0.0.1:5000
+Error: connect ECONNREFUSED 127.0.0.1:5001
 ```
+
 - Ensure backend server is running
 - Check VITE_API_URL in .env is correct
 - Check frontend proxy settings in vite.config.js
 
 **Blank Page or 404:**
+
 - Check browser console for errors
 - Verify vite server is running on port 5173
 - Clear browser cache and refresh
@@ -214,6 +243,7 @@ Error: connect ECONNREFUSED 127.0.0.1:5000
 ### Email Issues
 
 **Email Not Received:**
+
 1. Check spam folder
 2. Verify RESEND_API_KEY in .env is correct
 3. Check Resend dashboard for delivery logs

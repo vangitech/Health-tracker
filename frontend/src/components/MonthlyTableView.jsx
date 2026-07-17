@@ -34,9 +34,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
   const getEntryForDayAndMeal = (date, mealType) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return entries.find(
-      (e) => e.date?.split('T')[0] === dateStr && e.mealType === mealType
-    );
+    return entries.find((e) => e.date?.split('T')[0] === dateStr && e.mealType === mealType);
   };
 
   const handleAddOrEdit = (date, mealType, existingEntry = null) => {
@@ -72,7 +70,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
       'Dinner Food',
       'Dinner Carbs',
       'Dinner Insulin',
-      'Dinner Notes'
+      'Dinner Notes',
     ]);
 
     days.forEach((day) => {
@@ -99,7 +97,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
         dinner?.foodEaten || '',
         dinner?.carbs || '',
         dinner?.insulinUnits || '',
-        dinner?.notes || ''
+        dinner?.notes || '',
       ]);
     });
 
@@ -156,19 +154,27 @@ export default function MonthlyTableView({ entries, onDataChange }) {
               </th>
               <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 FBS
-                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–6.1</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">
+                  3.9–6.1
+                </span>
               </th>
               <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Breakfast
-                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">
+                  3.9–10
+                </span>
               </th>
               <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Lunch
-                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">
+                  3.9–10
+                </span>
               </th>
               <th className="p-2 sm:p-3 text-center text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Dinner
-                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">3.9–10</span>
+                <span className="block text-[8px] sm:text-[10px] font-normal text-zinc-600 tracking-normal">
+                  3.9–10
+                </span>
               </th>
             </tr>
           </thead>
@@ -180,7 +186,10 @@ export default function MonthlyTableView({ entries, onDataChange }) {
               const dinnerEntry = getEntryForDayAndMeal(day, 'dinner');
 
               return (
-                <tr key={day.toISOString()} className="border-t border-zinc-800/30 hover:bg-zinc-800/20 transition-colors">
+                <tr
+                  key={day.toISOString()}
+                  className="border-t border-zinc-800/30 hover:bg-zinc-800/20 transition-colors"
+                >
                   <td className="p-0 sm:p-0 text-center sm:text-sm font-medium text-zinc-300 sticky left-0 bg-zinc-900 z-10">
                     {format(day, 'd MMM')}
                   </td>
@@ -192,12 +201,17 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                     >
                       {fbsEntry ? (
                         <div>
-                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}>
-                            {fbsEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div
+                            className={`text-xs sm:text-base font-bold ${getGlucoseColor(fbsEntry.glucoseValue, true).text}`}
+                          >
+                            {fbsEntry.glucoseValue?.toFixed(1)}{' '}
+                            <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{fbsEntry.time}</div>
                           {fbsEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{fbsEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">
+                              {fbsEntry.foodEaten}
+                            </div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
@@ -218,12 +232,17 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                     >
                       {breakfastEntry ? (
                         <div>
-                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}>
-                            {breakfastEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div
+                            className={`text-xs sm:text-base font-bold ${getGlucoseColor(breakfastEntry.glucoseValue, false).text}`}
+                          >
+                            {breakfastEntry.glucoseValue?.toFixed(1)}{' '}
+                            <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{breakfastEntry.time}</div>
                           {breakfastEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{breakfastEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">
+                              {breakfastEntry.foodEaten}
+                            </div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
@@ -244,12 +263,17 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                     >
                       {lunchEntry ? (
                         <div>
-                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}>
-                            {lunchEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div
+                            className={`text-xs sm:text-base font-bold ${getGlucoseColor(lunchEntry.glucoseValue, false).text}`}
+                          >
+                            {lunchEntry.glucoseValue?.toFixed(1)}{' '}
+                            <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{lunchEntry.time}</div>
                           {lunchEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{lunchEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">
+                              {lunchEntry.foodEaten}
+                            </div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />
@@ -270,12 +294,17 @@ export default function MonthlyTableView({ entries, onDataChange }) {
                     >
                       {dinnerEntry ? (
                         <div>
-                          <div className={`text-xs sm:text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}>
-                            {dinnerEntry.glucoseValue?.toFixed(1)} <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
+                          <div
+                            className={`text-xs sm:text-base font-bold ${getGlucoseColor(dinnerEntry.glucoseValue, false).text}`}
+                          >
+                            {dinnerEntry.glucoseValue?.toFixed(1)}{' '}
+                            <span className="text-[8px] sm:text-[10px] font-normal opacity-60">mmol/L</span>
                           </div>
                           <div className="text-[9px] sm:text-[11px] text-zinc-500 mt-0.5">{dinnerEntry.time}</div>
                           {dinnerEntry.foodEaten && (
-                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">{dinnerEntry.foodEaten}</div>
+                            <div className="text-[9px] sm:text-[11px] text-zinc-400 mt-0.5 sm:mt-1 truncate max-w-20 sm:max-w-30">
+                              {dinnerEntry.foodEaten}
+                            </div>
                           )}
                           <div className="flex justify-end mt-0.5 sm:mt-1">
                             <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-600" />

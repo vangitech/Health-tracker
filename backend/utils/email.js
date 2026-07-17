@@ -22,7 +22,7 @@ export const sendVerificationEmail = async (email, code) => {
         <hr style="margin: 20px 0;" />
         <p style="color: #6b7280; font-size: 12px;">Blood Sugar Tracker - Helping you manage your health</p>
       </div>
-    `
+    `,
   });
 
   if (error) {

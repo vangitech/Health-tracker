@@ -8,6 +8,7 @@ import User from '../models/User.js';
 import VerificationCode from '../models/VerificationCode.js';
 import { sendVerificationEmail } from '../utils/email.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 import { avatarStorage, extractPublicId, deleteImage, MAX_FILE_SIZE, ALLOWED_FORMATS } from '../utils/cloudinary.js';
 
 const upload = multer({
@@ -20,7 +21,7 @@ const upload = multer({
     } else {
       cb(new Error('Only image files (jpg, png, gif, webp) are allowed'), false);
     }
-  }
+  },
 });
 
 function handleMulterError(err, req, res, next) {
@@ -60,22 +61,29 @@ const generateCode = () => {
 // Register user
 router.post(
   '/register',
+  authLimiter,
   [
     body('firstName').notEmpty().trim(),
     body('lastName').notEmpty().trim(),
     body('email').isEmail().normalizeEmail(),
     body('phone').notEmpty(),
     body('dob').isISO8601(),
-    body('password').isLength({ min: 6 })
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters')
+      .matches(/\d/)
+      .withMessage('Password must include at least one number')
+      .matches(/[^a-zA-Z0-9]/)
+      .withMessage('Password must include at least one special character'),
   ],
   async (req, res) => {
-    console.log('📝 Registration data received:', { 
-      firstName: req.body.firstName, 
-      lastName: req.body.lastName, 
+    console.log('📝 Registration data received:', {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       email: req.body.email,
       phone: req.body.phone,
       dob: req.body.dob,
-      password: req.body.password ? '***' : 'none'
+      password: req.body.password ? '***' : 'none',
     });
 
     const errors = validationResult(req);
@@ -101,7 +109,7 @@ router.post(
         phone,
         dob,
         password,
-        isVerified: false
+        isVerified: false,
       });
       await user.save();
 
@@ -110,7 +118,7 @@ router.post(
       const verificationCode = new VerificationCode({
         email,
         code,
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       });
       await verificationCode.save();
 
@@ -125,7 +133,7 @@ router.post(
 
       res.status(201).json({
         message: 'User created. Verification code sent to email.',
-        email 
+        email,
       });
     } catch (error) {
       console.error(error);
@@ -137,16 +145,13 @@ router.post(
 // Verify email
 router.post(
   '/verify',
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('code').isLength({ min: 6, max: 6 })
-  ],
+  [body('email').isEmail().normalizeEmail(), body('code').isLength({ min: 6, max: 6 })],
   async (req, res) => {
     const { email, code } = req.body;
 
     try {
       const verificationCode = await VerificationCode.findOne({ email, code });
-      
+
       if (!verificationCode) {
         return res.status(400).json({ message: 'Invalid verification code' });
       }
@@ -174,6 +179,14 @@ router.post(
         { expiresIn: '7d' }
       );
 
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+
       res.json({
         message: 'Email verified successfully',
         token,
@@ -182,18 +195,18 @@ router.post(
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          avatar: user.avatar
-        }
+          avatar: user.avatar,
+        },
       });
     } catch (error) {
       console.error('❌ Registration error:', {
         message: error.message,
         stack: error.stack,
-        code: error.code
+        code: error.code,
       });
-      res.status(500).json({ 
+      res.status(500).json({
         message: 'Server error',
-        details: error.message 
+        details: error.message,
       });
     }
   }
@@ -202,16 +215,14 @@ router.post(
 // Login
 router.post(
   '/login',
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('password').notEmpty()
-  ],
+  authLimiter,
+  [body('email').isEmail().normalizeEmail(), body('password').notEmpty()],
   async (req, res) => {
     const { email, password } = req.body;
 
     try {
       const user = await User.findOne({ email });
-      
+
       if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -231,6 +242,14 @@ router.post(
         { expiresIn: '7d' }
       );
 
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+
       res.json({
         token,
         user: {
@@ -238,8 +257,8 @@ router.post(
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          avatar: user.avatar
-        }
+          avatar: user.avatar,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -249,48 +268,41 @@ router.post(
 );
 
 // Resend verification code
-router.post(
-  '/resend-code',
-  [
-    body('email').isEmail().normalizeEmail()
-  ],
-  async (req, res) => {
-    const { email } = req.body;
+router.post('/resend-code', authLimiter, [body('email').isEmail().normalizeEmail()], async (req, res) => {
+  const { email } = req.body;
 
-    try {
-      const user = await User.findOne({ email });
-      
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+  try {
+    const user = await User.findOne({ email });
 
-      if (user.isVerified) {
-        return res.status(400).json({ message: 'Email already verified' });
-      }
-
-      // Delete old verification code if exists
-      await VerificationCode.deleteOne({ email });
-
-      // Generate new code
-      const code = generateCode();
-      const verificationCode = new VerificationCode({
-        email,
-        code,
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000)
-      });
-      await verificationCode.save();
-
-      // Send verification email
-      await sendVerificationEmail(email, code);
-
-      res.json({ message: 'Verification code sent to email' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  }
-);
 
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified' });
+    }
+
+    // Delete old verification code if exists
+    await VerificationCode.deleteOne({ email });
+
+    // Generate new code
+    const code = generateCode();
+    const verificationCode = new VerificationCode({
+      email,
+      code,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    });
+    await verificationCode.save();
+
+    // Send verification email
+    await sendVerificationEmail(email, code);
+
+    res.json({ message: 'Verification code sent to email' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Get current authenticated user's profile
 router.get('/me', authenticateToken, async (req, res) => {
@@ -308,13 +320,19 @@ router.get('/me', authenticateToken, async (req, res) => {
         avatar: user.avatar,
         isVerified: user.isVerified,
         provider: user.provider,
-        createdAt: user.createdAt
-      }
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
     console.error('Failed to fetch profile', error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Logout — clear httpOnly cookie
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', { path: '/' });
+  res.json({ message: 'Logged out' });
 });
 
 // Upload profile avatar
@@ -332,11 +350,9 @@ router.put('/profile', authenticateToken, uploadAvatar('avatar'), async (req, re
     }
 
     const avatarUrl = req.file.path;
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { avatar: avatarUrl },
-      { new: true }
-    ).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, { avatar: avatarUrl }, { new: true }).select(
+      '-password'
+    );
     res.json({
       user: {
         id: updatedUser._id,
@@ -348,8 +364,8 @@ router.put('/profile', authenticateToken, uploadAvatar('avatar'), async (req, re
         avatar: updatedUser.avatar,
         isVerified: updatedUser.isVerified,
         provider: updatedUser.provider,
-        createdAt: updatedUser.createdAt
-      }
+        createdAt: updatedUser.createdAt,
+      },
     });
   } catch (error) {
     console.error('Failed to upload avatar', error);

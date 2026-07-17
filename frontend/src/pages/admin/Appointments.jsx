@@ -1,19 +1,12 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { adminAxios as axios } from '@/contexts/AdminAuthContext'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Loader2, Calendar, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { adminAxios as axios } from '@/contexts/AdminAuthContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Calendar, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,129 +14,125 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
-} from '@/components/ui/dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const statuses = ['all', 'scheduled', 'completed', 'cancelled']
+const statuses = ['all', 'scheduled', 'completed', 'cancelled'];
 
 const statusBadgeStyle = {
   scheduled: 'bg-blue-900/50 text-blue-400 border-blue-700',
   completed: 'bg-emerald-900/50 text-emerald-400 border-emerald-700',
   cancelled: 'bg-red-900/50 text-red-400 border-red-700',
-}
+};
 
 function formatDate(dateStr) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 
 export default function Appointments() {
-  const navigate = useNavigate()
-  const [appointments, setAppointments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState('all')
+  const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [patients, setPatients] = useState([])
-  const [selectedPatient, setSelectedPatient] = useState('')
-  const [appointmentDate, setAppointmentDate] = useState('')
-  const [appointmentNotes, setAppointmentNotes] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [patientsLoading, setPatientsLoading] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentNotes, setAppointmentNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [patientsLoading, setPatientsLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function fetchAppointments() {
       try {
-        setLoading(true)
-        const params = {}
-        if (statusFilter !== 'all') params.status = statusFilter
-        const { data } = await axios.get('/appointments', { params })
-        if (!cancelled) setAppointments(Array.isArray(data) ? data : data.appointments || data.data || [])
+        setLoading(true);
+        const params = {};
+        if (statusFilter !== 'all') params.status = statusFilter;
+        const { data } = await axios.get('/appointments', { params });
+        if (!cancelled) setAppointments(Array.isArray(data) ? data : data.appointments || data.data || []);
       } catch {
-        if (!cancelled) setAppointments([])
+        if (!cancelled) setAppointments([]);
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchAppointments()
-    return () => { cancelled = true }
-  }, [statusFilter])
+    fetchAppointments();
+    return () => {
+      cancelled = true;
+    };
+  }, [statusFilter]);
 
   function openNewDialog() {
-    setDialogOpen(true)
-    setSelectedPatient('')
-    setAppointmentDate('')
-    setAppointmentNotes('')
-    fetchPatients()
+    setDialogOpen(true);
+    setSelectedPatient('');
+    setAppointmentDate('');
+    setAppointmentNotes('');
+    fetchPatients();
   }
 
   async function fetchPatients() {
     try {
-      setPatientsLoading(true)
-      const { data } = await axios.get('/patients', { params: { limit: 200 } })
-      const list = Array.isArray(data) ? data : data.patients || data.data || []
-      setPatients(list)
+      setPatientsLoading(true);
+      const { data } = await axios.get('/patients', { params: { limit: 200 } });
+      const list = Array.isArray(data) ? data : data.patients || data.data || [];
+      setPatients(list);
     } catch {
-      setPatients([])
+      setPatients([]);
     } finally {
-      setPatientsLoading(false)
+      setPatientsLoading(false);
     }
   }
 
   async function handleCreate() {
-    if (!selectedPatient || !appointmentDate) return
+    if (!selectedPatient || !appointmentDate) return;
     try {
-      setSubmitting(true)
+      setSubmitting(true);
       await axios.post(`/patients/${selectedPatient}/appointments`, {
         appointmentDate,
         notes: appointmentNotes,
-      })
-      setDialogOpen(false)
-      setAppointmentDate('')
-      setAppointmentNotes('')
-      setSelectedPatient('')
-      const params = {}
-      if (statusFilter !== 'all') params.status = statusFilter
-      const { data } = await axios.get('/appointments', { params })
-      setAppointments(Array.isArray(data) ? data : data.appointments || data.data || [])
+      });
+      setDialogOpen(false);
+      setAppointmentDate('');
+      setAppointmentNotes('');
+      setSelectedPatient('');
+      const params = {};
+      if (statusFilter !== 'all') params.status = statusFilter;
+      const { data } = await axios.get('/appointments', { params });
+      setAppointments(Array.isArray(data) ? data : data.appointments || data.data || []);
     } catch {
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
   function getPatientName(apt) {
     if (apt.userId && typeof apt.userId === 'object') {
-      return `${apt.userId.firstName || ''} ${apt.userId.lastName || ''}`.trim()
+      return `${apt.userId.firstName || ''} ${apt.userId.lastName || ''}`.trim();
     }
-    return apt.patientName || apt.name || '—'
+    return apt.patientName || apt.name || '—';
   }
 
   function getPatientEmail(apt) {
     if (apt.userId && typeof apt.userId === 'object') {
-      return apt.userId.email || '—'
+      return apt.userId.email || '—';
     }
-    return apt.patientEmail || apt.email || '—'
+    return apt.patientEmail || apt.email || '—';
   }
 
   function getPatientId(apt) {
     if (apt.userId && typeof apt.userId === 'object') {
-      return apt.userId._id || apt.userId.id
+      return apt.userId._id || apt.userId.id;
     }
-    return apt.userId || apt.patientId
+    return apt.userId || apt.patientId;
   }
 
   if (loading) {
@@ -154,7 +143,7 @@ export default function Appointments() {
           <p className="text-sm text-zinc-500">Loading appointments...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -174,9 +163,7 @@ export default function Appointments() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>New Appointment</DialogTitle>
-              <DialogDescription>
-                Book an appointment for a registered patient
-              </DialogDescription>
+              <DialogDescription>Book an appointment for a registered patient</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div className="space-y-2">
@@ -277,23 +264,14 @@ export default function Appointments() {
                       {getPatientName(apt)}
                     </button>
                   </TableCell>
-                  <TableCell className="text-zinc-400">
-                    {getPatientEmail(apt)}
-                  </TableCell>
-                  <TableCell className="text-zinc-400">
-                    {formatDate(apt.date || apt.appointmentDate)}
-                  </TableCell>
+                  <TableCell className="text-zinc-400">{getPatientEmail(apt)}</TableCell>
+                  <TableCell className="text-zinc-400">{formatDate(apt.date || apt.appointmentDate)}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={statusBadgeStyle[apt.status] || 'bg-zinc-800 text-zinc-400'}
-                    >
+                    <Badge variant="secondary" className={statusBadgeStyle[apt.status] || 'bg-zinc-800 text-zinc-400'}>
                       {apt.status || 'scheduled'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-zinc-400 max-w-xs truncate">
-                    {apt.notes || '—'}
-                  </TableCell>
+                  <TableCell className="text-zinc-400 max-w-xs truncate">{apt.notes || '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -301,5 +279,5 @@ export default function Appointments() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -5,50 +5,49 @@ const bloodSugarEntrySchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   date: {
     type: Date,
-    required: true
+    required: true,
   },
   time: {
-    
     type: String,
-    required: true
+    required: true,
   },
   glucoseValue: {
     type: Number,
     required: true,
     min: 0,
-    max: 600
+    max: 33.3,
   },
   mealType: {
     type: String,
     enum: ['fbs', 'breakfast', 'lunch', 'dinner'],
-    required: true
+    required: true,
   },
   foodEaten: {
     type: String,
-    trim: true
+    trim: true,
   },
   carbs: {
     type: Number,
     min: 0,
-    default: 0
+    default: 0,
   },
   insulinUnits: {
     type: Number,
     min: 0,
-    default: 0
+    default: 0,
   },
   notes: {
     type: String,
-    trim: true
+    trim: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 export default mongoose.model('BloodSugarEntry', bloodSugarEntrySchema);

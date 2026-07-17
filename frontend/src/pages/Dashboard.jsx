@@ -53,10 +53,7 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setDataError('');
-      const [entriesRes, trendsRes] = await Promise.all([
-        axios.get('/api/entries'),
-        axios.get('/api/trends')
-      ]);
+      const [entriesRes, trendsRes] = await Promise.all([axios.get('/api/entries'), axios.get('/api/trends')]);
       setEntries(entriesRes.data);
       setTrends(trendsRes.data);
     } catch (error) {
@@ -91,93 +88,93 @@ export default function Dashboard() {
   const playAlarmSound = useCallback(() => {
     try {
       if (alarmAudioRef.current) {
-        alarmAudioRef.current.currentTime = 0
-        alarmAudioRef.current.play().catch(() => {})
-        return
+        alarmAudioRef.current.currentTime = 0;
+        alarmAudioRef.current.play().catch(() => {});
+        return;
       }
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const play = () => {
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(880, ctx.currentTime)
-        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15)
-        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3)
-        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.45)
-        gain.gain.setValueAtTime(0.3, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6)
-        osc.start(ctx.currentTime)
-        osc.stop(ctx.currentTime + 0.6)
-      }
-      play()
-      alarmAudioRef.current = { currentTime: 0, play: () => play() }
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.45);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.6);
+      };
+      play();
+      alarmAudioRef.current = { currentTime: 0, play: () => play() };
     } catch {}
-  }, [])
+  }, []);
 
   const toggleAlarm = () => {
-    const next = !alarmEnabled
-    setAlarmEnabled(next)
-    localStorage.setItem('fbs_alarm', next ? 'on' : 'off')
+    const next = !alarmEnabled;
+    setAlarmEnabled(next);
+    localStorage.setItem('fbs_alarm', next ? 'on' : 'off');
     if (!next) {
-      setAlarmRinging(false)
-      setAlarmDismissed(false)
+      setAlarmRinging(false);
+      setAlarmDismissed(false);
     }
-  }
+  };
 
   const dismissAlarm = () => {
-    setAlarmRinging(false)
-    setAlarmDismissed(true)
-  }
+    setAlarmRinging(false);
+    setAlarmDismissed(true);
+  };
 
   useEffect(() => {
     if (!alarmEnabled) {
-      setAlarmRinging(false)
-      return
+      setAlarmRinging(false);
+      return;
     }
     const check = () => {
-      const now = new Date()
-      const h = now.getHours()
-      const m = now.getMinutes()
-      const inWindow = h === 7 || (h === 8) || (h === 9 && m === 0)
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const inWindow = h === 7 || h === 8 || (h === 9 && m === 0);
       if (inWindow && !alarmDismissed) {
-        setAlarmRinging(true)
+        setAlarmRinging(true);
       } else if (!inWindow) {
-        setAlarmRinging(false)
-        setAlarmDismissed(false)
+        setAlarmRinging(false);
+        setAlarmDismissed(false);
       }
-    }
-    check()
-    const interval = setInterval(check, 60000)
-    return () => clearInterval(interval)
-  }, [alarmEnabled, alarmDismissed])
+    };
+    check();
+    const interval = setInterval(check, 60000);
+    return () => clearInterval(interval);
+  }, [alarmEnabled, alarmDismissed]);
 
   useEffect(() => {
     if (alarmRinging) {
-      playAlarmSound()
-      const t = setInterval(playAlarmSound, 8000)
-      return () => clearInterval(t)
+      playAlarmSound();
+      const t = setInterval(playAlarmSound, 8000);
+      return () => clearInterval(t);
     }
-  }, [alarmRinging, playAlarmSound])
+  }, [alarmRinging, playAlarmSound]);
 
   const handleDataChange = (savedEntry) => {
     setDataError('');
     if (savedEntry) {
       setEntries((prev) => {
         if (savedEntry._deleted) {
-          return prev.filter((e) => e._id !== savedEntry._id)
+          return prev.filter((e) => e._id !== savedEntry._id);
         }
-        const idx = prev.findIndex((e) => e._id === savedEntry._id)
+        const idx = prev.findIndex((e) => e._id === savedEntry._id);
         if (idx >= 0) {
-          const next = [...prev]
-          next[idx] = savedEntry
-          return next
+          const next = [...prev];
+          next[idx] = savedEntry;
+          return next;
         }
-        return [savedEntry, ...prev]
-      })
+        return [savedEntry, ...prev];
+      });
     }
-    fetchData()
+    fetchData();
   };
 
   if (loading) {
@@ -210,20 +207,19 @@ export default function Dashboard() {
               <button
                 onClick={() => setActiveTab('entries')}
                 className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  activeTab === 'entries'
-                    ? 'bg-sky-500/10 text-sky-400'
-                    : 'text-zinc-400 hover:text-zinc-100'
+                  activeTab === 'entries' ? 'bg-sky-500/10 text-sky-400' : 'text-zinc-400 hover:text-zinc-100'
                 }`}
               >
                 <Activity className="size-3.5 inline mr-1" />
                 Entries
               </button>
               <button
-                onClick={() => { setActiveTab('appointments'); fetchAppointments(); }}
+                onClick={() => {
+                  setActiveTab('appointments');
+                  fetchAppointments();
+                }}
                 className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  activeTab === 'appointments'
-                    ? 'bg-sky-500/10 text-sky-400'
-                    : 'text-zinc-400 hover:text-zinc-100'
+                  activeTab === 'appointments' ? 'bg-sky-500/10 text-sky-400' : 'text-zinc-400 hover:text-zinc-100'
                 }`}
               >
                 <Calendar className="size-3.5 inline mr-1" />
@@ -252,11 +248,7 @@ export default function Dashboard() {
                   }`}
                   title={alarmEnabled ? 'FBS Alarm active (7-9 AM)' : 'FBS Alarm disabled'}
                 >
-                  {alarmRinging ? (
-                    <Bell className="size-4 sm:size-5" />
-                  ) : (
-                    <BellOff className="size-4 sm:size-4" />
-                  )}
+                  {alarmRinging ? <Bell className="size-4 sm:size-5" /> : <BellOff className="size-4 sm:size-4" />}
                 </button>
 
                 {showAlarmMenu && (
@@ -271,7 +263,9 @@ export default function Dashboard() {
                       </div>
                       <div className="p-3 space-y-3">
                         <p className="text-xs text-zinc-400 leading-relaxed">
-                          Reminds you to check your <span className="text-zinc-100 font-medium">Fasting Blood Sugar</span> between 7:00 AM – 9:00 AM daily.
+                          Reminds you to check your{' '}
+                          <span className="text-zinc-100 font-medium">Fasting Blood Sugar</span> between 7:00 AM – 9:00
+                          AM daily.
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-zinc-300">Alarm</span>
@@ -391,17 +385,15 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-3">
                 {appointments.map((apt) => {
-                  const date = new Date(apt.appointmentDate)
-                  const isPast = date < new Date()
+                  const date = new Date(apt.appointmentDate);
+                  const isPast = date < new Date();
                   return (
                     <div
                       key={apt._id}
                       className="flex items-start gap-4 p-4 rounded-xl border border-zinc-800 bg-zinc-900/50"
                     >
                       <div className="flex flex-col items-center justify-center size-12 rounded-lg bg-sky-500/10 shrink-0">
-                        <span className="text-lg font-bold text-sky-400 leading-tight">
-                          {date.getDate()}
-                        </span>
+                        <span className="text-lg font-bold text-sky-400 leading-tight">{date.getDate()}</span>
                         <span className="text-[10px] text-sky-400/70 leading-tight">
                           {date.toLocaleDateString('en-US', { month: 'short' })}
                         </span>
@@ -421,9 +413,7 @@ export default function Dashboard() {
                             minute: '2-digit',
                           })}
                         </p>
-                        {apt.notes && (
-                          <p className="text-sm text-zinc-400 mt-2">{apt.notes}</p>
-                        )}
+                        {apt.notes && <p className="text-sm text-zinc-400 mt-2">{apt.notes}</p>}
                         {apt.createdBy && (
                           <p className="text-[11px] text-zinc-600 mt-1.5">
                             Booked by {apt.createdBy.firstName} {apt.createdBy.lastName}
@@ -445,7 +435,7 @@ export default function Dashboard() {
                         {apt.status === 'scheduled' && isPast ? 'Missed' : apt.status}
                       </span>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}

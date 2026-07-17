@@ -1,34 +1,34 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { adminAxios as axios } from '@/contexts/AdminAuthContext'
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Send, MessageSquare, Loader2, Users, Stethoscope, ClipboardList, Heart, ShieldCheck } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { adminAxios as axios } from '@/contexts/AdminAuthContext';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Send, MessageSquare, Loader2, Users, Stethoscope, ClipboardList, Heart, ShieldCheck } from 'lucide-react';
 
 function getInitials(firstName, lastName) {
-  if (!firstName && !lastName) return '?'
-  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '')
+  if (!firstName && !lastName) return '?';
+  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '');
 }
 
 function formatTime(dateStr) {
-  if (!dateStr) return ''
+  if (!dateStr) return '';
   return new Date(dateStr).toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 
 function formatLastSeen(dateStr) {
-  if (!dateStr) return 'Offline'
-  const diff = Date.now() - new Date(dateStr).getTime()
-  if (diff < 60000) return 'Online'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
-  return `${Math.floor(diff / 86400000)}d ago`
+  if (!dateStr) return 'Offline';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 60000) return 'Online';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
 }
 
 const roleIcons = {
@@ -37,10 +37,10 @@ const roleIcons = {
   nurse: Heart,
   superadmin: ShieldCheck,
   admin: Users,
-}
+};
 
 function getRoleIcon(role) {
-  return roleIcons[role] || Users
+  return roleIcons[role] || Users;
 }
 
 const roleColors = {
@@ -49,164 +49,171 @@ const roleColors = {
   nurse: 'text-pink-400',
   superadmin: 'text-amber-400',
   admin: 'text-zinc-400',
-}
+};
 
 function getRoleColor(role) {
-  return roleColors[role] || 'text-zinc-400'
+  return roleColors[role] || 'text-zinc-400';
 }
 
 function getRoleLabel(role) {
   switch (role) {
-    case 'doctor': return 'Doctor'
-    case 'recordofficer': return 'Record Officer'
-    case 'nurse': return 'Nurse'
-    case 'superadmin': return 'Super Admin'
-    default: return 'Admin'
+    case 'doctor':
+      return 'Doctor';
+    case 'recordofficer':
+      return 'Record Officer';
+    case 'nurse':
+      return 'Nurse';
+    case 'superadmin':
+      return 'Super Admin';
+    default:
+      return 'Admin';
   }
 }
 
 export default function AdminChat() {
-  const { admin } = useAdminAuth()
-  const [conversations, setConversations] = useState([])
-  const [staffList, setStaffList] = useState([])
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [messageText, setMessageText] = useState('')
-  const [loadingConversations, setLoadingConversations] = useState(true)
-  const [loadingStaff, setLoadingStaff] = useState(true)
-  const [loadingMessages, setLoadingMessages] = useState(false)
-  const [sending, setSending] = useState(false)
-  const [chatTab, setChatTab] = useState('conversations')
-  const messagesEndRef = useRef(null)
+  const { admin } = useAdminAuth();
+  const [conversations, setConversations] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState('');
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingStaff, setLoadingStaff] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [chatTab, setChatTab] = useState('conversations');
+  const messagesEndRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [])
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   // Ping server to update lastLogin (online status)
   useEffect(() => {
-    const ping = () => axios.put('/chat/ping').catch(() => {})
-    ping()
-    const interval = setInterval(ping, 60000)
-    return () => clearInterval(interval)
-  }, [])
+    const ping = () => axios.put('/chat/ping').catch(() => {});
+    ping();
+    const interval = setInterval(ping, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function fetchConversations() {
       try {
-        setLoadingConversations(true)
-        const { data } = await axios.get('/chat/conversations')
-        if (!cancelled) setConversations(Array.isArray(data) ? data : data.conversations || data.data || [])
+        setLoadingConversations(true);
+        const { data } = await axios.get('/chat/conversations');
+        if (!cancelled) setConversations(Array.isArray(data) ? data : data.conversations || data.data || []);
       } catch {
-        if (!cancelled) setConversations([])
+        if (!cancelled) setConversations([]);
       } finally {
-        if (!cancelled) setLoadingConversations(false)
+        if (!cancelled) setLoadingConversations(false);
       }
     }
-    fetchConversations()
-    return () => { cancelled = true }
-  }, [])
+    fetchConversations();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function fetchStaff() {
       try {
-        setLoadingStaff(true)
-        const { data } = await axios.get('/chat/staff')
-        if (!cancelled) setStaffList(Array.isArray(data) ? data : data.staff || data.data || [])
+        setLoadingStaff(true);
+        const { data } = await axios.get('/chat/staff');
+        if (!cancelled) setStaffList(Array.isArray(data) ? data : data.staff || data.data || []);
       } catch {
-        if (!cancelled) setStaffList([])
+        if (!cancelled) setStaffList([]);
       } finally {
-        if (!cancelled) setLoadingStaff(false)
+        if (!cancelled) setLoadingStaff(false);
       }
     }
-    fetchStaff()
-    const interval = setInterval(fetchStaff, 15000)
+    fetchStaff();
+    const interval = setInterval(fetchStaff, 15000);
     return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
-  }, [])
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedUser) {
-      setMessages([])
-      return
+      setMessages([]);
+      return;
     }
-    let cancelled = false
+    let cancelled = false;
     async function fetchMessages() {
       try {
-        setLoadingMessages(true)
-        const { data } = await axios.get(`/chat/messages/${selectedUser._id || selectedUser.id}`)
+        setLoadingMessages(true);
+        const { data } = await axios.get(`/chat/messages/${selectedUser._id || selectedUser.id}`);
         if (!cancelled) {
-          setMessages(Array.isArray(data) ? data : data.messages || data.data || [])
+          setMessages(Array.isArray(data) ? data : data.messages || data.data || []);
         }
       } catch {
-        if (!cancelled) setMessages([])
+        if (!cancelled) setMessages([]);
       } finally {
-        if (!cancelled) setLoadingMessages(false)
+        if (!cancelled) setLoadingMessages(false);
       }
     }
-    fetchMessages()
+    fetchMessages();
     const interval = setInterval(() => {
       axios
         .get(`/chat/messages/${selectedUser._id || selectedUser.id}`)
         .then(({ data }) => {
-          const msgs = Array.isArray(data) ? data : data.messages || data.data || []
-          setMessages(msgs)
+          const msgs = Array.isArray(data) ? data : data.messages || data.data || [];
+          setMessages(msgs);
         })
-        .catch(() => {})
-    }, 3000)
+        .catch(() => {});
+    }, 3000);
     return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
-  }, [selectedUser])
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [selectedUser]);
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, scrollToBottom])
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   async function handleSend(e) {
-    e.preventDefault()
-    if (!messageText.trim() || !selectedUser || sending) return
+    e.preventDefault();
+    if (!messageText.trim() || !selectedUser || sending) return;
     try {
-      setSending(true)
+      setSending(true);
       const { data } = await axios.post('/chat/messages', {
         receiverId: selectedUser._id || selectedUser.id,
         message: messageText.trim(),
-      })
-      setMessages((prev) => [...prev, data.message || data])
-      setMessageText('')
+      });
+      setMessages((prev) => [...prev, data.message || data]);
+      setMessageText('');
     } catch {
     } finally {
-      setSending(false)
+      setSending(false);
     }
   }
 
   function isMsgMine(msg) {
-    const senderId = msg.senderId || msg.sender
+    const senderId = msg.senderId || msg.sender;
     if (typeof senderId === 'object') {
-      return (senderId._id || senderId.id) === (admin?._id || admin?.id)
+      return (senderId._id || senderId.id) === (admin?._id || admin?.id);
     }
-    return senderId === (admin?._id || admin?.id)
+    return senderId === (admin?._id || admin?.id);
   }
 
   function selectUser(user) {
-    setSelectedUser(user)
+    setSelectedUser(user);
     // Move to conversations tab on mobile
-    setChatTab('conversations')
+    setChatTab('conversations');
   }
 
   function renderUserBadge(role) {
-    const RoleIcon = getRoleIcon(role)
+    const RoleIcon = getRoleIcon(role);
     return (
       <div className={`flex items-center gap-1 text-[10px] ${getRoleColor(role)}`}>
         <RoleIcon className="size-3" />
         {getRoleLabel(role)}
       </div>
-    )
+    );
   }
 
   return (
@@ -236,18 +243,16 @@ export default function AdminChat() {
               <div className="flex flex-col items-center justify-center flex-1 gap-2 p-4">
                 <MessageSquare className="size-6 text-zinc-600" />
                 <p className="text-xs text-zinc-500 text-center">No conversations yet</p>
-                <p className="text-[10px] text-zinc-600 text-center">
-                  Go to Staff tab to start a chat
-                </p>
+                <p className="text-[10px] text-zinc-600 text-center">Go to Staff tab to start a chat</p>
               </div>
             ) : (
               <ScrollArea className="flex-1">
                 <div className="space-y-0.5 p-1">
                   {conversations.map((conv) => {
-                    const uid = conv._id || conv.id
-                    const sid = selectedUser?._id || selectedUser?.id
-                    const isSelected = sid && sid === uid
-                    const unread = conv.unreadCount || conv.unread || 0
+                    const uid = conv._id || conv.id;
+                    const sid = selectedUser?._id || selectedUser?.id;
+                    const isSelected = sid && sid === uid;
+                    const unread = conv.unreadCount || conv.unread || 0;
                     return (
                       <button
                         key={uid}
@@ -272,9 +277,7 @@ export default function AdminChat() {
                               {conv.firstName} {conv.lastName}
                             </p>
                           </div>
-                          <p className="text-xs text-zinc-500 truncate">
-                            {conv.lastMessage || 'No messages yet'}
-                          </p>
+                          <p className="text-xs text-zinc-500 truncate">{conv.lastMessage || 'No messages yet'}</p>
                         </div>
                         {unread > 0 && (
                           <Badge className="size-5 p-0 flex items-center justify-center text-[10px] shrink-0">
@@ -282,7 +285,7 @@ export default function AdminChat() {
                           </Badge>
                         )}
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </ScrollArea>
@@ -303,10 +306,10 @@ export default function AdminChat() {
               <ScrollArea className="flex-1">
                 <div className="space-y-0.5 p-1">
                   {staffList.map((member) => {
-                    const uid = member._id || member.id
-                    const sid = selectedUser?._id || selectedUser?.id
-                    const isSelected = sid && sid === uid
-                    const RoleIcon = getRoleIcon(member.role)
+                    const uid = member._id || member.id;
+                    const sid = selectedUser?._id || selectedUser?.id;
+                    const isSelected = sid && sid === uid;
+                    const RoleIcon = getRoleIcon(member.role);
                     return (
                       <button
                         key={uid}
@@ -347,7 +350,7 @@ export default function AdminChat() {
                           </div>
                         </div>
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </ScrollArea>
@@ -401,52 +404,36 @@ export default function AdminChat() {
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-3">
                 {messages.length === 0 && (
-                  <p className="text-sm text-zinc-500 text-center py-8">
-                    No messages yet. Say hello!
-                  </p>
+                  <p className="text-sm text-zinc-500 text-center py-8">No messages yet. Say hello!</p>
                 )}
                 {messages.map((msg, idx) => {
-                  const isMine = isMsgMine(msg)
-                  const sender = msg.senderId
+                  const isMine = isMsgMine(msg);
+                  const sender = msg.senderId;
                   const senderName =
-                    typeof sender === 'object'
-                      ? `${sender.firstName || ''} ${sender.lastName || ''}`
-                      : ''
+                    typeof sender === 'object' ? `${sender.firstName || ''} ${sender.lastName || ''}` : '';
                   return (
-                    <div
-                      key={msg._id || idx}
-                      className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-                    >
+                    <div key={msg._id || idx} className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                       {!isMine && senderName.trim() && (
                         <span className="text-[10px] text-zinc-600 mb-0.5 px-1">{senderName}</span>
                       )}
                       <div
                         className={`max-w-[70%] rounded-lg px-3 py-2 ${
-                          isMine
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-zinc-800 text-zinc-100'
+                          isMine ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-100'
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap break-words">{msg.message || msg.text}</p>
-                        <p
-                          className={`text-[10px] mt-1 ${
-                            isMine ? 'text-emerald-200' : 'text-zinc-500'
-                          }`}
-                        >
+                        <p className={`text-[10px] mt-1 ${isMine ? 'text-emerald-200' : 'text-zinc-500'}`}>
                           {formatTime(msg.createdAt || msg.timestamp)}
                         </p>
                       </div>
                     </div>
-                  )
+                  );
                 })}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 
-            <form
-              onSubmit={handleSend}
-              className="p-3 border-t border-zinc-800 flex items-center gap-2"
-            >
+            <form onSubmit={handleSend} className="p-3 border-t border-zinc-800 flex items-center gap-2">
               <Input
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
@@ -455,16 +442,12 @@ export default function AdminChat() {
                 disabled={sending}
               />
               <Button type="submit" size="icon" disabled={!messageText.trim() || sending}>
-                {sending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Send className="size-4" />
-                )}
+                {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
               </Button>
             </form>
           </>
         )}
       </div>
     </div>
-  )
+  );
 }

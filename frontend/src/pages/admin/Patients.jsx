@@ -1,71 +1,64 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { adminAxios as axios } from '@/contexts/AdminAuthContext'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { adminAxios as axios } from '@/contexts/AdminAuthContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
 export default function Patients() {
-  const navigate = useNavigate()
-  const [patients, setPatients] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
-  const limit = 20
+  const navigate = useNavigate();
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 20;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search)
-      setPage(1)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [search])
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchPatients = useCallback(async () => {
     try {
-      setLoading(true)
-      const params = { page, limit }
-      if (debouncedSearch) params.search = debouncedSearch
-      const { data } = await axios.get('/patients', { params })
-      setPatients(data.patients || data.data || [])
-      setTotalPages(data.totalPages || data.pagination?.totalPages || 1)
-      setTotal(data.total || data.pagination?.total || 0)
+      setLoading(true);
+      const params = { page, limit };
+      if (debouncedSearch) params.search = debouncedSearch;
+      const { data } = await axios.get('/patients', { params });
+      setPatients(data.patients || data.data || []);
+      setTotalPages(data.totalPages || data.pagination?.totalPages || 1);
+      setTotal(data.total || data.pagination?.total || 0);
     } catch (err) {
-      setPatients([])
+      setPatients([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [debouncedSearch, page, limit])
+  }, [debouncedSearch, page, limit]);
 
   useEffect(() => {
-    fetchPatients()
-  }, [fetchPatients])
+    fetchPatients();
+  }, [fetchPatients]);
 
   function getInitials(firstName, lastName) {
-    if (!firstName && !lastName) return '?'
-    return ((firstName || '')[0] || '') + ((lastName || '')[0] || '')
+    if (!firstName && !lastName) return '?';
+    return ((firstName || '')[0] || '') + ((lastName || '')[0] || '');
   }
 
   function formatDate(dateStr) {
-    if (!dateStr) return '—'
+    if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-    })
+    });
   }
 
   if (loading) {
@@ -76,7 +69,7 @@ export default function Patients() {
           <p className="text-sm text-zinc-500">Loading patients...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -137,23 +130,17 @@ export default function Patients() {
                     <TableCell className="text-zinc-400">{patient.email}</TableCell>
                     <TableCell className="text-zinc-400">{patient.phone || '—'}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">
-                        {patient.latestReading ?? '—'}
-                      </Badge>
+                      <Badge variant="secondary">{patient.latestReading ?? '—'}</Badge>
                     </TableCell>
-                    <TableCell className="text-zinc-400">
-                      {formatDate(patient.lastAppointment)}
-                    </TableCell>
-                    <TableCell className="text-zinc-400">
-                      {formatDate(patient.nextAppointment)}
-                    </TableCell>
+                    <TableCell className="text-zinc-400">{formatDate(patient.lastAppointment)}</TableCell>
+                    <TableCell className="text-zinc-400">{formatDate(patient.nextAppointment)}</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/iaccess/patients/${patient._id || patient.id}`)
+                          e.stopPropagation();
+                          navigate(`/iaccess/patients/${patient._id || patient.id}`);
                         }}
                       >
                         View
@@ -179,12 +166,7 @@ export default function Patients() {
                 <ChevronLeft className="size-4" />
                 Previous
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
+              <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
                 Next
                 <ChevronRight className="size-4" />
               </Button>
@@ -193,5 +175,5 @@ export default function Patients() {
         </>
       )}
     </div>
-  )
+  );
 }

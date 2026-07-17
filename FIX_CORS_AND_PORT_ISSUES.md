@@ -11,6 +11,7 @@ You were getting **HTTP 403 Forbidden** error because:
 ## ✅ What Was Fixed
 
 ### Backend Configuration
+
 - ✅ Changed port: 5000 → **5001** (avoids macOS AirPlay conflict)
 - ✅ Updated `BACKEND_URL=http://localhost:5001`
 - ✅ Fixed CORS to allow both port 5173 and 5174
@@ -19,6 +20,7 @@ You were getting **HTTP 403 Forbidden** error because:
 - ✅ Added API info endpoint `/api`
 
 ### Frontend Configuration
+
 - ✅ Updated `VITE_API_URL=http://localhost:5001`
 - ✅ Improved axios error logging
 - ✅ Added network error handling
@@ -26,23 +28,27 @@ You were getting **HTTP 403 Forbidden** error because:
 
 ## 🚀 Current Status
 
-| Component | Port | Status |
-|-----------|------|--------|
-| Backend API | 5001 | ✅ Running |
-| Frontend | 5174 | ✅ Running |
-| MongoDB | - | ✅ Connected |
+| Component   | Port | Status       |
+| ----------- | ---- | ------------ |
+| Backend API | 5001 | ✅ Running   |
+| Frontend    | 5174 | ✅ Running   |
+| MongoDB     | -    | ✅ Connected |
 
 ## 📝 Next Steps
 
 ### 1. Hard Refresh Frontend
+
 Open your browser and do a **hard refresh**:
+
 - **Mac/Windows:** `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
 - Or: Open DevTools → Settings → Network → Check "Disable cache" while DevTools open
 
 ### 2. Open Application
+
 Go to: **http://localhost:5174**
 
 ### 3. Test Registration
+
 1. Click **Sign Up**
 2. Enter test data:
    - First Name: John
@@ -55,6 +61,7 @@ Go to: **http://localhost:5174**
 4. You should see verification screen or success message
 
 ### 4. Test Login
+
 1. Click **Sign In**
 2. Enter test email & password
 3. Should redirect to dashboard
@@ -62,20 +69,24 @@ Go to: **http://localhost:5174**
 ## 📊 How to Check If It's Working
 
 ### Check Backend
+
 ```bash
 curl http://localhost:5001/health
 # Should respond with:
 # {"status":"ok","message":"Server is running",...}
 ```
 
-### Check Frontend  
+### Check Frontend
+
 ```bash
 curl http://localhost:5174
 # Should respond with HTML page
 ```
 
 ### Check Browser Console
+
 Open DevTools (F12 or Cmd+Option+J) and check Console for:
+
 - ✅ "🔧 Axios configured with API URL: http://localhost:5001"
 - ✅ "📤 Sending request with token" (when logging in)
 - ✅ "✅ Response received: 201" (when registering)
@@ -83,6 +94,7 @@ Open DevTools (F12 or Cmd+Option+J) and check Console for:
 ## 🐛 If Still Getting 403 Error
 
 ### Step 1: Check Backend Status
+
 ```bash
 # Check if backend is running
 lsof -i :5001
@@ -92,18 +104,22 @@ cd backend && npm run dev
 ```
 
 ### Step 2: Check Terminals
+
 - Backend terminal: Should show "Server running on port 5001"
 - Frontend terminal: Should show "Local: http://localhost:5174"
 
 ### Step 3: Hard Refresh Again
+
 - Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)
 - Then wait 5 seconds for page to load
 - Check browser DevTools console for errors
 
 ### Step 4: Check .env Files
+
 Verify both files have correct URLs:
 
 **Backend: `/backend/.env`**
+
 ```env
 PORT=5001
 BACKEND_URL=http://localhost:5001
@@ -111,6 +127,7 @@ FRONTEND_URL=http://localhost:5174
 ```
 
 **Frontend: `/frontend/.env`**
+
 ```env
 VITE_API_URL=http://localhost:5001
 ```
@@ -118,17 +135,20 @@ VITE_API_URL=http://localhost:5001
 ## 🎯 Expected Console Output
 
 ### When Page Loads
+
 ```
 🔧 Axios configured with API URL: http://localhost:5001
 ```
 
 ### When Registering
+
 ```
 📤 Sending request with token
 ✅ Response received: 201
 ```
 
 ### When Logging In
+
 ```
 📤 Sending request with token
 ✅ Response received: 200
@@ -155,7 +175,7 @@ npm run dev
 # Check backend is responding
 curl http://localhost:5001/health
 
-# Check frontend is responding  
+# Check frontend is responding
 curl http://localhost:5174
 
 # View environment variables
@@ -167,11 +187,13 @@ cat frontend/.env | grep VITE_API
 ## ✨ Summary
 
 ### What Changed
+
 - Backend: Port 5000 → **5001**
 - Frontend API URL: http://localhost:5000 → **http://localhost:5001**
 - CORS: Now allows port 5174
 
 ### What To Do Now
+
 1. ✅ Backend running on 5001
 2. ⏳ Hard refresh browser (Cmd+Shift+R)
 3. 🧪 Test signup → login flow
@@ -180,6 +202,7 @@ cat frontend/.env | grep VITE_API
 ---
 
 **If you still get 403 error after hard refresh:**
+
 1. Open DevTools (F12)
 2. Go to Console tab
 3. Copy any error messages

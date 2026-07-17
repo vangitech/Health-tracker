@@ -1,45 +1,47 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAdminAuth } from '../contexts/AdminAuthContext'
-import { Button } from '@/components/ui/button'
-import { Loader2, Activity, Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { Button } from '@/components/ui/button';
+import { Loader2, Activity, Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { login } = useAdminAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAdminAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     import('@capacitor/core')
-      .then(({ Capacitor }) => { if (Capacitor.isNativePlatform()) navigate('/', { replace: true }) })
-      .catch(() => {})
-  }, [navigate])
+      .then(({ Capacitor }) => {
+        if (Capacitor.isNativePlatform()) navigate('/', { replace: true });
+      })
+      .catch(() => {});
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
     if (!email || !password) {
-      setError('Please fill in all fields')
-      return
+      setError('Please fill in all fields');
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
-      await login(email, password)
-      navigate('/iaccess/dashboard')
+      await login(email, password);
+      navigate('/iaccess/dashboard');
     } catch (err) {
       if (!err.response) {
-        setError('Cannot connect to server. Check your connection.')
+        setError('Cannot connect to server. Check your connection.');
       } else {
-        setError(err.response?.data?.message || 'Invalid credentials')
+        setError(err.response?.data?.message || 'Invalid credentials');
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -50,7 +52,7 @@ export default function AdminLogin() {
           <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-white/10 backdrop-blur-sm mb-8 ring-1 ring-white/20">
             <Activity className="size-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">SugarCare</h1>
+          <h1 className="text-4xl font-bold text-white mb-3">Sugar Tracker</h1>
           <p className="text-xl text-emerald-100/80 mb-6">Admin Dashboard</p>
           <p className="text-emerald-100/60 max-w-md mx-auto leading-relaxed">
             Monitor patient health metrics, manage appointments, and collaborate with your healthcare team in real time.
@@ -70,7 +72,7 @@ export default function AdminLogin() {
             <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-emerald-100 mb-4">
               <Activity className="size-7 text-emerald-600" />
             </div>
-            <h1 className="text-2xl font-semibold text-zinc-900">SugarCare</h1>
+            <h1 className="text-2xl font-semibold text-zinc-900">Sugar Tracker</h1>
             <p className="text-sm text-zinc-500 mt-1">Admin Dashboard</p>
           </div>
 
@@ -80,9 +82,7 @@ export default function AdminLogin() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg mb-6">
-              {error}
-            </div>
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg mb-6">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,7 +117,11 @@ export default function AdminLogin() {
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
-            <Button type="submit" disabled={loading} className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl"
+            >
               {loading ? <Loader2 className="size-5 animate-spin mx-auto" /> : 'Sign in'}
             </Button>
           </form>
@@ -128,5 +132,5 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
-  )
+  );
 }

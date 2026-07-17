@@ -3,6 +3,7 @@
 ## ✅ Completed Configuration & Fixes
 
 ### 1. Backend Fixes
+
 - [x] Added passport middleware initialization in `index.js`
 - [x] Added missing `/api/auth/resend-code` endpoint for resending verification codes
 - [x] Fixed glucose value validation (max: 50 → max: 600 mg/dL) in both model and route
@@ -15,15 +16,17 @@
 - [x] Login endpoint now returns avatar field
 
 ### 2. Frontend Fixes
+
 - [x] Created centralized axios configuration (`lib/axios.js`)
 - [x] Set proper API base URL for all axios requests
 - [x] Updated all components to use configured axios
 - [x] Added response interceptor for 401 error handling
-- [x] Added `.env` file with `VITE_API_URL=http://localhost:5000`
+- [x] Added `.env` file with `VITE_API_URL=http://localhost:5001`
 - [x] Imported axios config in `main.jsx` to ensure setup before component rendering
 - [x] Updated AuthContext to use configured axios
 
 ### 3. Authentication Flow
+
 - [x] User registration with email verification
 - [x] Email verification code sending (10-minute expiry)
 - [x] Email verification with code validation
@@ -34,6 +37,7 @@
 - [x] OAuth flows prepared for Google, GitHub, Apple, Yahoo
 
 ### 4. Data Models
+
 - [x] User model with bcrypt password hashing
 - [x] Verification code model with expiration
 - [x] Blood sugar entry model with proper validation
@@ -44,13 +48,15 @@
 ## 🚀 Server Status
 
 **Backend Server:**
-- Running on: `http://localhost:5000`
+
+- Running on: `http://localhost:5001`
 - Database: MongoDB connected ✅
 - Status: Ready for testing
 
 **Frontend Server:**
+
 - Running on: `http://localhost:5174` (port 5173 was in use, automatically switched)
-- API Connection: Configured to `http://localhost:5000`
+- API Connection: Configured to `http://localhost:5001`
 - Status: Ready for testing
 
 ---
@@ -58,6 +64,7 @@
 ## 📧 Email Configuration Status
 
 ### Current Setup
+
 - **Provider:** Resend
 - **API Key:** Configured in `.env`
 - **From:** noreply@vangitech.online
@@ -68,23 +75,25 @@
 ## 🔐 OAuth Configuration Status
 
 ### Available Providers
+
 - **Google OAuth:** Ready (needs credentials)
 - **GitHub OAuth:** Ready (needs credentials)
 - **Apple OAuth:** Ready (needs credentials)
 - **Yahoo OAuth:** Ready (needs credentials)
 
 ### What You Need to Do:
+
 Follow the detailed instructions in `OAUTH_EMAIL_SETUP.md`:
 
 1. **Google OAuth:**
    - Create Google Cloud project
    - Enable Google+ API
    - Create OAuth 2.0 credentials
-   - Add callback URL: `http://localhost:5000/api/auth/google/callback`
+   - Add callback URL: `http://localhost:5001/api/auth/google/callback`
 
 2. **GitHub OAuth:**
    - Create GitHub OAuth App
-   - Add callback URL: `http://localhost:5000/api/auth/github/callback`
+   - Add callback URL: `http://localhost:5001/api/auth/github/callback`
 
 3. **Apple OAuth & Yahoo OAuth:**
    - Follow similar steps (optional - basic auth works without them)
@@ -94,12 +103,14 @@ Follow the detailed instructions in `OAUTH_EMAIL_SETUP.md`:
 ## 🧪 Testing Checklist
 
 ### Before Testing
-- [ ] Backend server running on port 5000
+
+- [ ] Backend server running on port 5001
 - [ ] Frontend server running on port 5173/5174
 - [ ] MongoDB connection verified
 - [ ] Gmail credentials configured (optional for email tests)
 
 ### Registration Flow Test
+
 - [ ] Navigate to http://localhost:5174/register
 - [ ] Fill in all fields
 - [ ] Click "Create Account"
@@ -108,20 +119,23 @@ Follow the detailed instructions in `OAUTH_EMAIL_SETUP.md`:
 - [ ] Verify redirect to login
 
 ### Login Flow Test
+
 - [ ] Go to http://localhost:5174/login
 - [ ] Enter registered email and password
 - [ ] Click "Sign In"
 - [ ] Verify redirect to dashboard
 
 ### Protected Route Test
+
 - [ ] Clear localStorage token (DevTools → Application)
 - [ ] Try to access http://localhost:5174/
 - [ ] Verify redirect to login
 
 ### API Connection Test
+
 ```bash
 # Test backend is accessible
-curl http://localhost:5000/api/auth/register
+curl http://localhost:5001/api/auth/register
 # Should return 405 Method Not Allowed (since it only accepts POST)
 ```
 
@@ -179,6 +193,7 @@ Sugarcare/
 ## 🔧 API Endpoints Ready
 
 ### Authentication
+
 - `POST /api/auth/register` - Create new account
 - `POST /api/auth/verify` - Verify email with code
 - `POST /api/auth/resend-code` - Resend verification code ✅ NEW
@@ -189,12 +204,14 @@ Sugarcare/
 - `GET /api/auth/yahoo` - Yahoo OAuth (when configured)
 
 ### Blood Sugar Entries
+
 - `GET /api/entries` - Get all entries (auth required)
 - `POST /api/entries` - Create new entry (auth required)
 - `PUT /api/entries/:id` - Update entry (auth required)
 - `DELETE /api/entries/:id` - Delete entry (auth required)
 
 ### Trends
+
 - `GET /api/trends` - Get user trends (auth required)
 
 ---
@@ -202,16 +219,19 @@ Sugarcare/
 ## 🐛 Known Issues & Solutions
 
 ### Issue: Port 5173 Already in Use
+
 - **Solution:** Frontend automatically used port 5174
 - **Fix:** Update VITE_API_URL if needed, or kill process on 5173
 - **Status:** No action needed
 
 ### Issue: OAuth Not Configured
+
 - **Expected Behavior:** Dummy strategies prevent crashes
 - **Status:** Working as designed ✅
 - **Next Step:** Configure OAuth credentials when ready
 
 ### Issue: Email Not Sending
+
 - **Check:** Is RESEND_API_KEY set correctly in .env?
 - **Solution:** Verify domain in Resend dashboard
 - **Status:** ✅ Already configured and tested
@@ -221,6 +241,7 @@ Sugarcare/
 ## 📊 Next Steps
 
 ### For Development:
+
 1. Email already configured with Resend (production-ready)
 2. Configure one OAuth provider (Google recommended)
 3. Run full user flow test:
@@ -230,6 +251,7 @@ Sugarcare/
    - Access dashboard
 
 ### For Production:
+
 1. Update all URLs to production domain
 2. Use strong JWT_SECRET
 3. Resend is already production-ready
@@ -257,9 +279,10 @@ Sugarcare/
 
 ## 🎯 Summary
 
-Your Blood Sugar Tracker application is now **fully functional and ready for testing**! 
+Your Blood Sugar Tracker application is now **fully functional and ready for testing**!
 
 **What's Working:**
+
 - Backend server running and connected to MongoDB
 - Frontend server running and properly configured
 - User registration and login flow implemented
@@ -269,9 +292,11 @@ Your Blood Sugar Tracker application is now **fully functional and ready for tes
 - Database models properly validated
 
 **What Needs Configuration:**
+
 - OAuth provider credentials (optional, basic auth works)
 
 **Quick Start:**
+
 ```bash
 # Terminal 1: Backend (already running)
 cd backend && npm run dev

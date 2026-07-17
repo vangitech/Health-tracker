@@ -1,6 +1,6 @@
 {
   "appId": "com.sugarcare.app",
-  "appName": "Sugarcare",
+  "appName": "Sugar Tracker",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {

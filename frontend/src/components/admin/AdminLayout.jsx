@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -12,20 +12,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-} from 'lucide-react'
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import {
-  Tooltip,
-  TooltipProvider,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from 'lucide-react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { label: 'Analytics', icon: LayoutDashboard, path: '/iaccess/dashboard' },
@@ -34,20 +29,20 @@ const navItems = [
   { label: 'Appointments', icon: Calendar, path: '/iaccess/appointments' },
   { label: 'Chat', icon: MessageSquare, path: '/iaccess/chat' },
   { label: 'Settings', icon: Settings, path: '/iaccess/settings' },
-]
+];
 
 function SidebarContent({ expanded, onNavClick, admin, location }) {
-  const { logout } = useAdminAuth()
-  const navigate = useNavigate()
-  const isSuperAdmin = admin?.role === 'superadmin'
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
+  const isSuperAdmin = admin?.role === 'superadmin';
 
   const handleLogout = () => {
-    logout()
-    navigate('/iaccess/login')
-  }
+    logout();
+    navigate('/iaccess/login');
+  };
 
   function renderNavItem({ label, icon: Icon, path, isAdminItem }) {
-    const isActive = location.pathname === path
+    const isActive = location.pathname === path;
     const button = (
       <Button
         key={path}
@@ -64,7 +59,7 @@ function SidebarContent({ expanded, onNavClick, admin, location }) {
         <Icon className="h-4 w-4 shrink-0" />
         {expanded && <span>{label}</span>}
       </Button>
-    )
+    );
 
     if (!expanded) {
       return (
@@ -74,16 +69,16 @@ function SidebarContent({ expanded, onNavClick, admin, location }) {
             {label}
           </TooltipContent>
         </Tooltip>
-      )
+      );
     }
-    return button
+    return button;
   }
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-3 px-4">
         <Activity className="h-6 w-6 shrink-0 text-emerald-400" />
-        {expanded && <span className="text-lg font-semibold">SugarCare</span>}
+        {expanded && <span className="text-lg font-semibold">Sugar Tracker</span>}
       </div>
 
       <Separator className="bg-zinc-800" />
@@ -116,59 +111,59 @@ function SidebarContent({ expanded, onNavClick, admin, location }) {
         })}
       </div>
     </div>
-  )
+  );
 }
 
 export default function AdminLayout({ children }) {
-  const { admin, logout } = useAdminAuth()
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [expanded, setExpanded] = useState(true)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { admin, logout } = useAdminAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    setMobileOpen(false)
-  }, [location.pathname])
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   const handleNavClick = (path) => {
     if (path === '#') {
-      logout()
-      navigate('/iaccess/login')
-      return
+      logout();
+      navigate('/iaccess/login');
+      return;
     }
-    navigate(path)
-    setMobileOpen(false)
-  }
+    navigate(path);
+    setMobileOpen(false);
+  };
 
   const getInitials = (name) => {
     if (admin?.firstName) {
-      return ((admin.firstName[0] || '') + (admin.lastName?.[0] || '')).toUpperCase()
+      return ((admin.firstName[0] || '') + (admin.lastName?.[0] || '')).toUpperCase();
     }
-    if (!name) return 'A'
+    if (!name) return 'A';
     return name
       .split(' ')
       .map((n) => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const formatLastLogin = (date) => {
-    if (!date) return null
-    const d = new Date(date)
-    const now = new Date()
-    const diffMs = now - d
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
+    if (!date) return null;
+    const d = new Date(date);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    return `${diffDays}d ago`
-  }
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
+  };
 
-  const sharedSidebarProps = { expanded, onNavClick: handleNavClick, admin, location }
+  const sharedSidebarProps = { expanded, onNavClick: handleNavClick, admin, location };
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -188,43 +183,22 @@ export default function AdminLayout({ children }) {
               onClick={() => setExpanded((prev) => !prev)}
               className="hidden h-6 w-6 rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 lg:flex"
             >
-              {expanded ? (
-                <ChevronLeft className="h-3 w-3" />
-              ) : (
-                <ChevronRight className="h-3 w-3" />
-              )}
+              {expanded ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             </Button>
           </div>
         </aside>
 
-        <div
-          className={cn(
-            'flex flex-1 flex-col transition-all duration-300',
-            expanded ? 'lg:pl-60' : 'lg:pl-16'
-          )}
-        >
+        <div className={cn('flex flex-1 flex-col transition-all duration-300', expanded ? 'lg:pl-60' : 'lg:pl-16')}>
           <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-4 backdrop-blur lg:px-6">
             <div className="flex items-center gap-3">
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-zinc-400 hover:text-zinc-100 lg:hidden"
-                  >
+                  <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-zinc-100 lg:hidden">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent
-                  side="left"
-                  className="w-64 border-r-zinc-800 bg-zinc-900 p-0"
-                >
-                  <SidebarContent
-                    expanded={true}
-                    onNavClick={handleNavClick}
-                    admin={admin}
-                    location={location}
-                  />
+                <SheetContent side="left" className="w-64 border-r-zinc-800 bg-zinc-900 p-0">
+                  <SidebarContent expanded={true} onNavClick={handleNavClick} admin={admin} location={location} />
                 </SheetContent>
               </Sheet>
             </div>
@@ -236,15 +210,11 @@ export default function AdminLayout({ children }) {
                     {admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}` : admin?.name || 'Admin'}
                   </p>
                   {admin?.last_login && (
-                    <p className="text-xs text-zinc-500">
-                      Last login: {formatLastLogin(admin.last_login)}
-                    </p>
+                    <p className="text-xs text-zinc-500">Last login: {formatLastLogin(admin.last_login)}</p>
                   )}
                 </div>
                 <Avatar className="h-8 w-8">
-                  {admin?.avatar && (
-                    <AvatarImage src={admin.avatar} alt={admin.name} />
-                  )}
+                  {admin?.avatar && <AvatarImage src={admin.avatar} alt={admin.name} />}
                   <AvatarFallback className="bg-zinc-800 text-xs text-zinc-400">
                     {getInitials(admin?.name)}
                   </AvatarFallback>
@@ -255,8 +225,8 @@ export default function AdminLayout({ children }) {
                 variant="ghost"
                 size="icon"
                 onClick={() => {
-                  logout()
-                  navigate('/iaccess/login')
+                  logout();
+                  navigate('/iaccess/login');
                 }}
                 className="text-zinc-400 hover:text-red-400"
               >
@@ -271,5 +241,5 @@ export default function AdminLayout({ children }) {
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

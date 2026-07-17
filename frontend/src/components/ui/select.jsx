@@ -1,43 +1,26 @@
-import * as React from "react"
-import * as SelectPrimitive from "@radix-ui/react-select"
+import * as React from 'react';
+import * as SelectPrimitive from '@radix-ui/react-select';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
-function Select({
-  ...props
-}) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+function Select({ ...props }) {
+  return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-function SelectGroup({
-  ...props
-}) {
-  return <SelectPrimitive.Group data-slot="select-group" {...props} />
+function SelectGroup({ ...props }) {
+  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
-function SelectValue({
-  className,
-  ...props
-}) {
-  return (
-    <SelectPrimitive.Value
-      data-slot="select-value"
-      className={cn("", className)}
-      {...props}
-    />
-  )
+function SelectValue({ className, ...props }) {
+  return <SelectPrimitive.Value data-slot="select-value" className={cn('', className)} {...props} />;
 }
 
-function SelectTrigger({
-  className,
-  children,
-  ...props
-}) {
+function SelectTrigger({ className, children, ...props }) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:ring-zinc-500",
+        'flex h-10 w-full items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:ring-zinc-500',
         className
       )}
       {...props}
@@ -58,65 +41,53 @@ function SelectTrigger({
         </svg>
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
-  )
+  );
 }
 
-function SelectContent({
-  className,
-  children,
-  position = "popper",
-  ...props
-}) {
+function SelectContent({ className, children, position = 'popper', ...props }) {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         data-slot="select-content"
         position={position}
         className={cn(
-          "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-lg border border-zinc-200 bg-white text-zinc-900 shadow-md animate-in fade-in-80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100",
-          position === "popper" &&
-            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+          'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-lg border border-zinc-200 bg-white text-zinc-900 shadow-md animate-in fade-in-80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100',
+          position === 'popper' &&
+            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
           className
         )}
         {...props}
       >
         <SelectPrimitive.Viewport
           className={cn(
-            "p-1",
-            position === "popper" &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+            'p-1',
+            position === 'popper' &&
+              'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
           )}
         >
           {children}
         </SelectPrimitive.Viewport>
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
-  )
+  );
 }
 
-function SelectLabel({
-  className,
-  ...props
-}) {
+function SelectLabel({ className, ...props }) {
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)}
+      className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)}
       {...props}
     />
-  )
+  );
 }
 
-function SelectItem({
-  className,
-  children,
-  ...props
-}) {
+function SelectItem({ className, children, ...props }) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-zinc-100 focus:text-zinc-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-zinc-700 dark:focus:text-zinc-100",
+        'relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-zinc-100 focus:text-zinc-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-zinc-700 dark:focus:text-zinc-100',
         className
       )}
       {...props}
@@ -139,33 +110,24 @@ function SelectItem({
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
-  )
+  );
 }
 
-function SelectSeparator({
-  className,
-  ...props
-}) {
+function SelectSeparator({ className, ...props }) {
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn("-mx-1 my-1 h-px bg-zinc-200 dark:bg-zinc-700", className)}
+      className={cn('-mx-1 my-1 h-px bg-zinc-200 dark:bg-zinc-700', className)}
       {...props}
     />
-  )
+  );
 }
 
-function SelectScrollUpButton({
-  className,
-  ...props
-}) {
+function SelectScrollUpButton({ className, ...props }) {
   return (
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
-      className={cn(
-        "flex cursor-default items-center justify-center py-1",
-        className
-      )}
+      className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
       <svg
@@ -181,20 +143,14 @@ function SelectScrollUpButton({
         <path d="m18 15-6-6-6 6" />
       </svg>
     </SelectPrimitive.ScrollUpButton>
-  )
+  );
 }
 
-function SelectScrollDownButton({
-  className,
-  ...props
-}) {
+function SelectScrollDownButton({ className, ...props }) {
   return (
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
-      className={cn(
-        "flex cursor-default items-center justify-center py-1",
-        className
-      )}
+      className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
       <svg
@@ -210,7 +166,7 @@ function SelectScrollDownButton({
         <path d="m6 9 6 6 6-6" />
       </svg>
     </SelectPrimitive.ScrollDownButton>
-  )
+  );
 }
 
 export {
@@ -224,4 +180,4 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
-}
+};

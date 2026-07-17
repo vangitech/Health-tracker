@@ -5,17 +5,17 @@ const verificationCodeSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    lowercase: true
+    lowercase: true,
   },
   code: {
     type: String,
-    required: true
+    required: true,
   },
   expiresAt: {
     type: Date,
     required: true,
-    default: () => new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-  }
+    default: () => new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+  },
 });
 
 export default mongoose.model('VerificationCode', verificationCodeSchema);

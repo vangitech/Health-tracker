@@ -1,76 +1,76 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import axios from '../lib/axios'
-import { useAuth } from '../contexts/AuthContext'
-import { motion } from 'framer-motion'
-import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from '../lib/axios';
+import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.2 }
-  }
-}
+    transition: { staggerChildren: 0.08, delayChildren: 0.2 },
+  },
+};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-}
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+};
 
 export default function Verify() {
-  const [code, setCode] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { setUser } = useAuth()
-  const email = location.state?.email || sessionStorage.getItem('verifyEmail')
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setUser } = useAuth();
+  const email = location.state?.email || sessionStorage.getItem('verifyEmail');
 
   useEffect(() => {
     if (!email) {
-      navigate('/register')
+      navigate('/register');
     }
-  }, [email, navigate])
+  }, [email, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
     if (code.length !== 6) {
-      setError('Please enter the full 6-digit code')
-      return
+      setError('Please enter the full 6-digit code');
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await axios.post('/api/auth/verify', { email, code })
-      const { token, user } = res.data
-      localStorage.setItem('token', token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      setUser(user)
-      sessionStorage.removeItem('verifyEmail')
-      setSuccess(true)
-      setTimeout(() => navigate('/'), 1500)
+      const res = await axios.post('/api/auth/verify', { email, code });
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(user);
+      sessionStorage.removeItem('verifyEmail');
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed')
+      setError(err.response?.data?.message || 'Verification failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleResend = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await axios.post('/api/auth/resend-code', { email })
-      setError('')
+      await axios.post('/api/auth/resend-code', { email });
+      setError('');
     } catch (err) {
-      setError('Failed to resend code')
+      setError('Failed to resend code');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!email) return null
+  if (!email) return null;
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-black select-none">
@@ -110,11 +110,10 @@ export default function Verify() {
                 <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-white/5 border border-white/10 mb-4">
                   <Sparkles className="size-7 text-white/80" />
                 </div>
-                <h1 className="text-2xl font-semibold text-white tracking-tight">
-                  Verify Your Email
-                </h1>
+                <h1 className="text-2xl font-semibold text-white tracking-tight">Verify Your Email</h1>
                 <p className="text-sm text-zinc-400 mt-1.5">
-                  We sent a 6-digit code to<br />
+                  We sent a 6-digit code to
+                  <br />
                   <span className="text-zinc-300 font-medium">{email}</span>
                 </p>
               </motion.div>
@@ -150,11 +149,7 @@ export default function Verify() {
                   disabled={loading || code.length !== 6}
                   className="w-full h-12 bg-white text-black font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90"
                 >
-                  {loading ? (
-                    <Loader2 className="size-5 animate-spin mx-auto" />
-                  ) : (
-                    'Verify Email'
-                  )}
+                  {loading ? <Loader2 className="size-5 animate-spin mx-auto" /> : 'Verify Email'}
                 </button>
               </motion.form>
 
@@ -175,5 +170,5 @@ export default function Verify() {
         </motion.div>
       </motion.div>
     </div>
-  )
+  );
 }

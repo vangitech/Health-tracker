@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error('FATAL: Cloudinary credentials missing. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in .env');
+  console.error(
+    'FATAL: Cloudinary credentials missing. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in .env'
+  );
 }
 
 cloudinary.config({
@@ -35,7 +37,7 @@ const avatarStorage = new CloudinaryStorage({
 function extractPublicId(url) {
   if (!url || !url.includes('res.cloudinary.com')) return null;
   const parts = url.split('/');
-  const uploadIndex = parts.findIndex(p => p === 'upload');
+  const uploadIndex = parts.findIndex((p) => p === 'upload');
   if (uploadIndex === -1) return null;
   const publicIdWithVersion = parts.slice(uploadIndex + 2).join('/');
   return publicIdWithVersion.replace(/\.[^.]+$/, '');

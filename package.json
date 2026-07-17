@@ -5,7 +5,23 @@
   "scripts": {
     "postinstall": "cd backend && npm install",
     "start": "cd backend && node index.js",
-    "build": "cd backend && npm install"
+    "build": "cd backend && npm install",
+    "format": "prettier --write \"**/*.{js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md,css}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3"
   },
   "engines": {
     "node": ">=18.0.0"

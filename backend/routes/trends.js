@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     const entries = await BloodSugarEntry.find({
       userId: req.user.id,
-      date: { $gte: startDate }
+      date: { $gte: startDate },
     }).sort({ date: 1 });
 
     if (entries.length === 0) {
@@ -34,20 +34,20 @@ router.get('/', authenticateToken, async (req, res) => {
         borderlineCount: 0,
         highCount: 0,
         lowCount: 0,
-        weeklyAverages: []
+        weeklyAverages: [],
       });
     }
 
     // Calculate statistics
-    const glucoseValues = entries.map(e => e.glucoseValue);
+    const glucoseValues = entries.map((e) => e.glucoseValue);
     const averageGlucose = glucoseValues.reduce((a, b) => a + b, 0) / glucoseValues.length;
-    
+
     // Color range thresholds (mmol/L)
-    // Green: 4.0-7.0, Yellow: 7.1-10.0, Red: <4.0 or >10.0
-    const inRangeCount = glucoseValues.filter(g => g >= 4.0 && g <= 7.0).length;
-    const borderlineCount = glucoseValues.filter(g => g > 7.0 && g <= 10.0).length;
-    const highCount = glucoseValues.filter(g => g > 10.0).length;
-    const lowCount = glucoseValues.filter(g => g < 4.0).length;
+    // Green: 3.9-7.0, Yellow: >7.0-10.0, Red: <3.9 or >10.0
+    const lowCount = glucoseValues.filter((g) => g < 3.9).length;
+    const inRangeCount = glucoseValues.filter((g) => g >= 3.9 && g <= 7.0).length;
+    const borderlineCount = glucoseValues.filter((g) => g > 7.0 && g <= 10.0).length;
+    const highCount = glucoseValues.filter((g) => g > 10.0).length;
 
     // Calculate weekly averages
     const weeklyAverages = [];
@@ -57,18 +57,18 @@ router.get('/', authenticateToken, async (req, res) => {
       weekStart.setDate(now.getDate() - (i + 1) * 7);
       const weekEnd = new Date(now);
       weekEnd.setDate(now.getDate() - i * 7);
-      
-      const weekEntries = entries.filter(e => {
+
+      const weekEntries = entries.filter((e) => {
         const entryDate = new Date(e.date);
         return entryDate >= weekStart && entryDate < weekEnd;
       });
-      
+
       if (weekEntries.length > 0) {
         const weekAvg = weekEntries.reduce((a, b) => a + b.glucoseValue, 0) / weekEntries.length;
         weeklyAverages.push({
           week: i + 1,
           average: Math.round(weekAvg * 10) / 10,
-          count: weekEntries.length
+          count: weekEntries.length,
         });
       }
     }
@@ -81,7 +81,7 @@ router.get('/', authenticateToken, async (req, res) => {
       borderlineCount,
       highCount,
       lowCount,
-      weeklyAverages
+      weeklyAverages,
     });
   } catch (error) {
     console.error(error);
