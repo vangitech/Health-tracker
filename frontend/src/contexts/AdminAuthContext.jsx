@@ -10,12 +10,7 @@ const adminAxios = axiosLib.create({
 
 adminAxios.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (err.response?.status === 401 || err.response?.status === 403) {
-      window.location.href = '/iaccess/login';
-    }
-    return Promise.reject(err);
-  }
+  (err) => Promise.reject(err)
 );
 
 const AdminAuthContext = createContext(null);
