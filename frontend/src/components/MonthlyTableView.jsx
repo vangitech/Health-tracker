@@ -125,7 +125,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
   };
 
   return (
-    <div className="bg-zinc-900/60 border border-zinc-800/50 rounded-xl sm:rounded-2xl overflow-hidden">
+    <div className="bg-zinc-900/60 border border-zinc-800/50 rounded-xl sm:rounded-2xl overflow-x-clip">
       {/* Month Navigation & Export */}
       <div className="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b border-zinc-800/50">
         <div className="flex items-center gap-1.5">
@@ -163,7 +163,7 @@ export default function MonthlyTableView({ entries, onDataChange }) {
 
       {/* Scrollable Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-150 sm:min-w-200 w-full">
+        <table className="min-w-[400px] sm:min-w-[800px] w-full">
           <thead>
             <tr>
               <th className="p-2 sm:p-3 text-center text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky left-0 bg-zinc-900 z-10">
