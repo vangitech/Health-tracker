@@ -4,6 +4,17 @@ import { body, validationResult } from 'express-validator';
 import { authenticateToken } from '../middleware/auth.js';
 import BloodSugarEntry from '../models/BloodSugarEntry.js';
 
+const entryValidators = [
+  body('date').isISO8601(),
+  body('time').notEmpty(),
+  body('glucoseValue').isFloat({ min: 0, max: 33.3 }),
+  body('mealType').isIn(['fbs', 'breakfast', 'lunch', 'dinner']),
+  body('foodEaten').optional().trim(),
+  body('carbs').optional().isInt({ min: 0 }),
+  body('insulinUnits').optional().isInt({ min: 0 }),
+  body('notes').optional().trim(),
+];
+
 const router = express.Router();
 
 // Get all entries for user
@@ -18,38 +29,24 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Create new entry
-router.post(
-  '/',
-  authenticateToken,
-  [
-    body('date').isISO8601(),
-    body('time').notEmpty(),
-    body('glucoseValue').isFloat({ min: 0, max: 33.3 }),
-    body('mealType').isIn(['fbs', 'breakfast', 'lunch', 'dinner']),
-    body('foodEaten').optional().trim(),
-    body('carbs').optional().isInt({ min: 0 }),
-    body('insulinUnits').optional().isInt({ min: 0 }),
-    body('notes').optional().trim(),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-      const entry = new BloodSugarEntry({
-        userId: req.user.id,
-        ...req.body,
-      });
-      await entry.save();
-      res.status(201).json(entry);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
+router.post('/', authenticateToken, entryValidators, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
+
+  try {
+    const entry = new BloodSugarEntry({
+      ...req.body,
+      userId: req.user.id,
+    });
+    await entry.save();
+    res.status(201).json(entry);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 const ALLOWED_UPDATE_FIELDS = [
   'glucoseValue',
@@ -63,7 +60,12 @@ const ALLOWED_UPDATE_FIELDS = [
 ];
 
 // Update entry
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, entryValidators, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
     const entry = await BloodSugarEntry.findOne({
       _id: req.params.id,

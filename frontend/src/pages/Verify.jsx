@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from '../lib/axios';
+import axios, { setAuthToken } from '../lib/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
@@ -44,9 +44,8 @@ export default function Verify() {
     setLoading(true);
     try {
       const res = await axios.post('/api/auth/verify', { email, code });
-      const { token, user } = res.data;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const { user, token } = res.data;
+      if (token) setAuthToken(token);
       setUser(user);
       sessionStorage.removeItem('verifyEmail');
       setSuccess(true);

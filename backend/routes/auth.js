@@ -51,6 +51,14 @@ const uploadAvatar = (fieldName) => (req, res, next) => {
   }
 };
 
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
+
 const router = express.Router();
 
 // Generate random 6-digit code
@@ -76,21 +84,9 @@ router.post(
       .matches(/[^a-zA-Z0-9]/)
       .withMessage('Password must include at least one special character'),
   ],
+  handleValidationErrors,
   async (req, res) => {
-    console.log('📝 Registration data received:', {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      phone: req.body.phone,
-      dob: req.body.dob,
-      password: req.body.password ? '***' : 'none',
-    });
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.error('❌ Validation errors:', errors.array());
-      return res.status(400).json({ errors: errors.array() });
-    }
+    console.log('📝 Registration attempted');
 
     const { firstName, lastName, email, phone, dob, password } = req.body;
 
@@ -145,7 +141,9 @@ router.post(
 // Verify email
 router.post(
   '/verify',
+  authLimiter,
   [body('email').isEmail().normalizeEmail(), body('code').isLength({ min: 6, max: 6 })],
+  handleValidationErrors,
   async (req, res) => {
     const { email, code } = req.body;
 
@@ -206,7 +204,6 @@ router.post(
       });
       res.status(500).json({
         message: 'Server error',
-        details: error.message,
       });
     }
   }
@@ -217,6 +214,7 @@ router.post(
   '/login',
   authLimiter,
   [body('email').isEmail().normalizeEmail(), body('password').notEmpty()],
+  handleValidationErrors,
   async (req, res) => {
     const { email, password } = req.body;
 
@@ -268,41 +266,47 @@ router.post(
 );
 
 // Resend verification code
-router.post('/resend-code', authLimiter, [body('email').isEmail().normalizeEmail()], async (req, res) => {
-  const { email } = req.body;
+router.post(
+  '/resend-code',
+  authLimiter,
+  [body('email').isEmail().normalizeEmail()],
+  handleValidationErrors,
+  async (req, res) => {
+    const { email } = req.body;
 
-  try {
-    const user = await User.findOne({ email });
+    try {
+      const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (user.isVerified) {
+        return res.status(400).json({ message: 'Email already verified' });
+      }
+
+      // Delete old verification code if exists
+      await VerificationCode.deleteOne({ email });
+
+      // Generate new code
+      const code = generateCode();
+      const verificationCode = new VerificationCode({
+        email,
+        code,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      });
+      await verificationCode.save();
+
+      // Send verification email
+      await sendVerificationEmail(email, code);
+
+      res.json({ message: 'Verification code sent to email' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
     }
-
-    if (user.isVerified) {
-      return res.status(400).json({ message: 'Email already verified' });
-    }
-
-    // Delete old verification code if exists
-    await VerificationCode.deleteOne({ email });
-
-    // Generate new code
-    const code = generateCode();
-    const verificationCode = new VerificationCode({
-      email,
-      code,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-    });
-    await verificationCode.save();
-
-    // Send verification email
-    await sendVerificationEmail(email, code);
-
-    res.json({ message: 'Verification code sent to email' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
   }
-});
+);
 
 // Get current authenticated user's profile
 router.get('/me', authenticateToken, async (req, res) => {

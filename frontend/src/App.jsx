@@ -91,6 +91,14 @@ function App() {
       .catch(() => {
         // Capacitor not available (web)
       });
+
+    import('@capacitor/splash-screen')
+      .then(({ SplashScreen }) => {
+        SplashScreen.hide();
+      })
+      .catch(() => {
+        // Capacitor not available (web)
+      });
   }, []);
 
   return (

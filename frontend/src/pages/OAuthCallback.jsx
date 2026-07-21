@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../lib/axios';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios, { setAuthToken } from '../lib/axios';
 import { Loader2 } from 'lucide-react';
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) setAuthToken(token);
+
     let cancelled = false;
-    const stored = localStorage.getItem('token');
-    if (stored) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
-    }
     (async () => {
       try {
         const res = await axios.get('/api/auth/me');

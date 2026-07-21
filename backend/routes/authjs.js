@@ -6,7 +6,20 @@ import jwt from 'jsonwebtoken';
 const router = express.Router();
 
 router.get('/exchange-token', (req, res) => {
-  const token = req.cookies?.['authjs.session-token'];
+  const useSecureCookies = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https';
+  const prefix = useSecureCookies ? '__Secure-' : '';
+  const cookieName = `${prefix}authjs.session-token`;
+
+  const cookies = req.cookies || {};
+  const entries = Object.entries(cookies)
+    .filter(([name]) => name === cookieName || name.startsWith(`${cookieName}.`))
+    .sort(([a], [b]) => {
+      const aIdx = parseInt(a.split('.').pop() || '0', 10);
+      const bIdx = parseInt(b.split('.').pop() || '0', 10);
+      return aIdx - bIdx;
+    });
+
+  const token = entries.map(([, value]) => value).join('');
   if (!token) {
     return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
   }
@@ -19,7 +32,7 @@ router.get('/exchange-token', (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
-    return res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
+    return res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${encodeURIComponent(token)}`);
   } catch {
     return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
   }

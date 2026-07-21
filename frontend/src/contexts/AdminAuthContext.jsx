@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axiosLib from 'axios';
+import { useInactivityLogout } from '../hooks/useInactivityLogout';
 
 function getApiUrl() {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
@@ -33,17 +34,12 @@ export function AdminAuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    const stored = localStorage.getItem('admin_token');
-    if (stored) {
-      adminAxios.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
-    }
     (async () => {
       try {
         const { data } = await adminAxios.get('/profile');
         if (!cancelled) setAdmin(data);
       } catch {
-        localStorage.removeItem('admin_token');
-        delete adminAxios.defaults.headers.common['Authorization'];
+        /* cookie not yet set or expired */
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -55,10 +51,6 @@ export function AdminAuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { data } = await adminAxios.post('/login', { email, password });
-    if (data.token) {
-      localStorage.setItem('admin_token', data.token);
-      adminAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    }
     setAdmin(data.user);
     return data;
   };
@@ -67,10 +59,11 @@ export function AdminAuthProvider({ children }) {
     try {
       await adminAxios.post('/logout');
     } catch {}
-    localStorage.removeItem('admin_token');
-    delete adminAxios.defaults.headers.common['Authorization'];
     setAdmin(null);
   };
+
+  const signedIn = !!admin && !loading;
+  useInactivityLogout(logout, 30 * 60 * 1000, signedIn);
 
   return (
     <AdminAuthContext.Provider value={{ admin, loading, login, logout, setAdmin }}>

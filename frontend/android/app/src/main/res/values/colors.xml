@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1F1F7F</color>
-    <color name="colorPrimaryDark">#1A1A66</color>
-    <color name="colorAccent">#4A2599</color>
-    <color name="splash_bg">#1F1F7F</color>
-    <color name="status_bar">#1A1A2E</color>
-    <color name="nav_bar">#1A1A2E</color>
-    <color name="ic_launcher_background">#1F1F7F</color>
+    <color name="colorPrimary">#09090b</color>
+    <color name="colorPrimaryDark">#09090b</color>
+    <color name="colorAccent">#FFFFFF</color>
+    <color name="splash_bg">#09090b</color>
+    <color name="status_bar">#09090b</color>
+    <color name="nav_bar">#09090b</color>
+    <color name="ic_launcher_background">#09090b</color>
 </resources>

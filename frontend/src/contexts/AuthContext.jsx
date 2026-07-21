@@ -1,9 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from '../lib/axios';
+import axios, { setAuthToken, clearAuthToken } from '../lib/axios';
+import { useInactivityLogout } from '../hooks/useInactivityLogout';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
+
+function getInactivityTimeout() {
+  const env = import.meta.env.VITE_INACTIVITY_TIMEOUT;
+  if (env) {
+    const n = parseInt(env, 10);
+    if (!Number.isNaN(n) && n > 0) return n * 1000;
+  }
+  return 30 * 60 * 1000;
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -12,17 +22,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    const stored = localStorage.getItem('token');
-    if (stored) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
-    }
     (async () => {
       try {
         const res = await axios.get('/api/auth/me');
         if (!cancelled) setUser(res.data.user || res.data);
       } catch {
-        if (stored) localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
+        /* cookie not yet set or expired */
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -34,35 +39,32 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('/api/auth/login', { email, password });
-    const { token, user } = response.data;
-    if (token) {
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
+    const { user, token } = response.data;
+    if (token) setAuthToken(token);
     setUser(user);
     return response.data;
   };
 
-  const handleOAuthToken = async (oauthToken) => {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${oauthToken}`;
-    localStorage.setItem('token', oauthToken);
+  const handleOAuthToken = async () => {
     try {
-      const res = await axios.get('/api/auth/me');
-      setUser(res.data.user || res.data);
+      await axios.get('/api/auth/me');
     } catch {
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
+      /* cookie flow handles auth */
     }
   };
 
   const logout = async () => {
     try {
       await axios.post('/api/auth/logout');
-    } catch {}
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
+    } catch {
+      /* best-effort logout */
+    }
+    clearAuthToken();
     setUser(null);
   };
+
+  const signedIn = !!user && !loading;
+  useInactivityLogout(logout, getInactivityTimeout(), signedIn);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, handleOAuthToken, logout, setUser }}>
