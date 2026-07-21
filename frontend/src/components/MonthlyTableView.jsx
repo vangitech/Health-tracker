@@ -342,16 +342,16 @@ export default function MonthlyTableView({ entries, onDataChange }) {
               className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-5">
-                  <h2 className="text-lg font-semibold text-zinc-100">
+              <div className="p-5 sm:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-base sm:text-lg font-semibold text-zinc-100">
                     {selectedEntry ? 'Edit' : 'Add'} {formMealType === 'fbs' ? 'Fasting' : formMealType} Reading
                   </h2>
                   <button
                     onClick={() => setShowForm(false)}
-                    className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors"
+                    className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
                   >
-                    <X className="w-5 h-5 text-zinc-500" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
                 <EntryForm
