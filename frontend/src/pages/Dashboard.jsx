@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
 import Footer from '../components/Footer';
 import { LogOut, Activity, User, Camera, Loader2, Calendar, Bell, BellOff, Coffee } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 export default function Dashboard() {
   const { user, logout, setUser } = useAuth();
@@ -23,8 +25,7 @@ export default function Dashboard() {
   const [alarmRinging, setAlarmRinging] = useState(false);
   const [alarmDismissed, setAlarmDismissed] = useState(false);
   const [showAlarmMenu, setShowAlarmMenu] = useState(false);
-  const alarmAudioRef = useRef(null);
-  const alarmIntervalRef = useRef(null);
+  const isNative = Capacitor.isNativePlatform();
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -85,33 +86,39 @@ export default function Dashboard() {
     }
   };
 
-  const playAlarmSound = useCallback(() => {
+  const scheduleAlarm = async () => {
+    if (!isNative) return;
     try {
-      if (alarmAudioRef.current) {
-        alarmAudioRef.current.currentTime = 0;
-        alarmAudioRef.current.play().catch(() => {});
-        return;
+      const { permission } = await LocalNotifications.requestPermissions();
+      if (permission !== 'granted') return;
+      await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
+      const now = new Date();
+      const scheduled = new Date(now);
+      scheduled.setHours(7, 0, 0, 0);
+      if (scheduled <= now) {
+        scheduled.setDate(scheduled.getDate() + 1);
       }
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const play = () => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
-        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
-        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.45);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.6);
-      };
-      play();
-      alarmAudioRef.current = { currentTime: 0, play: () => play() };
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: 'FBS Reminder',
+            body: 'Time to check your fasting blood sugar!',
+            id: 1,
+            schedule: { at: scheduled, every: 'day', count: 1 },
+            sound: 'default',
+            ...(Capacitor.getPlatform() === 'android' ? { channelId: 'fbs-alarm' } : {}),
+          },
+        ],
+      });
     } catch {}
-  }, []);
+  };
+
+  const cancelAlarm = async () => {
+    if (!isNative) return;
+    try {
+      await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
+    } catch {}
+  };
 
   const toggleAlarm = () => {
     const next = !alarmEnabled;
@@ -120,6 +127,9 @@ export default function Dashboard() {
     if (!next) {
       setAlarmRinging(false);
       setAlarmDismissed(false);
+      cancelAlarm();
+    } else {
+      scheduleAlarm();
     }
   };
 
@@ -133,6 +143,7 @@ export default function Dashboard() {
       setAlarmRinging(false);
       return;
     }
+    scheduleAlarm();
     const check = () => {
       const now = new Date();
       const h = now.getHours();
@@ -149,14 +160,6 @@ export default function Dashboard() {
     const interval = setInterval(check, 60000);
     return () => clearInterval(interval);
   }, [alarmEnabled, alarmDismissed]);
-
-  useEffect(() => {
-    if (alarmRinging) {
-      playAlarmSound();
-      const t = setInterval(playAlarmSound, 8000);
-      return () => clearInterval(t);
-    }
-  }, [alarmRinging, playAlarmSound]);
 
   const handleDataChange = (savedEntry) => {
     setDataError('');

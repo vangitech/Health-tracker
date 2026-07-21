@@ -99,6 +99,21 @@ function App() {
       .catch(() => {
         // Capacitor not available (web)
       });
+
+    import('@capacitor/local-notifications')
+      .then(({ LocalNotifications, Channel }) => {
+        LocalNotifications.createChannel({
+          id: 'fbs-alarm',
+          name: 'FBS Reminder',
+          description: 'Reminds you to check your fasting blood sugar',
+          importance: 4,
+          visibility: 1,
+          sound: 'default',
+          vibration: true,
+          lights: true,
+        }).catch(() => {});
+      })
+      .catch(() => {});
   }, []);
 
   return (

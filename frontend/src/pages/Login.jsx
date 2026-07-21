@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles, Fingerprint, ShieldCheck, ShieldOff } from 'lucide-react';
 import Footer from '../components/Footer';
 import { getApiUrl } from '../lib/axios';
+import { Capacitor } from '@capacitor/core';
+import { useBiometrics } from '../hooks/useBiometrics';
 
 const API = getApiUrl();
 
@@ -77,9 +79,22 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
+  const [bioLoggingIn, setBioLoggingIn] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const {
+    biometricAvailable,
+    biometricsEnabled,
+    loading: bioLoading,
+    authenticate,
+    saveCredentials,
+    getCredentials,
+    deleteCredentials,
+  } = useBiometrics();
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
@@ -102,6 +117,11 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
+      if (isNative && biometricAvailable && !biometricsEnabled) {
+        setShowBiometricPrompt(true);
+        setLoading(false);
+        return;
+      }
       navigate('/');
     } catch (err) {
       if (!err.response) {
@@ -112,6 +132,39 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBiometricLogin = async () => {
+    setError('');
+    setBioLoggingIn(true);
+    try {
+      const authResult = await authenticate();
+      if (!authResult) {
+        setBioLoggingIn(false);
+        return;
+      }
+      const credentials = await getCredentials();
+      if (!credentials) {
+        setError('No stored credentials found. Please log in with your password.');
+        setBioLoggingIn(false);
+        return;
+      }
+      await login(credentials.email, credentials.password);
+      navigate('/');
+    } catch (err) {
+      setError('Biometric login failed. Please use your password.');
+    } finally {
+      setBioLoggingIn(false);
+    }
+  };
+
+  const handleEnableBiometrics = async () => {
+    const success = await saveCredentials(email, password);
+    if (success) setShowBiometricPrompt(false);
+  };
+
+  const handleSkipBiometrics = () => {
+    setShowBiometricPrompt(false);
   };
 
   const handleSocialSignIn = (provider) => {
@@ -193,66 +246,93 @@ export default function Login() {
           </AnimatePresence>
 
           <motion.div variants={itemVariants} className="space-y-2.5 mb-6">
-            {socialProviders.map((provider) => (
-              <button
-                key={provider.name}
-                onClick={() => handleSocialSignIn(provider.provider)}
-                disabled={loading}
-                className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <provider.icon />
-                Continue with {provider.name}
-              </button>
-            ))}
+            {!bioLoading && isNative && biometricsEnabled && !showPasswordForm && (
+              <motion.div variants={itemVariants} className="mb-6">
+                <button
+                  onClick={handleBiometricLogin}
+                  disabled={bioLoggingIn}
+                  className="flex items-center justify-center gap-3 w-full h-14 rounded-xl bg-emerald-600 text-white text-sm font-semibold transition-all duration-200 active:scale-[0.98] hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
+                >
+                  {bioLoggingIn ? <Loader2 className="size-5 animate-spin" /> : <Fingerprint className="size-5" />}
+                  {bioLoggingIn ? 'Authenticating...' : 'Login with Biometrics'}
+                </button>
+                <button
+                  onClick={() => setShowPasswordForm(true)}
+                  className="w-full mt-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors text-center"
+                >
+                  Use password instead
+                </button>
+              </motion.div>
+            )}
+
+            {(!biometricsEnabled || showPasswordForm || !isNative) && (
+              <motion.div variants={itemVariants} className="space-y-2.5 mb-6">
+                {socialProviders.map((provider) => (
+                  <button
+                    key={provider.name}
+                    onClick={() => handleSocialSignIn(provider.provider)}
+                    disabled={loading}
+                    className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-zinc-700/50 bg-zinc-800/50 text-zinc-300 text-sm font-medium transition-all duration-200 active:scale-[0.98] hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <provider.icon />
+                    Continue with {provider.name}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+
+            {(!biometricsEnabled || showPasswordForm || !isNative) && (
+              <>
+                <motion.div variants={itemVariants} className="relative flex items-center gap-3 mb-6">
+                  <div className="flex-1 h-px bg-zinc-800" />
+                  <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">or</span>
+                  <div className="flex-1 h-px bg-zinc-800" />
+                </motion.div>
+
+                <motion.form variants={itemVariants} onSubmit={handleSubmit} className="space-y-3.5">
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Email address"
+                      className="w-full h-12 pl-10 pr-4 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Password"
+                      className="w-full h-12 pl-10 pr-11 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="relative w-full h-12 bg-white text-black font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90"
+                  >
+                    {loading ? <Loader2 className="size-5 animate-spin mx-auto" /> : 'Sign In'}
+                  </button>
+                </motion.form>
+              </>
+            )}
           </motion.div>
-
-          <motion.div variants={itemVariants} className="relative flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-zinc-800" />
-            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">or</span>
-            <div className="flex-1 h-px bg-zinc-800" />
-          </motion.div>
-
-          <motion.form variants={itemVariants} onSubmit={handleSubmit} className="space-y-3.5">
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="Email address"
-                className="w-full h-12 pl-10 pr-4 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Password"
-                className="w-full h-12 pl-10 pr-11 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="relative w-full h-12 bg-white text-black font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90"
-            >
-              {loading ? <Loader2 className="size-5 animate-spin mx-auto" /> : 'Sign In'}
-            </button>
-          </motion.form>
 
           <motion.div variants={itemVariants} className="mt-6 text-center">
             <p className="text-sm text-zinc-500">
@@ -262,6 +342,48 @@ export default function Login() {
               </Link>
             </p>
           </motion.div>
+
+          <AnimatePresence>
+            {showBiometricPrompt && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={handleSkipBiometrics}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-center size-14 rounded-2xl bg-emerald-900/30 mx-auto mb-4">
+                    <ShieldCheck className="size-7 text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-zinc-100 text-center mb-2">Enable Biometric Login?</h3>
+                  <p className="text-sm text-zinc-400 text-center mb-6">
+                    Use your fingerprint or face to log in faster next time.
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleEnableBiometrics}
+                      className="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-colors"
+                    >
+                      Enable
+                    </button>
+                    <button
+                      onClick={handleSkipBiometrics}
+                      className="flex-1 bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors"
+                    >
+                      Skip
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
       <Footer />
