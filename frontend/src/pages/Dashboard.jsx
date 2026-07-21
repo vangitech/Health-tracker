@@ -421,13 +421,13 @@ export default function Dashboard() {
       </header>
 
       {alarmRinging && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-sm mx-4 p-8 text-center shadow-2xl">
-            <div className="flex items-center justify-center size-20 rounded-full bg-amber-500/20 mx-auto mb-5 animate-pulse">
-              <AlarmClock className="size-10 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-sm mx-auto p-6 sm:p-8 text-center shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-center size-16 sm:size-20 rounded-full bg-amber-500/20 mx-auto mb-4 sm:mb-5 animate-pulse">
+              <AlarmClock className="size-8 sm:size-10 text-amber-400" />
             </div>
-            <h2 className="text-xl font-bold text-zinc-100 mb-2">Time to Check!</h2>
-            <p className="text-sm text-zinc-400 mb-6">Your fasting blood sugar reminder</p>
+            <h2 className="text-lg sm:text-xl font-bold text-zinc-100 mb-2">Time to Check!</h2>
+            <p className="text-sm text-zinc-400 mb-5 sm:mb-6">Your fasting blood sugar reminder</p>
             <button
               onClick={dismissAlarm}
               className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-xl transition-colors text-sm"
