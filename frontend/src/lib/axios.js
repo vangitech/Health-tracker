@@ -18,16 +18,22 @@ export function getAuthToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-function getApiUrl() {
+export function getApiUrl() {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  if (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)) {
-    return 'http://10.0.2.2:5001';
+  const isCapacitorNative =
+    typeof window !== 'undefined' && typeof window.Capacitor !== 'undefined' && window.Capacitor.isNativePlatform();
+  if (isCapacitorNative) {
+    const platform = window.Capacitor.getPlatform();
+    if (platform === 'android') return 'http://10.0.2.2:5001';
+    return 'http://localhost:5001';
   }
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  if (/android/i.test(ua)) return 'http://10.0.2.2:5001';
+  if (/iphone|ipad|ipod/i.test(ua)) return 'http://localhost:5001';
   return 'http://localhost:5001';
 }
 
-const API_URL = getApiUrl();
-axiosLib.defaults.baseURL = API_URL;
+axiosLib.defaults.baseURL = getApiUrl();
 axiosLib.defaults.withCredentials = true;
 
 axiosLib.interceptors.request.use((config) => {

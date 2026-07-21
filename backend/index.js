@@ -20,6 +20,13 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// Auto-detect Render production URL if BACKEND_URL not explicitly set
+// This MUST run before any module that references BACKEND_URL at import time
+if (!process.env.BACKEND_URL && process.env.RENDER_EXTERNAL_URL) {
+  process.env.BACKEND_URL = process.env.RENDER_EXTERNAL_URL;
+  console.log(`  🌐 Auto-detected BACKEND_URL: ${process.env.BACKEND_URL}`);
+}
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -43,8 +50,9 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 // CORS Configuration - Allow multiple frontend URLs
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://health-tracker-one-jade.vercel.app';
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://health-tracker-one-jade.vercel.app',
+  FRONTEND_URL,
   'https://health-tracker-one-jade.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
@@ -186,13 +194,13 @@ app.listen(PORT, () => {
   console.log(`\n📌 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5174'}\n`);
 
   // Cron job: ping Render every 10 minutes to prevent spin-down
-  const RENDER_URL = process.env.RENDER_URL || 'https://health-tracker-14dn.onrender.com';
+  const RENDER_URL = process.env.RENDER_EXTERNAL_URL || process.env.RENDER_URL || `http://localhost:${PORT}`;
   async function keepAlive() {
     try {
-      const res = await fetch(RENDER_URL);
-      console.log(`[Keep-Alive] Pinged ${RENDER_URL} — ${res.status}`);
+      const res = await fetch(`${RENDER_URL}/health`);
+      console.log(`[Keep-Alive] Pinged ${RENDER_URL}/health — ${res.status}`);
     } catch (err) {
-      console.error(`[Keep-Alive] Failed to ping ${RENDER_URL}:`, err.message);
+      console.error(`[Keep-Alive] Failed to ping ${RENDER_URL}/health:`, err.message);
     }
     setTimeout(keepAlive, 10 * 60 * 1000);
   }

@@ -1,14 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axiosLib from 'axios';
 import { useInactivityLogout } from '../hooks/useInactivityLogout';
-
-function getApiUrl() {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-  if (/android/i.test(ua)) return 'http://10.0.2.2:5001';
-  if (/iphone|ipad|ipod/i.test(ua)) return 'http://localhost:5001';
-  return 'http://localhost:5001';
-}
+import { getApiUrl } from '../lib/axios';
 
 const adminAxios = axiosLib.create({
   baseURL: `${getApiUrl()}/api/admin`,

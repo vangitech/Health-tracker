@@ -4,8 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import Footer from '../components/Footer';
+import { getApiUrl } from '../lib/axios';
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = getApiUrl();
 
 const containerVariants = {
   hidden: { opacity: 0 },

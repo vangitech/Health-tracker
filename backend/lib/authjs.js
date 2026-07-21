@@ -5,6 +5,12 @@ import MicrosoftEntraID from '@auth/core/providers/microsoft-entra-id';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+// Auto-detect Render production URL for OAuth callbacks
+if (!process.env.BACKEND_URL && process.env.RENDER_EXTERNAL_URL) {
+  process.env.BACKEND_URL = process.env.RENDER_EXTERNAL_URL;
+  console.log(`  🌐 [authjs] Auto-detected BACKEND_URL: ${process.env.BACKEND_URL}`);
+}
+
 function findOrCreateUser(profile, provider, account) {
   const providerId = account?.providerAccountId || profile?.sub;
   const email = profile?.email;
