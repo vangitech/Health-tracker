@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Verify from './pages/Verify';
 import OAuthCallback from './pages/OAuthCallback';
 import Dashboard from './pages/Dashboard';
+import Settings from './pages/Settings';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
@@ -16,7 +17,7 @@ import PatientDetail from './pages/admin/PatientDetail';
 import SugarRange from './pages/admin/SugarRange';
 import Appointments from './pages/admin/Appointments';
 import Chat from './pages/admin/Chat';
-import Settings from './pages/admin/Settings';
+import AdminSettings from './pages/admin/Settings';
 import AdminManagement from './pages/admin/AdminManagement';
 
 const ProtectedRoute = ({ children }) => {
@@ -52,6 +53,14 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Admin routes */}
       <Route path="/iaccess" element={<AdminLogin />} />
@@ -67,7 +76,7 @@ function AppContent() {
                 <Route path="sugar-range" element={<SugarRange />} />
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="chat" element={<Chat />} />
-                <Route path="settings" element={<Settings />} />
+                <Route path="settings" element={<AdminSettings />} />
                 <Route path="admins" element={<AdminManagement />} />
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
               </Routes>

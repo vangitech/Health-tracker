@@ -89,10 +89,8 @@ export default function Login() {
     biometricAvailable,
     biometricsEnabled,
     loading: bioLoading,
-    authenticate,
     saveCredentials,
     getCredentials,
-    deleteCredentials,
   } = useBiometrics();
   const isNative = Capacitor.isNativePlatform();
 
@@ -138,11 +136,6 @@ export default function Login() {
     setError('');
     setBioLoggingIn(true);
     try {
-      const authResult = await authenticate();
-      if (!authResult) {
-        setBioLoggingIn(false);
-        return;
-      }
       const credentials = await getCredentials();
       if (!credentials) {
         setError('No stored credentials found. Please log in with your password.');
@@ -151,7 +144,7 @@ export default function Login() {
       }
       await login(credentials.email, credentials.password);
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Biometric login failed. Please use your password.');
     } finally {
       setBioLoggingIn(false);
@@ -159,12 +152,14 @@ export default function Login() {
   };
 
   const handleEnableBiometrics = async () => {
-    const success = await saveCredentials(email, password);
-    if (success) setShowBiometricPrompt(false);
+    await saveCredentials(email, password);
+    setShowBiometricPrompt(false);
+    navigate('/');
   };
 
   const handleSkipBiometrics = () => {
     setShowBiometricPrompt(false);
+    navigate('/');
   };
 
   const handleSocialSignIn = (provider) => {

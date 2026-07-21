@@ -4,7 +4,20 @@ import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
 import Footer from '../components/Footer';
-import { LogOut, Activity, User, Camera, Loader2, Calendar, Bell, BellOff, Coffee } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  LogOut,
+  Activity,
+  User,
+  Camera,
+  Loader2,
+  Calendar,
+  Bell,
+  BellOff,
+  Coffee,
+  Settings as SettingsIcon,
+  AlarmClock,
+} from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
@@ -299,6 +312,13 @@ export default function Dashboard() {
                 )}
               </div>
 
+              <Link
+                to="/settings"
+                className="size-8 sm:size-9 rounded-xl bg-zinc-800/30 flex items-center justify-center hover:bg-zinc-700/60 transition-colors text-zinc-500 hover:text-zinc-100"
+              >
+                <SettingsIcon className="size-4 sm:size-4" />
+              </Link>
+
               <div className="hidden sm:flex items-center gap-2.5 pr-3 border-r border-zinc-800">
                 <div className="flex flex-col items-end">
                   <span className="text-sm font-medium text-zinc-100">
@@ -349,6 +369,24 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {alarmRinging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-sm mx-4 p-8 text-center shadow-2xl">
+            <div className="flex items-center justify-center size-20 rounded-full bg-amber-500/20 mx-auto mb-5 animate-pulse">
+              <AlarmClock className="size-10 text-amber-400" />
+            </div>
+            <h2 className="text-xl font-bold text-zinc-100 mb-2">Time to Check!</h2>
+            <p className="text-sm text-zinc-400 mb-6">Your fasting blood sugar reminder</p>
+            <button
+              onClick={dismissAlarm}
+              className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-xl transition-colors text-sm"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 min-h-0 overflow-y-auto max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-[env(safe-area-inset-bottom)]">
         {activeTab === 'entries' && (
