@@ -3,8 +3,8 @@
     <color name="colorPrimary">#09090b</color>
     <color name="colorPrimaryDark">#09090b</color>
     <color name="colorAccent">#FFFFFF</color>
-    <color name="splash_bg">#09090b</color>
+    <color name="splash_bg">#0149AF</color>
     <color name="status_bar">#09090b</color>
     <color name="nav_bar">#09090b</color>
-    <color name="ic_launcher_background">#09090b</color>
+    <color name="ic_launcher_background">#0149AF</color>
 </resources>

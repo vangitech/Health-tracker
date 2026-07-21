@@ -4,7 +4,7 @@ import axios from '../lib/axios';
 import MonthlyTableView from '../components/MonthlyTableView';
 import StatsCard from '../components/StatsCard';
 import Footer from '../components/Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   LogOut,
   Activity,
@@ -20,9 +20,16 @@ import {
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 
 export default function Dashboard() {
   const { user, logout, setUser } = useAuth();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [trends, setTrends] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,10 +46,6 @@ export default function Dashboard() {
   const [alarmDismissed, setAlarmDismissed] = useState(false);
   const [showAlarmMenu, setShowAlarmMenu] = useState(false);
   const isNative = Capacitor.isNativePlatform();
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -161,7 +164,7 @@ export default function Dashboard() {
       const now = new Date();
       const h = now.getHours();
       const m = now.getMinutes();
-      const inWindow = h === 7 || h === 8 || (h === 9 && m === 0);
+      const inWindow = (h >= 7 && h < 9) || (h === 9 && m === 0);
       if (inWindow && !alarmDismissed) {
         setAlarmRinging(true);
       } else if (!inWindow) {
@@ -172,6 +175,40 @@ export default function Dashboard() {
     check();
     const interval = setInterval(check, 60000);
     return () => clearInterval(interval);
+  }, [alarmEnabled, alarmDismissed]);
+
+  useEffect(() => {
+    if (!isNative || !alarmEnabled) return;
+    let unregister;
+    LocalNotifications.addListener('localNotificationReceived', (notification) => {
+      if (notification.id === 1) {
+        const now = new Date();
+        const h = now.getHours();
+        if (h >= 7 && h < 9) {
+          setAlarmRinging(true);
+        }
+      }
+    }).then((handle) => {
+      unregister = handle;
+    });
+    return () => {
+      if (unregister) unregister.remove();
+    };
+  }, [alarmEnabled, isNative]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && alarmEnabled) {
+        const now = new Date();
+        const h = now.getHours();
+        const inWindow = (h >= 7 && h < 9) || (h === 9 && now.getMinutes() === 0);
+        if (inWindow && !alarmDismissed) {
+          setAlarmRinging(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [alarmEnabled, alarmDismissed]);
 
   const handleDataChange = (savedEntry) => {
@@ -327,29 +364,6 @@ export default function Dashboard() {
                   <span className="text-[11px] text-zinc-500">Member</span>
                 </div>
               </div>
-              <button
-                onClick={handleAvatarClick}
-                disabled={uploading}
-                className="relative size-8 sm:size-9 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden group hover:ring-2 hover:ring-zinc-600 transition-all shrink-0"
-              >
-                {uploading ? (
-                  <Loader2 className="size-4 text-zinc-400 animate-spin" />
-                ) : user?.avatar ? (
-                  <>
-                    <img src={user.avatar} alt="" className="size-full object-cover rounded-full" />
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Camera className="size-4 text-white" />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <User className="w-4 h-4 text-zinc-400 group-hover:scale-110 transition-transform" />
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                      <Camera className="size-4 text-white" />
-                    </div>
-                  </>
-                )}
-              </button>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -357,6 +371,42 @@ export default function Dashboard() {
                 className="hidden"
                 onChange={handleAvatarUpload}
               />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={uploading}
+                    className="relative size-8 sm:size-9 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden group hover:ring-2 hover:ring-zinc-600 transition-all shrink-0"
+                  >
+                    {uploading ? (
+                      <Loader2 className="size-4 text-zinc-400 animate-spin" />
+                    ) : user?.avatar ? (
+                      <>
+                        <img src={user.avatar} alt="" className="size-full object-cover rounded-full" />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                          <Camera className="size-4 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <User className="w-4 h-4 text-zinc-400" />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                          <Camera className="size-4 text-white" />
+                        </div>
+                      </>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={8}>
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>
+                    <SettingsIcon className="size-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                    <Camera className="size-4" />
+                    <span>Change Photo</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <button
                 onClick={logout}

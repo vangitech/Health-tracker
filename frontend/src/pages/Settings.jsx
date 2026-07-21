@@ -5,7 +5,7 @@ import axios from '../lib/axios';
 import Footer from '../components/Footer';
 import { useBiometrics } from '../hooks/useBiometrics';
 import { Capacitor } from '@capacitor/core';
-import { ArrowLeft, User, Camera, Loader2, Fingerprint, ShieldCheck, ShieldOff, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Camera, Loader2, Fingerprint, ShieldCheck, ShieldOff, LogOut, Lock } from 'lucide-react';
 
 export default function Settings() {
   const { user, logout, setUser } = useAuth();
@@ -14,6 +14,9 @@ export default function Settings() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [bioPassword, setBioPassword] = useState('');
+  const [bioError, setBioError] = useState('');
   const isNative = Capacitor.isNativePlatform();
 
   const {
@@ -43,13 +46,36 @@ export default function Settings() {
   };
 
   const handleBiometricToggle = async () => {
-    setSaving(true);
     if (biometricsEnabled) {
+      setSaving(true);
       await deleteCredentials();
+      setSaving(false);
     } else {
-      await saveCredentials(user?.email || '', '');
+      setShowPasswordDialog(true);
+      setBioPassword('');
+      setBioError('');
     }
-    setSaving(false);
+  };
+
+  const handleConfirmBiometricPassword = async () => {
+    if (!bioPassword) {
+      setBioError('Please enter your password');
+      return;
+    }
+    setSaving(true);
+    setBioError('');
+    try {
+      await axios.post('/api/auth/login', { email: user?.email, password: bioPassword });
+      const saved = await saveCredentials(user?.email || '', bioPassword);
+      if (!saved) {
+        setBioError('Failed to enable biometrics. Please try again.');
+      }
+      setShowPasswordDialog(false);
+    } catch (err) {
+      setBioError('Incorrect password');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -181,6 +207,60 @@ export default function Settings() {
           Sign Out
         </button>
       </main>
+
+      {/* Biometric Password Confirmation Dialog */}
+      {showPasswordDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => !saving && setShowPasswordDialog(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-center size-12 rounded-2xl bg-emerald-900/30 mx-auto mb-4">
+              <Lock className="size-6 text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-zinc-100 text-center mb-2">Enable Biometrics</h3>
+            <p className="text-sm text-zinc-400 text-center mb-5">Confirm your password to enable biometric login.</p>
+            {bioError && (
+              <div className="bg-red-900/20 border border-red-800/30 text-red-400 p-2.5 rounded-lg text-xs mb-3">
+                {bioError}
+              </div>
+            )}
+            <div className="relative mb-4">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500 pointer-events-none" />
+              <input
+                type="password"
+                value={bioPassword}
+                onChange={(e) => setBioPassword(e.target.value)}
+                placeholder="Enter your password"
+                autoFocus
+                className="w-full h-12 pl-10 pr-4 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 transition-colors"
+                onKeyDown={(e) => e.key === 'Enter' && !saving && handleConfirmBiometricPassword()}
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPasswordDialog(false)}
+                disabled={saving}
+                className="flex-1 bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmBiometricPassword}
+                disabled={saving}
+                className="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+                {saving ? 'Verifying...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
